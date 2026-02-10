@@ -1,123 +1,322 @@
-# Kirana Store Inventory Management System (IMS)
+# MartNexus
 
-A modern, full‑featured **Inventory Management System** designed specifically for **Kirana / Grocery Stores**, built with **React, TypeScript, and Supabase**. This application provides end‑to‑end tools for managing products, inventory, sales, suppliers, customers, and store operations efficiently.
-
----
-
-## 🚀 Features
-
-### Core Functionality
-
-* **Dashboard** – Real‑time overview of sales, stock status, and key business metrics
-* **Product Management** – Complete CRUD operations with SKU, barcode, category, batch, and expiry support
-* **Inventory Tracking** – Real‑time stock monitoring, stock adjustments, and low‑stock alerts
-* **Point of Sale (POS)** – Fast and intuitive billing interface with barcode scanning
-* **Sales Management** – Track daily sales, transactions, and payment methods
-* **Categories** – Organize products using structured categories
-
-### Advanced Features
-
-* **Supplier Management** – Manage suppliers, purchase orders, and supplier pricing
-* **Customer Management** – Maintain customer profiles, purchase history, and custom pricing
-* **User Management** – Role‑based access control (Admin, Manager, Staff, Viewer)
-* **Audit Logs** – Full activity tracking for accountability and compliance
-* **Reports & Analytics** – Sales, inventory, and financial reports
-* **Stocktakes** – Physical inventory counting and reconciliation
-* **User Profiles** – Personalized preferences and settings
-
-### Technical Features
-
-* **Authentication** – Secure authentication using Supabase Auth
-* **Row Level Security (RLS)** – Database‑level security enforcement
-* **Real‑time Updates** – Live synchronization across users
-* **Responsive Design** – Optimized for desktop, tablet, and mobile
-* **Dark Mode** – Theme customization
-* **Barcode Support** – Integrated barcode and QR code scanning
+**GST-Enabled Inventory & Billing Management System for Small Retail Stores**
 
 ---
 
-## 🛠️ Technology Stack
+## 📋 Table of Contents
 
-### Frontend
-
-* **React 18** – Modern component‑based UI
-* **TypeScript** – Strong type safety
-* **Vite** – Fast development and build tooling
-* **React Router** – Client‑side routing
-* **Redux Toolkit** – Global state management
-* **TanStack Query** – Server‑state synchronization
-* **Tailwind CSS** – Utility‑first styling
-* **shadcn/ui** – Pre‑built, accessible UI components
-* **Radix UI** – Headless, accessible primitives
-
-### Backend
-
-* **Supabase (BaaS)**
-
-  * PostgreSQL database
-  * Authentication
-  * Row Level Security (RLS)
-  * Real‑time subscriptions
-  * File storage
-
-### Key Libraries
-
-* **React Hook Form** – Form handling and validation
-* **Zod** – Schema‑based validation
-* **Recharts** – Data visualization
-* **Lucide React** – Icon library
-* **date‑fns** – Date utilities
-* **html5‑qrcode** – Barcode / QR scanning
-* **jspdf‑autotable** – PDF report generation
+- [Problem Statement](#-problem-statement)
+- [Target Users](#-target-users)
+- [Core Objectives](#-core-objectives)
+- [Technology Stack](#️-technology-stack)
+- [User Interface & Experience](#-user-interface--experience)
+- [User Roles](#-user-roles)
+- [Inventory Management Module](#-inventory-management-module)
+- [Billing & Invoicing Module](#-billing--invoicing-module)
+- [Reports & Analytics](#-reports--analytics)
+- [Data Backup & Export](#-data-backup--export)
+- [Multi-Shop Management](#-multi-shop-management)
+- [Notifications](#-notifications)
+- [Security Requirements](#-security-requirements)
+- [Architecture Overview](#️-architecture-overview)
+- [Development Scope](#-development-scope)
+- [Installation & Setup](#-installation--setup)
+- [Running the Application](#-running-the-application)
 
 ---
 
-## 📋 Prerequisites
+## 🎯 Problem Statement
 
-* **Node.js** – v18 or higher
-* **npm** or **bun** – Package manager
-* **Supabase Account** – Backend services
+Small-scale **kirana and general-purpose stores** in small towns rely on manual notebooks and registers for inventory tracking. This leads to:
+
+- ❌ Inaccurate stock counts
+- ❌ Missed updates
+- ❌ High mental stress for shop owners
+- ❌ Difficulty managing per-item quantities
+- ❌ No real-time visibility of remaining stock
+- ❌ Poor billing and reporting practices
+
+**MartNexus** aims to digitize inventory, billing, and reporting in a way that is **simple, reliable, stress-free, and scalable** for small business owners.
 
 ---
 
-## 🔧 Installation
+## 👥 Target Users
+
+**Primary User:** Shop Owner (non-technical)
+
+**Business Type:**
+- Kirana / general stores
+- Small town / street retail shops
+
+---
+
+## 🎯 Core Objectives
+
+✅ Simplify inventory management  
+✅ Track per-item stock accurately  
+✅ Reduce dependency on manual registers  
+✅ Provide GST-compliant billing  
+✅ Generate meaningful business reports  
+✅ Enable multi-shop ownership  
+✅ Prepare foundation for future scaling  
+
+---
+
+## 🛠️ Technology Stack (Fixed)
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React.js |
+| **Backend** | Node.js + Express.js |
+| **Database** | MongoDB |
+| **Authentication** | Email + Password, OTP verification (email-based) |
+| **Deployment** | Localhost (Phase-1) |
+
+---
+
+## 🎨 User Interface & Experience
+
+✨ **Clean, modern, and advanced UI**  
+✨ **Large, readable buttons**  
+✨ **Extremely easy to use** for non-technical users  
+✨ **Fully responsive:**
+   - Desktop
+   - Tablet
+   - Mobile
+
+✨ **Unique branding** (not a generic admin panel)
+
+---
+
+## 👤 User Roles
+
+### Phase-1
+- **Owner only**
+
+### Future Scope
+- Cashier role
+
+---
+
+## 📦 Inventory Management Module
+
+### Product Fields
+
+| Field | Description |
+|-------|-------------|
+| **Product name** | Name of the product |
+| **Quantity type** | Pieces / Kilograms |
+| **Cost price** | Purchase price |
+| **Selling price** | Retail price |
+
+### Inventory Features
+
+✅ Manual stock increase/decrease by owner  
+✅ Automatic stock update during billing  
+✅ Per-item stock tracking  
+✅ Low stock threshold per product  
+✅ **Email alerts** when stock reaches end-point  
+
+---
+
+## 🧾 Billing & Invoicing Module (GST Ready)
+
+### Billing
+
+✅ **GST-based billing:**
+   - CGST / SGST / IGST
+   - Automatic tax calculation
+
+✅ Unique bill number generation  
+✅ Stock auto-deduction during billing  
+
+### Invoice
+
+✅ Printable invoice  
+✅ Auto-saved bills  
+✅ Downloadable PDF format  
+
+### Customer Data
+
+**Store:**
+- Bill number
+- Customer name (existing or new)
+- No mandatory phone/email required
+
+### Payment Modes
+
+- 💵 Cash
+- 📱 UPI
+- 🏦 Net Banking
+
+---
+
+## 📊 Reports & Analytics
+
+### Sales Reports
+
+- Daily
+- Monthly
+- Custom date range
+
+### Inventory Reports
+
+- Current stock summary
+- Low stock items
+
+### Time-based Views
+
+- Today
+- Last 7 days
+- Last 15 days
+- Monthly
+- Custom range
+
+### Report Details
+
+| Metric | Description |
+|--------|-------------|
+| **Product-wise sales** | Sales breakdown by product |
+| **Quantity sold** | Total units sold |
+| **Remaining stock** | Current inventory levels |
+| **Revenue** | Total sales revenue |
+| **GST collected** | Total GST amount |
+| **Profit** | Cost vs selling price analysis |
+
+---
+
+## 💾 Data Backup & Export
+
+✅ **Automatic data backup** every 7 days  
+✅ **Auto-export data** in Excel format  
+✅ **Manual export option** for owner  
+
+---
+
+## 🏪 Multi-Shop Management
+
+✅ One owner can manage **multiple shops**  
+✅ **Separate:**
+   - Inventory
+   - Billing
+   - Reports per shop
+
+✅ **Shop switcher** from dashboard  
+
+---
+
+## 🔔 Notifications
+
+### Phase-1
+
+**Email alerts:**
+- Low stock notifications
+- Backup/export confirmation
+
+---
+
+## 🔐 Security Requirements
+
+✅ Email + password authentication  
+✅ OTP verification during login  
+✅ Secure password hashing  
+✅ JWT-based session management  
+✅ Protected APIs  
+
+---
+
+## 🏗️ Architecture Overview (HLD)
+
+```
+React Frontend
+      ↓
+Node.js + Express APIs
+      ↓
+MongoDB Database
+```
+
+### Modules
+
+1. **Authentication Service**
+2. **Inventory Service**
+3. **Billing Service**
+4. **Reporting Service**
+5. **Notification Service**
+
+---
+
+## 🚀 Development Scope
+
+### ✅ Included in Phase-1
+
+- Online-only system
+- Localhost deployment
+- Full GST billing
+- Reports & exports
+
+### 🔮 Explicit Future Scope
+
+- Offline-first functionality with auto-sync
+- WhatsApp / SMS alerts
+- Cashier role
+- Supplier & purchase management
+- Cloud deployment
+- Mobile app (React Native)
+
+---
+
+## 📥 Installation & Setup
+
+### Prerequisites
+
+- **Node.js** v18 or higher
+- **MongoDB** installed and running
+- **npm** or **yarn** package manager
+
+### Installation Steps
 
 1. **Clone the repository**
 
    ```bash
    git clone <repository-url>
-   cd kirana-store-ims
+   cd IntelliMart
    ```
 
-2. **Install dependencies**
+2. **Install Backend Dependencies**
 
    ```bash
+   cd backend
    npm install
-   # or
-   bun install
    ```
 
-3. **Configure environment variables**
-
-   Copy the example file:
+3. **Install Frontend Dependencies**
 
    ```bash
-   cp .env.example .env
+   cd ../frontend
+   npm install
    ```
 
-   Update with your Supabase credentials:
+4. **Configure Environment Variables**
+
+   Create a `.env` file in the `backend` directory:
 
    ```env
-   VITE_SUPABASE_PROJECT_ID=your-project-id
-   VITE_SUPABASE_URL=your-supabase-url
-   VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+   PORT=5000
+   MONGODB_URI=mongodb://localhost:27017/martnexus
+   JWT_SECRET=your_jwt_secret_key
+   EMAIL_SERVICE=gmail
+   EMAIL_USER=your_email@gmail.com
+   EMAIL_PASSWORD=your_email_password
    ```
 
-4. **Set up Supabase**
+5. **Set up MongoDB**
 
-   * Open your Supabase dashboard
-   * Navigate to **SQL Editor**
-   * Run all migration files from `supabase/migrations` in chronological order
+   Ensure MongoDB is running on your system:
+
+   ```bash
+   mongod
+   ```
 
 ---
 
@@ -125,139 +324,65 @@ A modern, full‑featured **Inventory Management System** designed specifically 
 
 ### Development Mode
 
-```bash
-npm run dev
-# or
-bun run dev
-```
+1. **Start Backend Server**
 
-Application runs at:
+   ```bash
+   cd backend
+   npm run dev
+   ```
 
-```
-http://localhost:5173
-```
+   Backend runs at: `http://localhost:5000`
+
+2. **Start Frontend Development Server**
+
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+   Frontend runs at: `http://localhost:5173`
 
 ### Production Build
 
-```bash
-npm run build
-```
+1. **Build Frontend**
 
-### Preview Build
+   ```bash
+   cd frontend
+   npm run build
+   ```
 
-```bash
-npm run preview
-```
+2. **Start Production Server**
+
+   ```bash
+   cd backend
+   npm start
+   ```
 
 ---
 
 ## 📁 Project Structure
 
 ```
-kirana-store-ims/
-├── public/              # Static assets
-├── src/
-│   ├── components/      # Reusable components
-│   │   ├── ui/         # shadcn/ui components
-│   │   └── layout/     # Layout components
-│   ├── hooks/          # Custom hooks
-│   ├── integrations/   # External integrations
-│   ├── lib/            # Utilities and helpers
-│   ├── pages/          # Page‑level components
-│   ├── store/          # Redux store and slices
-│   ├── App.tsx         # Root component
-│   └── main.tsx        # Entry point
-├── supabase/
-│   └── migrations/     # Database migrations
-├── .env.example
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── vite.config.ts
-```
-
----
-
-## 🗄️ Database Schema (Key Tables)
-
-* **categories** – Product categorization
-* **products** – Product catalog and pricing
-* **stock_movements** – Inventory tracking
-* **sales**, **sale_items** – Sales transactions
-* **suppliers**, **supplier_products** – Supplier data
-* **purchase_orders**, **purchase_order_items** – Procurement
-* **customers**, **customer_pricing** – Customer management
-* **profiles**, **user_roles** – User access control
-* **stocktakes**, **stocktake_items** – Physical stock audits
-* **audit_logs** – System activity logs
-
----
-
-## 👥 User Roles
-
-1. **Admin** – Full system control
-2. **Manager** – Operational and reporting access
-3. **Staff** – POS and inventory operations
-4. **Viewer** – Read‑only access
-
----
-
-## 🔐 Authentication & Security
-
-* Supabase Email / Password authentication
-* Protected routes
-* Secure session handling
-* Database‑level Row Level Security (RLS)
-
----
-
-## 📱 Key Modules
-
-### Dashboard
-
-* Sales overview
-* Low‑stock alerts
-* Recent transactions
-* KPIs
-
-### Products & Inventory
-
-* Product CRUD
-* Batch & expiry tracking
-* Stock adjustments
-* Movement history
-
-### POS (Billing)
-
-* Barcode scanning
-* Fast checkout
-* Multiple payment methods
-* Receipt generation
-
-### Reports
-
-* Sales reports
-* Inventory valuation
-* Financial summaries
-* Export to PDF
-
-### Suppliers & Customers
-
-* Supplier management
-* Purchase orders
-* Customer history
-* Custom pricing
-
----
-
-## 🧪 Code Quality
-
-* ESLint for linting
-* TypeScript strict typing
-* Consistent formatting
-
-```bash
-npm run lint
+IntelliMart/
+├── backend/
+│   ├── controllers/      # Business logic
+│   ├── models/          # MongoDB schemas
+│   ├── routes/          # API routes
+│   ├── middleware/      # Auth & validation
+│   ├── services/        # Email, notifications
+│   ├── config/          # Configuration files
+│   └── server.js        # Entry point
+├── frontend/
+│   ├── src/
+│   │   ├── components/  # Reusable components
+│   │   ├── pages/       # Page components
+│   │   ├── hooks/       # Custom hooks
+│   │   ├── services/    # API calls
+│   │   ├── utils/       # Utilities
+│   │   ├── context/     # Context providers
+│   │   └── App.jsx      # Root component
+│   └── public/          # Static assets
+└── README.md
 ```
 
 ---
@@ -268,25 +393,16 @@ This project is **private and proprietary**. Unauthorized use or distribution is
 
 ---
 
-## 🔄 Recent Updates
+## 🤝 Contributing
 
-* Added batch and expiry tracking
-* Improved stocktake workflow
-* Enhanced audit logging
-* User profile management
-* Simplified to **single Kirana store system**
+This is a private project. Contributions are limited to authorized developers only.
 
 ---
 
-## 🚧 Roadmap
+## 📧 Support
 
-* Advanced analytics dashboard
-* Mobile application
-* Barcode label printing
-* Accounting software integration
-* Multi‑currency support
-* Advanced reporting
+For support and queries, contact the development team.
 
 ---
 
-**Kirana Store IMS** – Built with React, TypeScript, and Supabase for modern retail management.
+**MartNexus** – Empowering small retail stores with modern, stress-free inventory and billing management.
