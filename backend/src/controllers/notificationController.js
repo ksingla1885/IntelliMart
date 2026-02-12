@@ -300,11 +300,146 @@ async function clearOldNotifications(req, res) {
     }
 }
 
+/**
+ * Check low stock and send notifications (called by cron job)
+ */
+async function checkLowStockAndNotify() {
+    console.log('Starting low stock check...');
+
+    try {
+        // Get all shops
+        const shops = await prisma.shop.findMany({
+            include: {
+                owner: true
+            }
+        });
+
+        let totalLowStockProducts = 0;
+        const shopReports = [];
+
+        for (const shop of shops) {
+            // Find products below reorder level
+            const lowStockProducts = await prisma.product.findMany({
+                where: {
+                    shopId: shop.id,
+                    isActive: true,
+                    stock: {
+                        lte: prisma.raw('reorder_level')
+                    }
+                },
+                include: {
+                    category: true
+                }
+            });
+
+            if (lowStockProducts.length > 0) {
+                totalLowStockProducts += lowStockProducts.length;
+
+                // Send email notification to shop owner
+                const emailBody = generateLowStockEmailBody(shop, lowStockProducts);
+
+                const result = await emailService.sendEmail({
+                    to: shop.owner.email,
+                    subject: `⚠️ Low Stock Alert - ${shop.name}`,
+                    html: emailBody,
+                    type: 'LOW_STOCK_ALERT',
+                    userId: shop.owner.id,
+                    shopId: shop.id,
+                    metadata: {
+                        productCount: lowStockProducts.length,
+                        products: lowStockProducts.map(p => ({
+                            id: p.id,
+                            name: p.name,
+                            stock: p.stock,
+                            reorderLevel: p.reorderLevel
+                        }))
+                    }
+                });
+
+                shopReports.push({
+                    shopName: shop.name,
+                    productCount: lowStockProducts.length,
+                    emailSent: result.success
+                });
+
+                console.log(`Low stock alert sent for ${shop.name}: ${lowStockProducts.length} products`);
+            }
+        }
+
+        console.log(`Low stock check completed. Total low stock products: ${totalLowStockProducts}`);
+
+        return {
+            success: true,
+            totalShops: shops.length,
+            totalLowStockProducts,
+            shopReports
+        };
+    } catch (error) {
+        console.error('Low stock check error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Generate HTML email body for low stock alert
+ */
+function generateLowStockEmailBody(shop, products) {
+    const productRows = products.map(p => `
+        <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${p.name}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${p.category?.name || 'N/A'}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #ef4444; font-weight: bold;">${p.stock}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${p.reorderLevel}</td>
+        </tr>
+    `).join('');
+
+    return `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                <h2 style="margin: 0;">⚠️ Low Stock Alert</h2>
+                <p style="margin: 5px 0 0 0; opacity: 0.9;">${shop.name}</p>
+            </div>
+            
+            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+                <p style="margin-top: 0;">The following products are running low on stock and need to be restocked:</p>
+                
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 4px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: #f3f4f6;">
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;">Product</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 2px solid #e5e7eb;">Category</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #e5e7eb;">Current Stock</th>
+                            <th style="padding: 10px; text-align: center; border-bottom: 2px solid #e5e7eb;">Reorder Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${productRows}
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 4px;">
+                    <p style="margin: 0; color: #991b1b;">
+                        <strong>Action Required:</strong> Please restock these ${products.length} product(s) to avoid stockouts.
+                    </p>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                
+                <p style="color: #6b7280; font-size: 12px; margin: 0;">
+                    This is an automated notification from MartNexus.<br>
+                    Sent at: ${new Date().toLocaleString('en-IN')}
+                </p>
+            </div>
+        </div>
+    `;
+}
+
 module.exports = {
     getNotificationLogs,
     getNotificationStats,
     retryNotification,
     testEmailConfig,
     deleteNotification,
-    clearOldNotifications
+    clearOldNotifications,
+    checkLowStockAndNotify
 };

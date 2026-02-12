@@ -1,0 +1,81 @@
+name: Scheduled Cron Jobs
+
+on:
+  schedule:
+    # Run backup every 7 days at midnight UTC (adjust timezone as needed)
+    - cron: '0 0 */7 * *'
+    # Run low stock check daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run'
+        required: true
+        type: choice
+        options:
+          - backup
+          - low-stock
+          - both
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    # Run on schedule or manual trigger
+    if: github.event_name == 'schedule' || github.event.inputs.job == 'backup' || github.event.inputs.job == 'both'
+    
+    steps:
+      - name: Trigger Backup
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            ${{ secrets.BACKEND_URL }}/api/cron/trigger-backup \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ne 200 ]; then
+            echo "Backup failed with status code: $http_code"
+            exit 1
+          fi
+          
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Backup job failed! Check the logs above."
+          # You can add email notification or Slack webhook here
+
+  low-stock-check:
+    runs-on: ubuntu-latest
+    # Run on schedule or manual trigger
+    if: github.event_name == 'schedule' || github.event.inputs.job == 'low-stock' || github.event.inputs.job == 'both'
+    
+    steps:
+      - name: Check Low Stock
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            ${{ secrets.BACKEND_URL }}/api/cron/check-low-stock \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+          
+          if [ "$http_code" -ne 200 ]; then
+            echo "Low stock check failed with status code: $http_code"
+            exit 1
+          fi
+          
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Low stock check job failed! Check the logs above."
+          # You can add email notification or Slack webhook here

@@ -568,6 +568,108 @@ async function exportFullDatabaseBackup(shopId, timestamp) {
     return await saveBackupToFile(backupData, fileName);
 }
 
+/**
+ * Create automatic backup (called by cron job)
+ */
+async function createAutomaticBackup() {
+    console.log('Starting automatic backup...');
+
+    try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+        // Create backup record
+        const backup = await prisma.backup.create({
+            data: {
+                shopId: null, // Full database backup
+                type: 'FULL_DATABASE',
+                fileName: 'pending',
+                filePath: 'pending',
+                fileSize: 0,
+                status: 'IN_PROGRESS',
+                isAutomatic: true
+            }
+        });
+
+        try {
+            // Create full database backup
+            const fileInfo = await exportFullDatabaseBackup(null, timestamp);
+
+            // Update backup record with success
+            await prisma.backup.update({
+                where: { id: backup.id },
+                data: {
+                    fileName: fileInfo.fileName,
+                    filePath: fileInfo.filePath,
+                    fileSize: fileInfo.fileSize,
+                    status: 'COMPLETED',
+                    completedAt: new Date()
+                }
+            });
+
+            // Cleanup old backups (keep last 10)
+            await cleanupOldBackups(10);
+
+            // Send notification email
+            await sendBackupNotification(true, fileInfo.fileName);
+
+            console.log('Automatic backup completed successfully');
+            return { success: true, fileName: fileInfo.fileName };
+        } catch (error) {
+            // Update backup record with failure
+            await prisma.backup.update({
+                where: { id: backup.id },
+                data: {
+                    status: 'FAILED',
+                    errorMessage: error.message,
+                    completedAt: new Date()
+                }
+            });
+
+            // Send failure notification
+            await sendBackupNotification(false, null, error.message);
+
+            throw error;
+        }
+    } catch (error) {
+        console.error('Automatic backup error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Send backup notification email
+ */
+async function sendBackupNotification(success, fileName, errorMessage) {
+    try {
+        const transporter = nodemailer.createTransporter({
+            service: process.env.EMAIL_SERVICE || 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            }
+        });
+
+        const subject = success
+            ? '✅ Automatic Backup Completed Successfully'
+            : '❌ Automatic Backup Failed';
+
+        const body = success
+            ? `Your automatic database backup has been completed successfully.\n\nFile: ${fileName}\nTimestamp: ${new Date().toISOString()}`
+            : `Automatic backup failed.\n\nError: ${errorMessage}\nTimestamp: ${new Date().toISOString()}`;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_USER, // Send to admin
+            subject,
+            text: body
+        });
+
+        console.log('Backup notification sent');
+    } catch (error) {
+        console.error('Failed to send backup notification:', error);
+    }
+}
+
 module.exports = {
     createManualBackup,
     exportInventory,
@@ -576,5 +678,6 @@ module.exports = {
     getBackupHistory,
     downloadBackup,
     restoreBackup,
-    deleteBackup
+    deleteBackup,
+    createAutomaticBackup
 };
