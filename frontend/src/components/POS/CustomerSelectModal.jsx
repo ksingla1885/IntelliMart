@@ -90,13 +90,9 @@ export const CustomerSelectModal = ({ open, onClose, onSelect, selectedCustomerI
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                    {Number(customer.discount_percentage) > 0 && (<Badge variant="secondary" className="text-xs font-semibold bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-700 dark:text-green-400 border-green-500/30 hover:scale-105 transition-transform duration-300">
+                    {Number(customer.discountPercentage) > 0 && (<Badge variant="secondary" className="text-xs font-semibold bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-700 dark:text-green-400 border-green-500/30 hover:scale-105 transition-transform duration-300">
                       <Percent className="h-3 w-3 mr-1" />
-                      {customer.discount_percentage}% OFF
-                    </Badge>)}
-                    {customer.loyalty_points > 0 && (<Badge variant="outline" className="text-xs font-semibold bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30 hover:scale-105 transition-transform duration-300">
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      {customer.loyalty_points} pts
+                      {customer.discountPercentage}% OFF
                     </Badge>)}
                   </div>
                 </div>

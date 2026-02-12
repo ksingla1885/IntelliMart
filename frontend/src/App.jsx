@@ -37,13 +37,13 @@ function AuthHandler({ children }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
       if (token) {
         // Optionally verify token with backend here if you had a /me endpoint
         // For now, we decode basic info or just trust presence + future 401s
         // Since we don't have a /me endpoint returning full user details yet, 
         // we rely on what we might have stored or just set a placeholder.
-        // Ideally: stored user info in localStorage too, or fetch it.
+        // Ideally: stored user info in sessionStorage too, or fetch it.
         // Let's assume we want to persist user state. 
         // For now, let's just set loading false and assume the token is valid.
         // The ProtectedRoute checks if user is present.
@@ -54,7 +54,7 @@ function AuthHandler({ children }) {
           const payload = JSON.parse(atob(token.split('.')[1]));
           dispatch(setUser({ id: payload.userId, email: 'user@example.com' })); // Email is lost unless in token
         } catch (e) {
-          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
           dispatch(setUser(null));
         }
       } else {

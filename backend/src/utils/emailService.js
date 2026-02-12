@@ -519,6 +519,201 @@ class EmailService {
       metadata: { otpLength: otp.length }
     });
   }
+
+  /**
+   * Send password change confirmation email
+   */
+  async sendPasswordChangeEmail(userEmail, userName, changeDetails = {}) {
+    const subject = '🔐 Password Changed Successfully - MartNexus';
+    const changeTime = new Date().toLocaleString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+            <div style="background-color: rgba(255, 255, 255, 0.2); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 48px;">🔐</span>
+            </div>
+            <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+              Password Changed Successfully
+            </h1>
+            <p style="color: #d1fae5; margin: 10px 0 0 0; font-size: 16px;">
+              Your account security has been updated
+            </p>
+          </div>
+
+          <!-- Content -->
+          <div style="padding: 40px 30px;">
+            <p style="color: #374151; font-size: 18px; line-height: 1.6; margin: 0 0 20px 0;">
+              Hello <strong>${userName || 'User'}</strong>,
+            </p>
+            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+              This email confirms that your password for your MartNexus account was successfully changed.
+            </p>
+
+            <!-- Success Banner -->
+            <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 4px solid #10b981; border-radius: 8px; padding: 20px; margin: 30px 0;">
+              <div style="display: flex; align-items: center;">
+                <span style="font-size: 32px; margin-right: 15px;">✅</span>
+                <div>
+                  <h3 style="color: #065f46; margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">
+                    Password Update Confirmed
+                  </h3>
+                  <p style="color: #047857; margin: 0; font-size: 14px; line-height: 1.5;">
+                    Your password has been securely updated and is now active.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Change Details -->
+            <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; margin: 30px 0;">
+              <h3 style="color: #1f2937; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                📋 Change Details
+              </h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 12px 0; color: #6b7280; font-size: 14px; width: 40%;">
+                    <strong>Account Email:</strong>
+                  </td>
+                  <td style="padding: 12px 0; color: #1f2937; font-size: 14px; font-weight: 500;">
+                    ${userEmail}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb;">
+                    <strong>Changed On:</strong>
+                  </td>
+                  <td style="padding: 12px 0; color: #1f2937; font-size: 14px; font-weight: 500; border-top: 1px solid #e5e7eb;">
+                    ${changeTime}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb;">
+                    <strong>IP Address:</strong>
+                  </td>
+                  <td style="padding: 12px 0; color: #1f2937; font-size: 14px; font-weight: 500; border-top: 1px solid #e5e7eb;">
+                    ${changeDetails.ipAddress || 'Not available'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 12px 0; color: #6b7280; font-size: 14px; border-top: 1px solid #e5e7eb;">
+                    <strong>Device:</strong>
+                  </td>
+                  <td style="padding: 12px 0; color: #1f2937; font-size: 14px; font-weight: 500; border-top: 1px solid #e5e7eb;">
+                    ${changeDetails.userAgent || 'Not available'}
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Security Alert -->
+            <div style="background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 20px; margin: 30px 0;">
+              <div style="display: flex; align-items: flex-start;">
+                <span style="font-size: 24px; margin-right: 12px;">⚠️</span>
+                <div>
+                  <h4 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">
+                    Didn't make this change?
+                  </h4>
+                  <p style="color: #78350f; margin: 0 0 15px 0; font-size: 14px; line-height: 1.6;">
+                    If you did not change your password, your account may be compromised. Please take immediate action:
+                  </p>
+                  <ul style="margin: 0; padding-left: 20px; color: #78350f; font-size: 14px; line-height: 1.8;">
+                    <li>Reset your password immediately</li>
+                    <li>Review your recent account activity</li>
+                    <li>Contact our support team</li>
+                    <li>Enable two-factor authentication if available</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security Tips -->
+            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 8px; padding: 20px; margin: 30px 0;">
+              <h4 style="color: #1e40af; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">
+                🛡️ Security Tips
+              </h4>
+              <ul style="margin: 0; padding-left: 20px; color: #1e3a8a; font-size: 14px; line-height: 1.8;">
+                <li>Use a strong, unique password for your account</li>
+                <li>Never share your password with anyone</li>
+                <li>Enable two-factor authentication for extra security</li>
+                <li>Regularly update your password every 3-6 months</li>
+                <li>Be cautious of phishing emails asking for your credentials</li>
+              </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin: 40px 0 30px 0;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" 
+                 style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); transition: all 0.3s;">
+                Sign In to Your Account
+              </a>
+            </div>
+
+            <div style="text-align: center; margin: 20px 0;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/support" 
+                 style="display: inline-block; color: #6b7280; text-decoration: none; font-size: 14px; border-bottom: 1px solid #6b7280;">
+                Need help? Contact Support
+              </a>
+            </div>
+
+            <p style="color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 30px 0 0 0; text-align: center; font-style: italic;">
+              This is an automated security notification. For your protection, we send this email whenever your password is changed.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); padding: 30px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+              <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">
+                MartNexus
+              </h2>
+              <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px;">
+                Smart Inventory Management System
+              </p>
+            </div>
+            <div style="border-top: 1px solid #374151; padding-top: 20px;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0 0 10px 0;">
+                © ${new Date().getFullYear()} MartNexus. All rights reserved.
+              </p>
+              <p style="color: #6b7280; font-size: 11px; margin: 0;">
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return await this.sendEmail({
+      to: userEmail,
+      subject,
+      html,
+      type: 'PASSWORD_CHANGE',
+      metadata: {
+        userName,
+        changeTime,
+        ipAddress: changeDetails.ipAddress,
+        userAgent: changeDetails.userAgent
+      }
+    });
+  }
 }
 
 // Export singleton instance

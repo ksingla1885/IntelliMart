@@ -26,7 +26,7 @@ export function TopBar() {
   }, [dispatch, user]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     dispatch(logout());
     navigate("/auth");
   };

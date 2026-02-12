@@ -7,7 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Store, Trash2, Edit } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Store, Trash2, Edit, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MyShops() {
@@ -16,19 +26,40 @@ export default function MyShops() {
     const { toast } = useToast();
 
     const [editShop, setEditShop] = useState(null); // Shop object to edit
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [shopToDelete, setShopToDelete] = useState(null);
     const [formData, setFormData] = useState({ name: "", address: "", mobile: "", gstin: "" });
 
     useEffect(() => {
         dispatch(fetchShops());
     }, [dispatch]);
 
-    const handleDelete = async (id) => {
-        if (confirm("Are you sure you want to delete this shop? Details cannot be recovered.")) {
+    const handleDelete = (shop) => {
+        setShopToDelete(shop);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        if (shopToDelete) {
             try {
-                await dispatch(deleteShop(id)).unwrap();
-                toast({ title: "Shop Deleted" });
+                await dispatch(deleteShop(shopToDelete.id)).unwrap();
+                toast({
+                    title: "Shop Deleted Successfully",
+                    description: "Shop and all related data have been deleted."
+                });
+                setDeleteDialogOpen(false);
+                setShopToDelete(null);
             } catch (error) {
-                toast({ title: "Error", description: error.message, variant: "destructive" });
+                console.error('Delete shop error:', error);
+                const errorMessage = error.details || error.message || "Failed to delete shop";
+                toast({
+                    title: "Error Deleting Shop",
+                    description: errorMessage,
+                    variant: "destructive",
+                    duration: 10000
+                });
+                setDeleteDialogOpen(false);
+                setShopToDelete(null);
             }
         }
     };
@@ -70,7 +101,7 @@ export default function MyShops() {
                             <Button variant="outline" size="sm" onClick={() => handleEditClick(shop)}>
                                 <Edit className="h-4 w-4 mr-2" /> Edit
                             </Button>
-                            <Button variant="destructive" size="sm" onClick={() => handleDelete(shop.id)}>
+                            <Button variant="destructive" size="sm" onClick={() => handleDelete(shop)}>
                                 <Trash2 className="h-4 w-4 mr-2" /> Delete
                             </Button>
                         </CardFooter>
@@ -109,6 +140,57 @@ export default function MyShops() {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent className="sm:max-w-[500px]">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-3 text-2xl">
+                            <AlertTriangle className="h-8 w-8 text-destructive" />
+                            Delete Shop
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="space-y-4 pt-2">
+                            <div className="text-base">
+                                Are you sure you want to delete <strong className="text-foreground text-lg">{shopToDelete?.name}</strong>?
+                            </div>
+
+                            <div className="bg-destructive/10 border-2 border-destructive/50 rounded-lg p-4 space-y-2">
+                                <div className="flex items-start gap-2">
+                                    <AlertTriangle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
+                                    <div className="space-y-1">
+                                        <p className="text-base font-semibold text-destructive">
+                                            ⚠️ WARNING: This action cannot be undone!
+                                        </p>
+                                        <p className="text-sm text-foreground">
+                                            The shop and <strong className="text-destructive">ALL related data</strong> will be permanently deleted, including:
+                                        </p>
+                                        <ul className="text-sm text-foreground list-disc list-inside space-y-0.5 ml-2">
+                                            <li>All products and inventory</li>
+                                            <li>All bills and invoices</li>
+                                            <li>All customers and suppliers</li>
+                                            <li>All purchase orders</li>
+                                            <li>All categories and pricing</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => {
+                            setDeleteDialogOpen(false);
+                            setShopToDelete(null);
+                        }}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete Shop & All Data
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
-import { Mail, CheckCircle, XCircle, Clock, RefreshCw, Trash2, Send, BarChart3, Filter } from 'lucide-react';
+import { Mail, CheckCircle, XCircle, Clock, RefreshCw, Trash2, Send, BarChart3, Filter, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const Notifications = () => {
     const { activeShop } = useStore();
     const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [notificationToDelete, setNotificationToDelete] = useState(null);
     const [filter, setFilter] = useState({
         type: '',
         status: ''
@@ -29,7 +41,7 @@ const Notifications = () => {
 
             const response = await fetch(`http://localhost:5000/api/notifications/logs?${params}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -49,7 +61,7 @@ const Notifications = () => {
 
             const response = await fetch(`http://localhost:5000/api/notifications/stats?${params}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -67,7 +79,7 @@ const Notifications = () => {
             const response = await fetch(`http://localhost:5000/api/notifications/retry/${notificationId}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -84,27 +96,34 @@ const Notifications = () => {
         }
     };
 
-    const handleDelete = async (notificationId) => {
-        if (!confirm('Are you sure you want to delete this notification?')) return;
+    const handleDelete = (notification) => {
+        setNotificationToDelete(notification);
+        setDeleteDialogOpen(true);
+    };
 
-        try {
-            const response = await fetch(`http://localhost:5000/api/notifications/${notificationId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+    const handleDeleteConfirm = async () => {
+        if (notificationToDelete) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/notifications/${notificationToDelete.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    toast.success('Notification deleted');
+                    fetchNotifications();
+                    fetchStats();
+                } else {
+                    toast.error(data.message || 'Failed to delete notification');
                 }
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                toast.success('Notification deleted');
-                fetchNotifications();
-                fetchStats();
-            } else {
-                toast.error(data.message || 'Failed to delete notification');
+                setDeleteDialogOpen(false);
+                setNotificationToDelete(null);
+            } catch (error) {
+                toast.error('Failed to delete notification');
             }
-        } catch (error) {
-            toast.error('Failed to delete notification');
         }
     };
 
@@ -120,7 +139,7 @@ const Notifications = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 },
                 body: JSON.stringify({ testEmail })
             });
@@ -359,7 +378,7 @@ const Notifications = () => {
                                                         </button>
                                                     )}
                                                     <button
-                                                        onClick={() => handleDelete(notification.id)}
+                                                        onClick={() => handleDelete(notification)}
                                                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                         title="Delete"
                                                     >
@@ -398,6 +417,33 @@ const Notifications = () => {
                     </ul>
                 </div>
             </div>
+
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                            Delete Notification
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this notification?
+                            <br />
+                            <strong>Type:</strong> {notificationToDelete?.type.replace(/_/g, ' ')}
+                            <br />
+                            <strong>Recipient:</strong> {notificationToDelete?.recipient}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

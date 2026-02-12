@@ -16,9 +16,17 @@ export const updateShop = createAsyncThunk('shops/updateShop', async ({ id, data
     return response.data;
 });
 
-export const deleteShop = createAsyncThunk('shops/deleteShop', async (id) => {
-    await api.delete(`/shops/${id}`);
-    return id;
+export const deleteShop = createAsyncThunk('shops/deleteShop', async (id, { rejectWithValue }) => {
+    try {
+        await api.delete(`/shops/${id}`);
+        return id;
+    } catch (error) {
+        // Extract the structured error from the API response
+        if (error.response && error.response.data) {
+            return rejectWithValue(error.response.data);
+        }
+        return rejectWithValue({ message: error.message });
+    }
 });
 
 const getPersistedActiveShop = () => {

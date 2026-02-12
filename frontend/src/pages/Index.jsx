@@ -19,7 +19,7 @@ const Index = () => {
         Advanced Inventory Management System
       </p>
       <Button onClick={() => navigate("/auth")} size="lg" className="mt-8 text-lg px-8 py-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-xl hover:shadow-2xl transition-all duration-300">
-        {localStorage.getItem('token') ? 'Go to Dashboard' : 'Get Started'} <ArrowRight className="ml-2 h-5 w-5" />
+        {sessionStorage.getItem('token') ? 'Go to Dashboard' : 'Get Started'} <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
     </div>
 

@@ -27,14 +27,14 @@ export default function Auth() {
   const dispatch = useDispatch();
 
   // No auto-redirect here to allow user to see the page and potentially sign up with another account
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!sessionStorage.getItem('token');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', data.token);
+      sessionStorage.setItem('token', data.token);
       // Construct a session object to match what slice expects vaguely, or just set user
       const user = { id: data.userId, email: email, name: data.name };
       dispatch(setUser(user));
@@ -162,7 +162,7 @@ export default function Auth() {
             <p className="text-sm text-emerald-700 dark:text-emerald-400 font-medium">
               You are currently logged in.
             </p>
-            <Button variant="link" className="h-auto p-0 text-xs text-emerald-600 dark:text-emerald-500" onClick={() => { localStorage.removeItem('token'); window.location.reload(); }}>
+            <Button variant="link" className="h-auto p-0 text-xs text-emerald-600 dark:text-emerald-500" onClick={() => { sessionStorage.removeItem('token'); window.location.reload(); }}>
               Click here to Sign Out
             </Button>
             <span className="mx-2 text-gray-300">|</span>

@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
-import { Download, Database, FileSpreadsheet, FileText, History, Trash2, RefreshCw, Calendar, HardDrive, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Download, Database, FileSpreadsheet, FileText, History, Trash2, RefreshCw, Calendar, HardDrive, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const BackupExport = () => {
     const { activeShop } = useStore();
     const [backupHistory, setBackupHistory] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [backupToDelete, setBackupToDelete] = useState(null);
     const [exportLoading, setExportLoading] = useState({
         inventory: false,
         bills: false,
@@ -27,7 +39,7 @@ const BackupExport = () => {
         try {
             const response = await fetch(`http://localhost:5000/api/backup/history?shopId=${activeShop.id}&limit=20`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -52,7 +64,7 @@ const BackupExport = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 },
                 body: JSON.stringify({
                     shopId: activeShop.id,
@@ -85,7 +97,7 @@ const BackupExport = () => {
         try {
             const response = await fetch(`http://localhost:5000/api/backup/export/inventory?shopId=${activeShop.id}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -121,7 +133,7 @@ const BackupExport = () => {
 
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -156,7 +168,7 @@ const BackupExport = () => {
 
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
                 }
             });
 
@@ -176,29 +188,34 @@ const BackupExport = () => {
         }
     };
 
-    const handleDeleteBackup = async (backupId) => {
-        if (!confirm('Are you sure you want to delete this backup?')) {
-            return;
-        }
+    const handleDeleteBackup = (backup) => {
+        setBackupToDelete(backup);
+        setDeleteDialogOpen(true);
+    };
 
-        try {
-            const response = await fetch(`http://localhost:5000/api/backup/${backupId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+    const handleDeleteConfirm = async () => {
+        if (backupToDelete) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/backup/${backupToDelete.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    toast.success('Backup deleted successfully');
+                    fetchBackupHistory();
+                } else {
+                    toast.error(data.message || 'Failed to delete backup');
                 }
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                toast.success('Backup deleted successfully');
-                fetchBackupHistory();
-            } else {
-                toast.error(data.message || 'Failed to delete backup');
+                setDeleteDialogOpen(false);
+                setBackupToDelete(null);
+            } catch (error) {
+                toast.error('Failed to delete backup');
+                console.error('Delete error:', error);
             }
-        } catch (error) {
-            toast.error('Failed to delete backup');
-            console.error('Delete error:', error);
         }
     };
 
@@ -446,8 +463,8 @@ const BackupExport = () => {
                                                 <div className="flex items-center gap-2">
                                                     {getStatusIcon(backup.status)}
                                                     <span className={`text-sm font-medium ${backup.status === 'COMPLETED' ? 'text-green-600' :
-                                                            backup.status === 'FAILED' ? 'text-red-600' :
-                                                                'text-yellow-600'
+                                                        backup.status === 'FAILED' ? 'text-red-600' :
+                                                            'text-yellow-600'
                                                         }`}>
                                                         {backup.status}
                                                     </span>
@@ -460,8 +477,8 @@ const BackupExport = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${backup.isAutomatic
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-blue-100 text-blue-800'
+                                                    : 'bg-gray-100 text-gray-800'
                                                     }`}>
                                                     {backup.isAutomatic ? 'Auto' : 'Manual'}
                                                 </span>
@@ -480,7 +497,7 @@ const BackupExport = () => {
                                                         </a>
                                                     )}
                                                     <button
-                                                        onClick={() => handleDeleteBackup(backup.id)}
+                                                        onClick={() => handleDeleteBackup(backup)}
                                                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                         title="Delete"
                                                     >
@@ -519,6 +536,35 @@ const BackupExport = () => {
                     </ul>
                 </div>
             </div>
+
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                            Delete Backup
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this backup?
+                            <br />
+                            <strong>File:</strong> {backupToDelete?.fileName}
+                            <br />
+                            <strong>Type:</strong> {backupToDelete?.type}
+                            <br />
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Delete Backup
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

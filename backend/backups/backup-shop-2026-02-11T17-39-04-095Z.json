@@ -1,0 +1,178 @@
+{
+  "shop": {
+    "id": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+    "ownerId": "2a299ba9-eb65-4e3e-9403-7fc3ccc74f50",
+    "name": "Aryan Footwears",
+    "address": "Dardi colony, Samana",
+    "createdAt": "2026-02-08T15:54:14.049Z",
+    "updatedAt": "2026-02-08T15:54:14.049Z",
+    "gstin": "03AGXPR1478E1Z1",
+    "mobile": "7717625496",
+    "products": [
+      {
+        "id": "7b5de8b6-3d0e-4524-9231-b4832fdf08f2",
+        "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+        "name": "gulshan",
+        "costPrice": "35",
+        "sellingPrice": "45",
+        "stock": 100,
+        "createdAt": "2026-02-09T04:47:12.101Z",
+        "updatedAt": "2026-02-09T04:47:12.101Z",
+        "barcode": null,
+        "categoryId": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+        "description": null,
+        "isActive": true,
+        "reorderLevel": 5,
+        "sku": "SHO-GUL-8385",
+        "quantityType": "PIECES",
+        "category": {
+          "id": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+          "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+          "name": "Shoes Footwear",
+          "createdAt": "2026-02-08T15:59:41.414Z",
+          "updatedAt": "2026-02-08T15:59:41.414Z"
+        },
+        "stockMovements": []
+      },
+      {
+        "id": "4e0c1247-ab5e-4869-b597-a7dee6e734bc",
+        "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+        "name": "aadiway",
+        "costPrice": "45",
+        "sellingPrice": "55",
+        "stock": 190,
+        "createdAt": "2026-02-09T04:46:25.354Z",
+        "updatedAt": "2026-02-09T14:57:43.389Z",
+        "barcode": null,
+        "categoryId": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+        "description": null,
+        "isActive": true,
+        "reorderLevel": 12,
+        "sku": "SHO-AAD-6400",
+        "quantityType": "PIECES",
+        "category": {
+          "id": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+          "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+          "name": "Shoes Footwear",
+          "createdAt": "2026-02-08T15:59:41.414Z",
+          "updatedAt": "2026-02-08T15:59:41.414Z"
+        },
+        "stockMovements": []
+      }
+    ],
+    "categories": [
+      {
+        "id": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+        "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+        "name": "Shoes Footwear",
+        "createdAt": "2026-02-08T15:59:41.414Z",
+        "updatedAt": "2026-02-08T15:59:41.414Z"
+      }
+    ],
+    "bills": [
+      {
+        "id": "cabc9b73-7148-459b-8b97-4809309db52c",
+        "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+        "customerId": null,
+        "billNumber": "INV-9159-20260209-0001",
+        "customerName": "Walk-in Customer",
+        "totalAmount": "64.9",
+        "createdAt": "2026-02-09T13:44:38.389Z",
+        "updatedAt": "2026-02-09T13:44:38.389Z",
+        "cgst": "4.95",
+        "customerMobile": "",
+        "grandTotal": "64.9",
+        "igst": "0",
+        "sgst": "4.95",
+        "status": "PAID",
+        "subTotal": "55",
+        "taxAmount": "9.9",
+        "paymentMode": "CASH",
+        "items": [
+          {
+            "id": "9f3d2127-e0e6-490a-bb55-4679bfe61f0b",
+            "billId": "cabc9b73-7148-459b-8b97-4809309db52c",
+            "productId": "4e0c1247-ab5e-4869-b597-a7dee6e734bc",
+            "quantity": 1,
+            "taxAmount": "9.9",
+            "price": "55",
+            "product": {
+              "id": "4e0c1247-ab5e-4869-b597-a7dee6e734bc",
+              "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+              "name": "aadiway",
+              "costPrice": "45",
+              "sellingPrice": "55",
+              "stock": 190,
+              "createdAt": "2026-02-09T04:46:25.354Z",
+              "updatedAt": "2026-02-09T14:57:43.389Z",
+              "barcode": null,
+              "categoryId": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+              "description": null,
+              "isActive": true,
+              "reorderLevel": 12,
+              "sku": "SHO-AAD-6400",
+              "quantityType": "PIECES"
+            }
+          }
+        ]
+      },
+      {
+        "id": "7e698227-1e4a-47bf-b300-52cc0419766e",
+        "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+        "customerId": null,
+        "billNumber": "INV-9159-20260209-0002",
+        "customerName": "Walk-in Customer",
+        "totalAmount": "584.1",
+        "createdAt": "2026-02-09T14:57:43.565Z",
+        "updatedAt": "2026-02-09T14:57:43.565Z",
+        "cgst": "44.55",
+        "customerMobile": "",
+        "grandTotal": "584.1",
+        "igst": "0",
+        "sgst": "44.55",
+        "status": "PAID",
+        "subTotal": "495",
+        "taxAmount": "89.1",
+        "paymentMode": "UPI",
+        "items": [
+          {
+            "id": "00fae650-4cc0-48cd-846e-d49dd2adc0c1",
+            "billId": "7e698227-1e4a-47bf-b300-52cc0419766e",
+            "productId": "4e0c1247-ab5e-4869-b597-a7dee6e734bc",
+            "quantity": 9,
+            "taxAmount": "89.1",
+            "price": "55",
+            "product": {
+              "id": "4e0c1247-ab5e-4869-b597-a7dee6e734bc",
+              "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+              "name": "aadiway",
+              "costPrice": "45",
+              "sellingPrice": "55",
+              "stock": 190,
+              "createdAt": "2026-02-09T04:46:25.354Z",
+              "updatedAt": "2026-02-09T14:57:43.389Z",
+              "barcode": null,
+              "categoryId": "1168a65b-cbe7-417a-9d38-365501c6da1a",
+              "description": null,
+              "isActive": true,
+              "reorderLevel": 12,
+              "sku": "SHO-AAD-6400",
+              "quantityType": "PIECES"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "backupDate": "2026-02-11T17:39:04.619Z",
+    "version": "1.0",
+    "shopId": "28d64dee-4d2d-4c90-9865-b59a80ec9159",
+    "recordCounts": {
+      "users": 0,
+      "shops": 1,
+      "products": 2,
+      "bills": 2
+    }
+  }
+}

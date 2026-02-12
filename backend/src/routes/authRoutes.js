@@ -133,6 +133,17 @@ router.post('/change-password', require('../middleware/authMiddleware'), async (
             data: { password: hashedPassword }
         });
 
+        // Send password change confirmation email
+        const userName = user.name || user.email.split('@')[0];
+        const changeDetails = {
+            ipAddress: req.ip || req.connection.remoteAddress || 'Unknown',
+            userAgent: req.get('user-agent') || 'Unknown device'
+        };
+
+        // Send email notification (async, don't wait for it)
+        emailService.sendPasswordChangeEmail(user.email, userName, changeDetails)
+            .catch(err => console.error('Failed to send password change email:', err));
+
         res.json({ message: 'Password changed successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

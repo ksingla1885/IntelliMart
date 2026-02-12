@@ -7,7 +7,7 @@ const api = axios.create({
 // Add a request interceptor to include the JWT token in headers
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -23,7 +23,7 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             // Only redirect if we are not already on the auth page to avoid loops
             if (!window.location.pathname.startsWith('/auth')) {
                 window.location.href = '/auth';

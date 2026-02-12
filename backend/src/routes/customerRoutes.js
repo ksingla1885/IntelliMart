@@ -23,6 +23,11 @@ router.get('/', authenticateToken, async (req, res) => {
 // Create customer
 router.post('/', authenticateToken, async (req, res) => {
     const { shopId, name, email, phone, address, discountPercentage } = req.body;
+    console.log('=== CREATE CUSTOMER REQUEST ===');
+    console.log('Request body:', req.body);
+    console.log('Discount value:', discountPercentage);
+    console.log('Parsed discount:', parseFloat(discountPercentage) || 0);
+
     if (!shopId || !name) return res.status(400).json({ error: 'Shop ID and Name are required' });
 
     try {
@@ -36,6 +41,7 @@ router.post('/', authenticateToken, async (req, res) => {
                 discountPercentage: parseFloat(discountPercentage) || 0
             }
         });
+        console.log('Created customer:', customer);
         res.status(201).json(customer);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -46,6 +52,10 @@ router.post('/', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { name, email, phone, address, discountPercentage } = req.body;
+    console.log('=== UPDATE CUSTOMER REQUEST ===');
+    console.log('Customer ID:', id);
+    console.log('Request body:', req.body);
+    console.log('Discount value:', discountPercentage);
 
     try {
         const customer = await prisma.customer.update({
@@ -58,6 +68,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 discountPercentage: discountPercentage !== undefined ? parseFloat(discountPercentage) : undefined
             }
         });
+        console.log('Updated customer:', customer);
         res.json(customer);
     } catch (error) {
         res.status(500).json({ error: error.message });

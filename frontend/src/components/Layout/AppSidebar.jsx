@@ -90,14 +90,6 @@ export function AppSidebar() {
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <NavLink to="/notifications" className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
-                  <Bell className="h-4 w-4" />
-                  {open && <span>Notifications</span>}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>

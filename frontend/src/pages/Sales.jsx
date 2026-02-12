@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Receipt } from 'lucide-react';
+import { Search, Receipt, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,16 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format, startOfDay, endOfDay } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { SalesTable } from '@/components/Sales/SalesTable';
 import { ReceiptModal } from '@/components/POS/ReceiptModal';
 import { useSales } from '@/hooks/useSales';
@@ -18,6 +28,8 @@ export default function Sales() {
   const [dateRange, setDateRange] = useState({});
   const [sales, setSales] = useState([]);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [saleToCancel, setSaleToCancel] = useState(null);
   const { fetchSales, cancelSale, loading } = useSales();
 
   useEffect(() => {
@@ -36,11 +48,18 @@ export default function Sales() {
     }
   };
 
-  const handleCancelSale = async (sale) => {
-    if (window.confirm(`Are you sure you want to cancel Invoice #${sale.billNumber}? Stock will be restored.`)) {
+  const handleCancelSale = (sale) => {
+    setSaleToCancel(sale);
+    setCancelDialogOpen(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (saleToCancel) {
       try {
-        await cancelSale(sale.id);
+        await cancelSale(saleToCancel.id);
         loadSales(); // Refresh list
+        setCancelDialogOpen(false);
+        setSaleToCancel(null);
       } catch (error) {
         console.error("Failed to cancel sale", error);
       }
@@ -156,5 +175,30 @@ export default function Sales() {
     </Card>
 
     <ReceiptModal open={!!selectedSale} onClose={() => setSelectedSale(null)} sale={selectedSale} />
+
+    <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            Cancel Sale
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to cancel Invoice <strong>#{saleToCancel?.billNumber}</strong>?
+            <br />
+            Stock will be restored to inventory.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>No, Keep Sale</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleCancelConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Yes, Cancel Sale
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>);
 }

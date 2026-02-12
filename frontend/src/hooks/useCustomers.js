@@ -39,7 +39,11 @@ export const useCustomers = () => {
     const updateCustomer = {
         mutateAsync: async ({ id, ...updates }) => {
             try {
+                console.log('=== FRONTEND UPDATE CUSTOMER ===');
+                console.log('Customer ID:', id);
+                console.log('Updates:', updates);
                 const { data } = await api.put(`/customers/${id}`, updates);
+                console.log('Response:', data);
                 await fetchCustomers();
                 return data;
             } catch (error) {
