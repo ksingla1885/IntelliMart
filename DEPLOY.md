@@ -1,4 +1,4 @@
-# Deployment Guide for Kirana Store IMS
+# Deployment Guide for IntelliMart IMS
 
 This project consists of two parts: a **Frontend** (Vite + React) and a **Backend** (Node.js + Express + Prisma).
 

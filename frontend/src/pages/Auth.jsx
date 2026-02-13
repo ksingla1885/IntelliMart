@@ -154,7 +154,7 @@ export default function Auth() {
     <Card className="w-full max-w-md relative z-10 shadow-2xl border-2">
       <CardHeader className="text-center space-y-3 pb-6">
         <CardTitle className="text-4xl font-extrabold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-          Kirana Store
+          IntelliMart
         </CardTitle>
         <CardDescription className="text-base">Inventory Management System</CardDescription>
         {isLoggedIn && (

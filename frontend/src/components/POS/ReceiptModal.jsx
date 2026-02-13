@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { GSTInvoice } from '@/components/Invoice/GSTInvoice';
 import { FileText, Eye } from 'lucide-react';
+import { useShop } from '@/hooks/useShop';
 
 export function ReceiptModal({ open, onClose, sale }) {
   const [showGSTInvoice, setShowGSTInvoice] = useState(false);
@@ -17,17 +18,29 @@ export function ReceiptModal({ open, onClose, sale }) {
     setShowGSTInvoice(false);
   };
 
-  // Default shop details - in real app, this would come from context
-  const shopDetails = {
-    name: "MartNexus Store",
-    address: "123 Main Street, Market Area",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400001",
-    phone: "+91 98765 43210",
-    email: "info@martnexus.com",
-    gstin: "27AAAPL1234C1ZV",
-    stateCode: "27"
+  // Fetch shop details dynamically
+  const { shop, loading: shopLoading } = useShop();
+
+  const shopDetails = shop ? {
+    name: shop.name,
+    address: shop.address || "Address not available",
+    city: shop.city || "City", // Backend might not return city separately if address is one string
+    state: shop.state || "State", // Backend schema check needed
+    pincode: shop.pincode || "000000",
+    phone: shop.mobile || "Phone not available",
+    email: shop.email || "Email not available", // Shop model doesn't have email in schema shown in manual-migration.sql, maybe use owner email? Or maybe shop schema has it?
+    gstin: shop.gstin || "GSTIN not available",
+    stateCode: shop.stateCode || "27"
+  } : {
+    name: "IntelliMart Store",
+    address: "Please configure shop details",
+    city: "-",
+    state: "-",
+    pincode: "-",
+    phone: "-",
+    email: "-",
+    gstin: "-",
+    stateCode: "-"
   };
 
   return (

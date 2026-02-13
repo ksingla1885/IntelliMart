@@ -33,9 +33,9 @@ export function AppSidebar() {
     <SidebarContent>
       <div className="p-4 border-b">
         <h2 className={`font-bold text-xl text-primary ${!open && "hidden"}`}>
-          <span className="text-green-800">K</span>irana <span className="text-green-800">S</span>tore
+          <span className="text-green-800">I</span>ntelli<span className="text-green-800">M</span>art
         </h2>
-        {!open && <span className="text-primary text-xl font-bold">KS</span>}
+        {!open && <span className="text-primary text-xl font-bold">IM</span>}
       </div>
 
       <SidebarGroup>

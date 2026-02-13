@@ -1,4 +1,4 @@
--- Kirana Store Database Schema
+-- IntelliMart Database Schema
 -- Generated from Prisma Schema
 -- Run this in Supabase SQL Editor if Prisma CLI cannot connect
 

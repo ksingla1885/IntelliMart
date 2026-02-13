@@ -7,23 +7,36 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Printer, Download, FileText, Building, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
+import { useShop } from '@/hooks/useShop';
 
 export function GSTInvoice({ open, onClose, sale, shopDetails }) {
   const invoiceRef = useRef(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  // Default shop details if not provided
-  const defaultShopDetails = {
-    name: "MartNexus Store",
-    address: "123 Main Street, Market Area",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400001",
-    phone: "+91 98765 43210",
-    email: "info@martnexus.com",
-    gstin: "27AAAPL1234C1ZV",
-    stateCode: "27"
+  const { shop: fetchedShop } = useShop();
+
+  // Default shop details (use fetched shop if available, otherwise placeholders)
+  const defaultShopDetails = fetchedShop ? {
+    name: fetchedShop.name,
+    address: fetchedShop.address || "Address not available",
+    city: fetchedShop.city || "-",
+    state: fetchedShop.state || "-",
+    pincode: fetchedShop.pincode || "-",
+    phone: fetchedShop.mobile || "-",
+    email: fetchedShop.email || "-",
+    gstin: fetchedShop.gstin || "-",
+    stateCode: fetchedShop.stateCode || "-"
+  } : {
+    name: "IntelliMart Store", // Fallback name
+    address: "Please configure shop details",
+    city: "-",
+    state: "-",
+    pincode: "-",
+    phone: "-",
+    email: "-",
+    gstin: "-",
+    stateCode: "-"
   };
 
   const shop = shopDetails || defaultShopDetails;
@@ -107,11 +120,11 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
       // Invoice Details
       yPosition = addText(`Invoice #: ${sale.billNumber}`, margin, yPosition, 12, true);
       yPosition = addText(`Date: ${format(new Date(sale.createdAt || new Date()), 'PPP')}`, margin, yPosition, 10);
-      
+
       if (sale.customerName) {
         yPosition = addText(`Customer: ${sale.customerName}`, margin, yPosition, 10);
       }
-      
+
       yPosition = addText(`Payment: ${sale.paymentMode?.toUpperCase() || 'CASH'}`, margin, yPosition, 10);
       yPosition += 10;
 
@@ -134,7 +147,7 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
         ];
       }) || [];
 
-      pdf.autoTable({
+      autoTable(pdf, {
         head: [['Item', 'Qty', 'Price', 'Amount', 'CGST', 'SGST', 'Total']],
         body: tableData,
         startY: yPosition,

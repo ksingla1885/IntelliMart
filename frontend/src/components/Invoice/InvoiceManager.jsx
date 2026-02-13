@@ -10,6 +10,7 @@ import { GSTInvoice } from './GSTInvoice';
 import { useToast } from '@/hooks/use-toast';
 import { Search, FileText, Calendar, Download, Eye, Printer } from 'lucide-react';
 import { useSales } from '@/hooks/useSales';
+import { useShop } from '@/hooks/useShop';
 import { format } from 'date-fns';
 
 export function InvoiceManager() {
@@ -20,17 +21,19 @@ export function InvoiceManager() {
   const { fetchSales, loading: isLoading } = useSales();
   const { toast } = useToast();
 
-  const shopDetails = {
-    name: "MartNexus Store",
-    address: "123 Main Street, Market Area",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400001",
-    phone: "+91 98765 43210",
-    email: "info@martnexus.com",
-    gstin: "27AAAPL1234C1ZV",
-    stateCode: "27"
-  };
+  const { shop } = useShop();
+
+  const shopDetails = shop ? {
+    name: shop.name,
+    address: shop.address || "Address not available",
+    city: "-", // Schema doesn't have city yet
+    state: "-", // Schema doesn't have state yet
+    pincode: "-", // Schema doesn't have pincode yet
+    phone: shop.mobile || "-",
+    email: "-", // Schema doesn't have email yet
+    gstin: shop.gstin || "-",
+    stateCode: "-"
+  } : null;
 
   // Load invoices from Backend
   useEffect(() => {

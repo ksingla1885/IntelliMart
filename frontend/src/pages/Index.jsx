@@ -13,7 +13,7 @@ const Index = () => {
 
     <div className="text-center space-y-8 p-8 max-w-4xl relative z-10">
       <h1 className="text-7xl md:text-8xl font-extrabold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-        Kirana Store
+        IntelliMart
       </h1>
       <p className="text-3xl font-medium text-muted-foreground">
         Advanced Inventory Management System
