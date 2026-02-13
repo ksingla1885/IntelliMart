@@ -54,19 +54,25 @@ app.get('/', (req, res) => {
     res.send('MartNexus Backend is running!');
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+// Export the app for Vercel
+module.exports = app;
 
-    // Only initialize schedulers in non-serverless environments
-    // Vercel uses serverless functions which don't support persistent cron jobs
-    const isVercel = process.env.VERCEL === '1';
+// Only listen if running directly (not imported as a module by Vercel)
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
 
-    if (!isVercel) {
-        console.log('Initializing schedulers...');
-        initializeBackupScheduler();
-        initializeLowStockMonitoring();
-    } else {
-        console.log('Serverless environment detected. Schedulers disabled.');
-        console.log('Use /api/cron endpoints with external cron service.');
-    }
-});
+        // Only initialize schedulers in non-serverless environments
+        // Vercel uses serverless functions which don't support persistent cron jobs
+        const isVercel = process.env.VERCEL === '1';
+
+        if (!isVercel) {
+            console.log('Initializing schedulers...');
+            initializeBackupScheduler();
+            initializeLowStockMonitoring();
+        } else {
+            console.log('Serverless environment detected. Schedulers disabled.');
+            console.log('Use /api/cron endpoints with external cron service.');
+        }
+    });
+}

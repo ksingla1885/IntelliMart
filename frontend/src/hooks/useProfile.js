@@ -12,7 +12,8 @@ export function useProfile() {
                 full_name: data.name || data.email.split('@')[0],
                 email: data.email,
                 id: data.id,
-                role: data.role
+                role: data.role,
+                createdAt: data.createdAt
             });
             setRoles([data.role.toLowerCase()]);
         }

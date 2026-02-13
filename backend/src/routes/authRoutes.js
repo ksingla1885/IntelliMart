@@ -90,7 +90,7 @@ router.get('/me', require('../middleware/authMiddleware'), async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: req.user.userId || req.user.id },
-            select: { id: true, email: true, isVerified: true, role: true }
+            select: { id: true, email: true, isVerified: true, role: true, createdAt: true }
         });
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.json({ ...user, name: user.email.split('@')[0] });

@@ -61,6 +61,7 @@ model Product {
   stockMovements StockMovement[]
   purchaseOrderItems PurchaseOrderItem[]
   customerPricing CustomerPricing[]
+  supplierProducts SupplierProduct[]
 }
 
 model Customer {
@@ -195,6 +196,7 @@ model Supplier {
   updatedAt     DateTime        @updatedAt
   shop          Shop            @relation(fields: [shopId], references: [id], onDelete: Cascade)
   purchaseOrders PurchaseOrder[]
+  supplierProducts SupplierProduct[]
 }
 
 model PurchaseOrder {
@@ -221,6 +223,22 @@ model PurchaseOrderItem {
   costPrice       Decimal       @db.Decimal(10, 2)
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   product         Product       @relation(fields: [productId], references: [id])
+}
+
+model SupplierProduct {
+  id          String   @id @default(uuid())
+  supplierId  String
+  productId   String
+  costPrice   Decimal  @db.Decimal(10, 2)
+  supplierSku String?
+  isPreferred Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  supplier    Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, productId])
 }
 
 enum PurchaseOrderStatus {

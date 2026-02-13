@@ -67,18 +67,43 @@ export function useSuppliers() {
     }, [toast]);
 
     const fetchSupplierProducts = useCallback(async (supplierId) => {
-        // This endpoint might not be fully implemented in backend yet, but we'll point to it
-        // For now, let's keep it as is or implement a basic version
-        return [];
-    }, [toast]);
+        try {
+            const { data } = await api.get(`/suppliers/${supplierId}/products`);
+            setSupplierProducts(data); // Also update local state if needed
+            return data;
+        } catch (error) {
+            console.error('Error fetching supplier products:', error);
+            return [];
+        }
+    }, []);
 
-    const linkProductToSupplier = useCallback(async (supplierId, productId, costPrice, supplierSku, leadTimeDays, minOrderQty, isPreferred) => {
-        toast({ title: 'Feature coming soon', description: 'Linking products to suppliers will be available in the next update.' });
-        return false;
+    const linkProductToSupplier = useCallback(async (supplierId, productId, costPrice, supplierSku, isPreferred) => {
+        try {
+            await api.post(`/suppliers/${supplierId}/products`, {
+                productId,
+                costPrice,
+                supplierSku,
+                isPreferred
+            });
+            toast({ title: 'Product linked successfully' });
+            return true;
+        } catch (error) {
+            console.error('Error linking product:', error);
+            toast({ title: 'Failed to link product', description: error.response?.data?.error || error.message, variant: 'destructive' });
+            return false;
+        }
     }, [toast]);
 
     const unlinkProduct = useCallback(async (id) => {
-        return true;
+        try {
+            await api.delete(`/suppliers/products/${id}`);
+            toast({ title: 'Product unlinked successfully' });
+            return true;
+        } catch (error) {
+            console.error('Error unlinking product:', error);
+            toast({ title: 'Failed to unlink product', description: error.response?.data?.error || error.message, variant: 'destructive' });
+            return false;
+        }
     }, [toast]);
 
     const fetchPurchaseOrders = useCallback(async () => {
@@ -111,17 +136,19 @@ export function useSuppliers() {
     const createPurchaseOrder = useCallback(async (supplierId, items, expectedDelivery, notes) => {
         if (!activeShop?.id) return null;
         try {
-            const { data } = await api.post('/purchase-orders', {
+            const payload = {
                 shopId: activeShop.id,
-                supplierId,
+                supplier_id: supplierId,
                 items: items.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
                     costPrice: item.unitCost
                 })),
-                expectedDeliveryDate: expectedDelivery,
+                expected_delivery_date: expectedDelivery,
                 notes
-            });
+            };
+            console.log("Sending PO Payload:", payload);
+            const { data } = await api.post('/purchase-orders', payload);
             toast({ title: 'Purchase order created successfully' });
             return data;
         } catch (error) {

@@ -1,74 +1,59 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 import api from '@/lib/api';
 import { useAppSelector } from '@/store/hooks';
-import { toast } from 'sonner';
 
 export const useCustomers = () => {
-    const [customers, setCustomers] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const { activeShop } = useAppSelector((state) => state.shops);
+    const queryClient = useQueryClient();
 
-    const fetchCustomers = useCallback(async () => {
-        if (!activeShop) return;
-        setIsLoading(true);
-        try {
+    const { data: customers = [], isLoading, refetch } = useQuery({
+        queryKey: ['customers', activeShop?.id],
+        queryFn: async () => {
+            if (!activeShop) return [];
             const { data } = await api.get(`/customers?shopId=${activeShop.id}`);
-            setCustomers(data || []);
-        } catch (error) {
-            console.error('Error fetching customers:', error);
-            // toast.error('Failed to load customers');
-        } finally {
-            setIsLoading(false);
-        }
-    }, [activeShop]);
+            return data;
+        },
+        enabled: !!activeShop,
+    });
 
-    const createCustomer = {
-        mutateAsync: async (customerData) => {
+    const createCustomer = useMutation({
+        mutationFn: async (customerData) => {
             if (!activeShop) throw new Error("No active shop");
-            try {
-                const { data } = await api.post('/customers', { ...customerData, shopId: activeShop.id });
-                await fetchCustomers();
-                return data;
-            } catch (error) {
-                console.error('Error creating customer:', error);
-                throw error;
-            }
-        }
-    };
+            const { data } = await api.post('/customers', { ...customerData, shopId: activeShop.id });
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['customers', activeShop?.id] });
+        },
+    });
 
-    const updateCustomer = {
-        mutateAsync: async ({ id, ...updates }) => {
-            try {
-                console.log('=== FRONTEND UPDATE CUSTOMER ===');
-                console.log('Customer ID:', id);
-                console.log('Updates:', updates);
-                const { data } = await api.put(`/customers/${id}`, updates);
-                console.log('Response:', data);
-                await fetchCustomers();
-                return data;
-            } catch (error) {
-                console.error('Error updating customer:', error);
-                throw error;
-            }
-        }
-    };
+    const updateCustomer = useMutation({
+        mutationFn: async ({ id, ...updates }) => {
+            console.log('=== FRONTEND UPDATE CUSTOMER ===');
+            console.log('Customer ID:', id);
+            console.log('Updates:', updates);
+            const { data } = await api.put(`/customers/${id}`, updates);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['customers', activeShop?.id] });
+        },
+    });
 
-    const deleteCustomer = {
-        mutateAsync: async (id) => {
-            try {
-                await api.delete(`/customers/${id}`);
-                await fetchCustomers();
-            } catch (error) {
-                console.error('Error deleting customer:', error);
-                throw error;
-            }
-        }
-    };
+    const deleteCustomer = useMutation({
+        mutationFn: async (id) => {
+            await api.delete(`/customers/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['customers', activeShop?.id] });
+        },
+    });
 
     return {
         customers,
         isLoading,
-        fetchCustomers,
+        fetchCustomers: refetch,
         createCustomer,
         updateCustomer,
         deleteCustomer,

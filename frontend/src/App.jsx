@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider, useDispatch } from "react-redux";
 import { store } from "./store/store";
 import { useEffect } from "react";
-import { setUser, setLoading } from "./store/slices/authSlice";
+import { setUser, setSession, setLoading } from "./store/slices/authSlice";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -39,21 +39,13 @@ function AuthHandler({ children }) {
     const checkAuth = async () => {
       const token = sessionStorage.getItem('token');
       if (token) {
-        // Optionally verify token with backend here if you had a /me endpoint
-        // For now, we decode basic info or just trust presence + future 401s
-        // Since we don't have a /me endpoint returning full user details yet, 
-        // we rely on what we might have stored or just set a placeholder.
-        // Ideally: stored user info in sessionStorage too, or fetch it.
-        // Let's assume we want to persist user state. 
-        // For now, let's just set loading false and assume the token is valid.
-        // The ProtectedRoute checks if user is present.
-        // We need to set 'user' to something truthy.
-
-        // Ideally we should decode the token to get userId
         try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          dispatch(setUser({ id: payload.userId, email: 'user@example.com' })); // Email is lost unless in token
+          // Verify token and get real user details from backend
+          const response = await api.get('/auth/me');
+          // Restore full session state including user and token
+          dispatch(setSession({ user: response.data, access_token: token }));
         } catch (e) {
+          console.error("Auth check failed:", e);
           sessionStorage.removeItem('token');
           dispatch(setUser(null));
         }

@@ -7,6 +7,7 @@ import { useShop } from '@/hooks/useShop';
 
 export function ReceiptModal({ open, onClose, sale }) {
   const [showGSTInvoice, setShowGSTInvoice] = useState(false);
+  const { shop, loading: shopLoading } = useShop();
 
   if (!sale) return null;
 
@@ -17,9 +18,6 @@ export function ReceiptModal({ open, onClose, sale }) {
   const handleCloseGSTInvoice = () => {
     setShowGSTInvoice(false);
   };
-
-  // Fetch shop details dynamically
-  const { shop, loading: shopLoading } = useShop();
 
   const shopDetails = shop ? {
     name: shop.name,

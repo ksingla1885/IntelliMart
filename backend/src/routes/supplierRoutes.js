@@ -61,4 +61,76 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// --- Supplier Products ---
+
+// Get products linked to a supplier
+router.get('/:id/products', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const supplierProducts = await prisma.supplierProduct.findMany({
+            where: { supplierId: id },
+            include: { product: true }
+        });
+        res.json(supplierProducts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Link product to supplier
+router.post('/:id/products', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { productId, costPrice, supplierSku, isPreferred } = req.body;
+
+    if (!productId || !costPrice) {
+        return res.status(400).json({ error: 'Product ID and Cost Price are required' });
+    }
+
+    try {
+        // Check if already linked
+        const existing = await prisma.supplierProduct.findUnique({
+            where: {
+                supplierId_productId: {
+                    supplierId: id,
+                    productId
+                }
+            }
+        });
+
+        if (existing) {
+            // Update existing
+            const updated = await prisma.supplierProduct.update({
+                where: { id: existing.id },
+                data: { costPrice, supplierSku, isPreferred }
+            });
+            return res.json(updated);
+        }
+
+        const linked = await prisma.supplierProduct.create({
+            data: {
+                supplierId: id,
+                productId,
+                costPrice,
+                supplierSku,
+                isPreferred
+            }
+        });
+        res.status(201).json(linked);
+    } catch (error) {
+        console.error("Link product error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Unlink product (Delete SupplierProduct record)
+router.delete('/products/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params; // This is the SupplierProduct ID
+    try {
+        await prisma.supplierProduct.delete({ where: { id } });
+        res.json({ message: 'Product unlinked successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

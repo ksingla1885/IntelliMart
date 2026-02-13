@@ -23,9 +23,7 @@ export const CustomerList = ({ onAdd, onEdit, onPricing, onHistory }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+  // React Query handles fetching automatically
   const filteredCustomers = customers.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase()) ||
     c.phone?.toLowerCase().includes(search.toLowerCase()));
