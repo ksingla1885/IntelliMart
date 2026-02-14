@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const prisma = require('../utils/prismaClient');
+const emailService = require('../utils/emailService');
 
 /**
  * Perform automatic weekly backup
