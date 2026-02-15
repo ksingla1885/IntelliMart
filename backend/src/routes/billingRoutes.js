@@ -97,7 +97,7 @@ router.post('/', authenticateToken, async (req, res) => {
             };
 
             if (customerId) {
-                billData.customer = { connect: { id: customerId } };
+                billData.customerId = customerId;
             }
 
             const bill = await prisma.bill.create({

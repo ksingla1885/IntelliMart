@@ -21,7 +21,7 @@ export function useSales() {
 
             const payload = {
                 shopId: activeShop.id,
-                customerId: data.customer?.id || null,
+                // customerId removed from here to add conditionally
                 customerName: data.customer?.name || "Walk-in Customer",
                 customerMobile: data.customer?.phone || "",
                 paymentMode: paymentModeMap[data.payment_method] || 'CASH',
@@ -34,7 +34,22 @@ export function useSales() {
                 }))
             };
 
-            const { data: sale } = await api.post('/billing', payload);
+            // Only add customerId if it exists to avoid backend errors
+            if (data.customer?.id) {
+                payload.customerId = data.customer.id;
+            }
+
+            // FORCE LOCALHOST: If running on localhost, prefer local backend to avoid hitting stale Vercel deployment
+            const requestConfig = {};
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // Check if the current configured API URL is pointing to Vercel (incorrectly)
+                if (api.defaults.baseURL && api.defaults.baseURL.includes('vercel.app')) {
+                    console.warn("Detected localhost frontend using production backend. Forcing local backend for billing.");
+                    requestConfig.baseURL = 'http://localhost:5000/api';
+                }
+            }
+
+            const { data: sale } = await api.post('/billing', payload, requestConfig);
 
             toast.success("Sale completed successfully", {
                 description: `Invoice #${sale.billNumber} created`
@@ -43,7 +58,16 @@ export function useSales() {
             return sale;
         } catch (error) {
             console.error('Error creating sale:', error);
-            toast.error(error.response?.data?.error || "Failed to process sale");
+            const errorMessage = error.response?.data?.error || "Failed to process sale";
+
+            // Add helpful hint if 500 error on Vercel
+            if (error.response?.status === 500 && error.config?.url?.includes('vercel.app')) {
+                toast.error("Backend Error (500)", {
+                    description: "Your frontend is connected to the outdated Vercel backend. useSales.js attempted to fix this but failed. Please restart your frontend server."
+                });
+            } else {
+                toast.error(errorMessage);
+            }
             throw error;
         } finally {
             setLoading(false);

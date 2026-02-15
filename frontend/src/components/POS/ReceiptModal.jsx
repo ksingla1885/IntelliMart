@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { GSTInvoice } from '@/components/Invoice/GSTInvoice';
 import { FileText, Eye } from 'lucide-react';
@@ -50,6 +50,9 @@ export function ReceiptModal({ open, onClose, sale }) {
               <FileText className="h-5 w-5" />
               Sale Completed
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Details of the completed sale, including payment method and total amount.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">

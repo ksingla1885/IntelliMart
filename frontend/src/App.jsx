@@ -7,6 +7,7 @@ import { Provider, useDispatch } from "react-redux";
 import { store } from "./store/store";
 import { useEffect } from "react";
 import { setUser, setSession, setLoading } from "./store/slices/authSlice";
+import { fetchShops } from "./store/slices/shopSlice";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -44,7 +45,10 @@ function AuthHandler({ children }) {
           const response = await api.get('/auth/me');
           // Restore full session state including user and token
           dispatch(setSession({ user: response.data, access_token: token }));
+          // Fetch shops to validate active shop
+          dispatch(fetchShops());
         } catch (e) {
+
           console.error("Auth check failed:", e);
           sessionStorage.removeItem('token');
           dispatch(setUser(null));
