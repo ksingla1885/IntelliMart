@@ -1,4 +1,4 @@
-# MartNexus
+# IntelliMart
 
 **GST-Enabled Inventory & Billing Management System for Small Retail Stores**
 
@@ -37,7 +37,7 @@ Small-scale **kirana and general-purpose stores** in small towns rely on manual 
 - ❌ No real-time visibility of remaining stock
 - ❌ Poor billing and reporting practices
 
-**MartNexus** aims to digitize inventory, billing, and reporting in a way that is **simple, reliable, stress-free, and scalable** for small business owners.
+**IntelliMart** aims to digitize inventory, billing, and reporting in a way that is **simple, reliable, stress-free, and scalable** for small business owners.
 
 ---
 
@@ -303,7 +303,7 @@ MongoDB Database
 
    ```env
    PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/martnexus
+   MONGODB_URI=mongodb://localhost:27017/intellimart
    JWT_SECRET=your_jwt_secret_key
    EMAIL_SERVICE=gmail
    EMAIL_USER=your_email@gmail.com
@@ -405,4 +405,4 @@ For support and queries, contact the development team.
 
 ---
 
-**MartNexus** – Empowering small retail stores with modern, stress-free inventory and billing management.
+**IntelliMart** – Empowering small retail stores with modern, stress-free inventory and billing management.
