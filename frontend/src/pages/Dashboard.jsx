@@ -36,8 +36,8 @@ export default function Dashboard() {
       label: 'New Sale',
       icon: ShoppingCart,
       onClick: () => navigate('/pos'),
-      color: 'bg-gradient-to-br from-emerald-500 to-teal-600',
-      hoverColor: 'hover:from-emerald-600 hover:to-teal-700'
+      color: 'bg-gradient-to-br from-indigo-500 to-violet-600',
+      hoverColor: 'hover:from-indigo-600 hover:to-violet-700'
     },
     {
       label: 'Add Product',
@@ -50,15 +50,15 @@ export default function Dashboard() {
       label: 'View Reports',
       icon: TrendingUp,
       onClick: () => navigate('/reports'),
-      color: 'bg-gradient-to-br from-purple-500 to-pink-600',
-      hoverColor: 'hover:from-purple-600 hover:to-pink-700'
+      color: 'bg-gradient-to-br from-violet-500 to-purple-600',
+      hoverColor: 'hover:from-violet-600 hover:to-purple-700'
     },
     {
       label: 'Stock Alerts',
       icon: AlertTriangle,
       onClick: () => navigate('/inventory'),
-      color: 'bg-gradient-to-br from-orange-500 to-red-600',
-      hoverColor: 'hover:from-orange-600 hover:to-red-700'
+      color: 'bg-gradient-to-br from-rose-500 to-red-600',
+      hoverColor: 'hover:from-rose-600 hover:to-red-700'
     },
   ];
 
@@ -78,19 +78,19 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
               Dashboard
             </h1>
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
               {activeShop ? (
                 <>
-                  <Store className="w-4 h-4" />
-                  <span className="font-medium">{activeShop.name}</span>
+                  <Store className="w-4 h-4 text-indigo-500" />
+                  <span className="font-semibold">{activeShop.name}</span>
                 </>
               ) : (
                 <span>Select a shop to view dashboard</span>
@@ -100,12 +100,13 @@ export default function Dashboard() {
           <Button
             onClick={handleRefresh}
             disabled={loading}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white"
+            className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 transition-all"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            Refresh Data
           </Button>
         </div>
+
 
         {!activeShop ? (
           <Card className="p-12 text-center bg-white">

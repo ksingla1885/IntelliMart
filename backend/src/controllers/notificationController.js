@@ -205,11 +205,11 @@ async function testEmailConfig(req, res) {
 
         const result = await emailService.sendEmail({
             to: testEmail,
-            subject: 'Test Email - MartNexus',
+            subject: 'Test Email - IntelliMart',
             html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #3b82f6;">Email Configuration Test</h2>
-          <p>This is a test email from MartNexus.</p>
+          <p>This is a test email from IntelliMart.</p>
           <p>If you received this email, your email configuration is working correctly!</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
           <p style="color: #6b7280; font-size: 12px;">
@@ -426,7 +426,7 @@ function generateLowStockEmailBody(shop, products) {
                 <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
                 
                 <p style="color: #6b7280; font-size: 12px; margin: 0;">
-                    This is an automated notification from MartNexus.<br>
+                    This is an automated notification from IntelliMart.<br>
                     Sent at: ${new Date().toLocaleString('en-IN')}
                 </p>
             </div>
