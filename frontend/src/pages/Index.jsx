@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowRight, 
-  Package, 
-  BarChart3, 
-  ShieldCheck, 
+import {
+  ArrowRight,
+  Package,
+  BarChart3,
+  ShieldCheck,
   Zap,
   Globe,
   Users,
@@ -34,15 +34,15 @@ const Index = () => {
             <a href="#about" className="hover:text-primary transition-colors">About</a>
           </div>
           <div>
-            <Button 
-              onClick={() => navigate("/auth")} 
-              variant="ghost" 
+            <Button
+              onClick={() => navigate("/auth")}
+              variant="ghost"
               className="font-medium hover:bg-indigo-500/10 hover:text-indigo-600 transition-colors"
             >
               Log In
             </Button>
-            <Button 
-              onClick={() => navigate("/auth")} 
+            <Button
+              onClick={() => navigate("/auth")}
               className="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 transition-all duration-300"
             >
               {isLoggedIn ? 'Go to Dashboard' : 'Get Started'}
@@ -65,31 +65,32 @@ const Index = () => {
               <Zap className="w-4 h-4" />
               <span>Enterprise Logistics v2.0</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8">
               Inventory Intelligence <br />
               <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 bg-clip-text text-transparent">
                 Powering Retail.
               </span>
             </h1>
-            
+
             <p className="max-w-2xl mx-auto text-xl text-muted-foreground mb-12 leading-relaxed">
-              Unlock the full potential of your business with IntelliMart. 
+              Unlock the full potential of your business with IntelliMart.
               Precision tracking, predictive analytics, and effortless multi-branch harmony.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button 
-                onClick={() => navigate("/auth")} 
-                size="lg" 
+              <Button
+                onClick={() => navigate("/auth")}
+                size="lg"
                 className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/30 transition-all duration-300 w-full sm:w-auto"
               >
                 {isLoggedIn ? 'Go to Dashboard' : 'Start Journey'} <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
+              <Button
+                variant="outline"
+                size="lg"
                 className="h-14 px-8 text-lg border-2 hover:bg-secondary w-full sm:w-auto"
+                onClick={() => navigate("/auth")}
               >
                 Explore Solutions
               </Button>
@@ -144,7 +145,7 @@ const Index = () => {
         {/* Features Section */}
         <section id="features" className="py-24 relative overflow-hidden">
           <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] -z-10" />
-          
+
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-black mb-4 tracking-tight">Everything you need</h2>
@@ -152,7 +153,7 @@ const Index = () => {
                 Stop juggling multiple tools. IntelliMart brings all your retail operations into one cohesive experience.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 { icon: Globe, title: "Multi-branch Sync", desc: "Manage multiple shops from one central account with synchronized data." },
@@ -178,7 +179,7 @@ const Index = () => {
             <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 p-12 md:p-24 text-center text-white shadow-2xl">
               <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-[100px]" />
               <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-black/10 rounded-full blur-[100px]" />
-              
+
               <div className="relative z-10">
                 <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">
                   Ready to transform your <br /> business?
@@ -186,18 +187,18 @@ const Index = () => {
                 <p className="text-xl text-indigo-50/80 mb-12 max-w-2xl mx-auto leading-relaxed">
                   Join over 10,000+ businesses that are growing faster with IntelliMart's powerful management tools.
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <Button 
-                    onClick={() => navigate("/auth")} 
-                    size="lg" 
+                  <Button
+                    onClick={() => navigate("/auth")}
+                    size="lg"
                     className="bg-white text-indigo-700 hover:bg-indigo-50 h-16 px-10 text-lg font-bold shadow-xl transition-all hover:scale-105"
                   >
                     Start Your Trial
                   </Button>
-                  <Button 
-                    variant="link" 
-                    size="lg" 
+                  <Button
+                    variant="link"
+                    size="lg"
                     className="text-white h-16 px-10 text-lg font-semibold hover:text-indigo-200 transition-colors"
                   >
                     Watch a demo
@@ -224,7 +225,7 @@ const Index = () => {
                 The most advanced inventory management system for modern retailers.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-center md:text-left">
               <div className="space-y-4">
                 <h4 className="font-bold text-sm uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Product</h4>
@@ -252,7 +253,7 @@ const Index = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-6">
             <p className="text-xs text-muted-foreground italic">
               Empowering the next generation of shop owners.

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Warehouse, ShoppingCart, TrendingUp, Users, FileText, FolderOpen, CreditCard, History, User, Receipt, Database, Bell } from "lucide-react";
+import { LayoutDashboard, Package, Warehouse, ShoppingCart, TrendingUp, Users, FileText, FolderOpen, CreditCard, History, User, Receipt, Database, Bell, Activity } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, } from "@/components/ui/sidebar";
 import { useRoles } from "@/hooks/useRoles";
@@ -87,6 +87,14 @@ export function AppSidebar() {
                 <NavLink to="/backup-export" className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
                   <Database className="h-4 w-4" />
                   {open && <span>Backup & Export</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink to="/cron-management" className="hover:bg-accent" activeClassName="bg-accent text-accent-foreground font-medium">
+                  <Activity className="h-4 w-4" />
+                  {open && <span>System Schedulers</span>}
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>

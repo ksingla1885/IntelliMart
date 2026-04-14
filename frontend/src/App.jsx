@@ -26,6 +26,7 @@ import Profile from "./pages/Profile";
 import MyShops from "./pages/MyShops";
 import BackupExport from "./pages/BackupExport";
 import Notifications from "./pages/Notifications";
+import CronManagement from "./pages/CronManagement";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout } from "./components/Layout/AppLayout";
@@ -153,6 +154,11 @@ const App = () => (
               <Route path="/notifications" element={<ProtectedRoute>
                 <AppLayout>
                   <Notifications />
+                </AppLayout>
+              </ProtectedRoute>} />
+              <Route path="/cron-management" element={<ProtectedRoute>
+                <AppLayout>
+                  <CronManagement />
                 </AppLayout>
               </ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />

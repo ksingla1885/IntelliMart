@@ -1,12 +1,18 @@
 const cron = require('node-cron');
 const prisma = require('../utils/prismaClient');
 const emailService = require('../utils/emailService');
+const cronTracker = require('../utils/cronTracker');
+
+const LOW_STOCK_CRON_SCHEDULE = '0 9 * * *'; // Every day at 9:00 AM
 
 /**
  * Check for low stock products and send alerts
  */
 async function checkLowStockProducts() {
-    console.log('🔍 Checking for low stock products...');
+    const jobName = 'Daily Low Stock Check';
+    console.log(`🔍 Starting ${jobName}...`);
+    
+    await cronTracker.start(jobName, LOW_STOCK_CRON_SCHEDULE, 'Checks inventory levels across all shops and sends alerts to owners for products below reorder levels.');
 
     try {
         // Get all shops
@@ -58,10 +64,13 @@ async function checkLowStockProducts() {
             }
         }
 
-        console.log(`✅ Low stock check completed. Alerts sent: ${totalAlertsSent}`);
+        const result = `Low stock check completed. Alerts sent: ${totalAlertsSent}`;
+        await cronTracker.complete(jobName, result);
+        console.log(`✅ ${jobName} completed. ${result}`);
         return { success: true, alertsSent: totalAlertsSent };
     } catch (error) {
-        console.error('❌ Low stock check failed:', error);
+        console.error(`❌ ${jobName} failed:`, error);
+        await cronTracker.fail(jobName, error);
         return { success: false, error: error.message };
     }
 }
@@ -71,7 +80,7 @@ async function checkLowStockProducts() {
  */
 async function triggerLowStockCheck(shopId = null) {
     console.log('🔍 Manual low stock check triggered...');
-
+    // This can also be tracked as a manual run if needed
     try {
         const whereClause = shopId ? { id: shopId } : {};
 
@@ -133,19 +142,13 @@ async function triggerLowStockCheck(shopId = null) {
  * Initialize low stock monitoring scheduler
  */
 function initializeLowStockMonitoring() {
-    // Check for low stock every day at 9:00 AM
-    // Cron format: minute hour day-of-month month day-of-week
-    // '0 9 * * *' = At 09:00 every day
-    cron.schedule('0 9 * * *', async () => {
-        console.log('⏰ Scheduled low stock check triggered (Daily 9:00 AM)');
+    // Check for low stock every day
+    cron.schedule(LOW_STOCK_CRON_SCHEDULE, async () => {
+        console.log(`⏰ Scheduled low stock check triggered (${LOW_STOCK_CRON_SCHEDULE})`);
         await checkLowStockProducts();
     });
 
-    console.log('✅ Low stock monitoring initialized (Daily at 9:00 AM)');
-
-    // Optional: Run check immediately on server start (for testing)
-    // Uncomment the line below to test low stock alerts on server start
-    // checkLowStockProducts();
+    console.log(`✅ Low stock monitoring initialized (Daily at ${LOW_STOCK_CRON_SCHEDULE})`);
 }
 
 module.exports = {

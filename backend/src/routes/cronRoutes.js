@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { createAutomaticBackup } = require('../controllers/backupController');
 const { checkLowStockAndNotify } = require('../controllers/notificationController');
+const cronController = require('../controllers/cronController');
+const authenticateToken = require('../middleware/authMiddleware');
 
-// Middleware to verify cron secret
+// Middleware to verify cron secret (for external services like Vercel/GitHub Actions)
 const verifyCronSecret = (req, res, next) => {
     const cronSecret = req.headers['x-cron-secret'] || req.query.secret;
 
@@ -17,7 +19,7 @@ const verifyCronSecret = (req, res, next) => {
     next();
 };
 
-// Trigger automatic backup (to be called by external cron service)
+// --- External Cron Endpoints ---
 router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
     try {
         console.log('Cron job triggered: Automatic backup');
@@ -37,7 +39,6 @@ router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
     }
 });
 
-// Trigger low stock check (to be called by external cron service)
 router.post('/check-low-stock', verifyCronSecret, async (req, res) => {
     try {
         console.log('Cron job triggered: Low stock check');
@@ -57,7 +58,12 @@ router.post('/check-low-stock', verifyCronSecret, async (req, res) => {
     }
 });
 
-// Health check endpoint for cron monitoring
+// --- UI Management Endpoints (Requires Auth) ---
+router.get('/jobs', authenticateToken, cronController.getAllJobs);
+router.post('/jobs/:id/trigger', authenticateToken, cronController.triggerJob);
+router.patch('/jobs/:id/toggle', authenticateToken, cronController.toggleJob);
+
+// Health check endpoint
 router.get('/health', (req, res) => {
     res.json({
         success: true,

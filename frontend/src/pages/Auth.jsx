@@ -162,7 +162,7 @@ export default function Auth() {
             <p className="text-sm text-indigo-700 dark:text-indigo-400 font-medium">
               Active session detected.
             </p>
-            <Button variant="link" className="h-auto p-0 text-xs text-indigo-600 dark:text-indigo-500" onClick={() => { sessionStorage.removeItem('token'); window.location.reload(); }}>
+            <Button variant="link" className="h-auto p-0 text-xs text-indigo-600 dark:text-indigo-500" onClick={() => { sessionStorage.removeItem('token'); navigate("/"); }}>
               Sign Out
             </Button>
             <span className="mx-2 text-gray-300">|</span>

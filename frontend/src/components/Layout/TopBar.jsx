@@ -36,8 +36,9 @@ export function TopBar() {
   const handleLogout = () => {
     sessionStorage.removeItem('token');
     dispatch(logout());
-    navigate("/auth");
+    navigate("/");
   };
+
 
   // Helper to get initials
   const getInitials = (name) => {
@@ -51,17 +52,18 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
+    <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4 md:px-6 sticky top-0 z-40">
+      <div className="flex items-center gap-2 md:gap-4">
         <SidebarTrigger />
+        <div className="h-6 w-[1px] bg-border mx-1 hidden sm:block" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[200px] justify-between">
+            <Button variant="outline" className="w-[140px] sm:w-[200px] justify-between h-9 text-xs sm:text-sm px-2 sm:px-4">
               <div className="flex items-center truncate">
-                <Store className="mr-2 h-4 w-4" />
+                <Store className="mr-2 h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{activeShop?.name || "Select Shop"}</span>
               </div>
-              <ChevronDown className="h-4 w-4 opacity-50" />
+              <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[200px]">

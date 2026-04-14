@@ -25,6 +25,8 @@ const cronRoutes = require('./src/routes/cronRoutes');
 // Schedulers
 const { initializeBackupScheduler } = require('./src/scheduler/backupScheduler');
 const { initializeLowStockMonitoring } = require('./src/scheduler/lowStockMonitor');
+const { initializeSalesReportScheduler } = require('./src/scheduler/dailySalesReport');
+const { initializeExpiryCheckScheduler } = require('./src/scheduler/expiryCheck');
 
 
 const app = express();
@@ -54,6 +56,10 @@ app.get('/', (req, res) => {
     res.send('MartNexus Backend is running!');
 });
 
+app.get('/api/test', (req, res) => {
+    res.json({ success: true, message: 'API is working' });
+});
+
 // Export the app for Vercel
 module.exports = app;
 
@@ -70,6 +76,8 @@ if (require.main === module) {
             console.log('Initializing schedulers...');
             initializeBackupScheduler();
             initializeLowStockMonitoring();
+            initializeSalesReportScheduler();
+            initializeExpiryCheckScheduler();
         } else {
             console.log('Serverless environment detected. Schedulers disabled.');
             console.log('Use /api/cron endpoints with external cron service.');

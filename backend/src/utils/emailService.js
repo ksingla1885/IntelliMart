@@ -714,6 +714,150 @@ class EmailService {
       }
     });
   }
+
+  /**
+   * Send daily sales report email
+   */
+  async sendDailySalesReport(userEmail, reportData) {
+    const subject = `📊 Daily Sales Report - ${reportData.shopName}`;
+    const dateStr = new Date(reportData.date).toLocaleDateString('en-IN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const billRows = reportData.bills.map(bill => `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 10px; text-align: left;">${bill.billNumber}</td>
+        <td style="padding: 10px; text-align: left;">${bill.customerName || 'Walk-in'}</td>
+        <td style="padding: 10px; text-align: right;">₹${Number(bill.grandTotal).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+          <div style="background-color: #4f46e5; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">Daily Sales Report</h1>
+            <p style="margin: 5px 0 0;">${reportData.shopName} | ${dateStr}</p>
+          </div>
+          <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-around; background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <div style="text-align: center;">
+                <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Total Sales</p>
+                <p style="margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #4f46e5;">₹${reportData.totalSales.toFixed(2)}</p>
+              </div>
+              <div style="text-align: center;">
+                <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Bills</p>
+                <p style="margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #4f46e5;">${reportData.totalBills}</p>
+              </div>
+            </div>
+            
+            <h3 style="color: #374151; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">Recent Transactions</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #f9fafb;">
+                  <th style="padding: 10px; text-align: left;">Bill #</th>
+                  <th style="padding: 10px; text-align: left;">Customer</th>
+                  <th style="padding: 10px; text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${billRows}
+              </tbody>
+            </table>
+            
+            <div style="margin-top: 30px; text-align: center;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/reports" 
+                 style="background-color: #4f46e5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                View Full Detailed Report
+              </a>
+            </div>
+          </div>
+          <div style="background-color: #f9fafb; padding: 15px; text-align: center; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} MartNexus. Automated Report.
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return await this.sendEmail({
+      to: userEmail,
+      subject,
+      html,
+      type: 'DAILY_SALES_REPORT',
+      metadata: { shopName: reportData.shopName, totalSales: reportData.totalSales }
+    });
+  }
+
+  /**
+   * Send expiry alert email
+   */
+  async sendExpiryAlert(userEmail, shopName, expiringItems) {
+    const subject = `⚠️ Expiry Alert - ${shopName}`;
+
+    const itemsRows = expiringItems.map(item => `
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 10px; text-align: left;">${item.productName}</td>
+        <td style="padding: 10px; text-align: left;">${item.batchNumber || 'N/A'}</td>
+        <td style="padding: 10px; text-align: center;">${new Date(item.expiryDate).toLocaleDateString('en-IN')}</td>
+        <td style="padding: 10px; text-align: right;">${item.quantity}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <div style="max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 10px; overflow: hidden;">
+          <div style="background-color: #ef4444; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">Product Expiry Alert</h1>
+            <p style="margin: 5px 0 0;">${shopName} | Near-Expiry Batch Notification</p>
+          </div>
+          <div style="padding: 20px;">
+            <p>The following items are expiring within the next 30 days. Please take action to liquidate or remove these stocks.</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+              <thead>
+                <tr style="background-color: #fef2f2;">
+                  <th style="padding: 10px; text-align: left;">Product</th>
+                  <th style="padding: 10px; text-align: left;">Batch</th>
+                  <th style="padding: 10px; text-align: center;">Expiry</th>
+                  <th style="padding: 10px; text-align: right;">Qty</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+            
+            <div style="margin-top: 30px; text-align: center;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/inventory" 
+                 style="background-color: #ef4444; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Manage Inventory
+              </a>
+            </div>
+          </div>
+          <div style="background-color: #f9fafb; padding: 15px; text-align: center; color: #9ca3af; font-size: 12px;">
+            © ${new Date().getFullYear()} MartNexus. Safety Alert System.
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return await this.sendEmail({
+      to: userEmail,
+      subject,
+      html,
+      type: 'EXPIRY_ALERT',
+      metadata: { shopName, itemCount: expiringItems.length }
+    });
+  }
 }
 
 // Export singleton instance
