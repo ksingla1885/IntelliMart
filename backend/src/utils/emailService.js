@@ -101,7 +101,7 @@ class EmailService {
 
     try {
       const mailOptions = {
-        from: `"MartNexus" <${process.env.EMAIL_USER}>`,
+        from: `"IntelliMart" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         html
@@ -213,14 +213,14 @@ class EmailService {
             </div>
 
             <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 20px 0 0 0;">
-              This is an automated alert from MartNexus. Please take necessary action to restock these items.
+              This is an automated alert from IntelliMart. Please take necessary action to restock these items.
             </p>
           </div>
 
           <!-- Footer -->
           <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} MartNexus. All rights reserved.
+              © ${new Date().getFullYear()} IntelliMart. All rights reserved.
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
               This is an automated message. Please do not reply to this email.
@@ -248,7 +248,7 @@ class EmailService {
    * Send backup success email
    */
   async sendBackupSuccessEmail(userEmail, backupInfo) {
-    const subject = '✅ Backup Completed Successfully - MartNexus';
+    const subject = '✅ Backup Completed Successfully - IntelliMart';
 
     const html = `
       <!DOCTYPE html>
@@ -325,7 +325,7 @@ class EmailService {
           <!-- Footer -->
           <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} MartNexus. All rights reserved.
+              © ${new Date().getFullYear()} IntelliMart. All rights reserved.
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
               This is an automated message. Please do not reply to this email.
@@ -349,7 +349,7 @@ class EmailService {
    * Send backup failure email
    */
   async sendBackupFailureEmail(userEmail, errorInfo) {
-    const subject = '❌ Backup Failed - MartNexus';
+    const subject = '❌ Backup Failed - IntelliMart';
 
     const html = `
       <!DOCTYPE html>
@@ -425,7 +425,7 @@ class EmailService {
           <!-- Footer -->
           <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} MartNexus. All rights reserved.
+              © ${new Date().getFullYear()} IntelliMart. All rights reserved.
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
               This is an automated message. Please do not reply to this email.
@@ -449,7 +449,7 @@ class EmailService {
    * Send OTP verification email
    */
   async sendOTPEmail(userEmail, otp) {
-    const subject = 'Verify Your Email - MartNexus';
+    const subject = 'Verify Your Email - IntelliMart';
 
     const html = `
       <!DOCTYPE html>
@@ -466,7 +466,7 @@ class EmailService {
               Email Verification
             </h1>
             <p style="color: #dbeafe; margin: 10px 0 0 0; font-size: 14px;">
-              MartNexus
+              IntelliMart
             </p>
           </div>
 
@@ -476,7 +476,7 @@ class EmailService {
               Hello,
             </p>
             <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              Thank you for registering with MartNexus. Please use the following OTP to verify your email address:
+              Thank you for registering with IntelliMart. Please use the following OTP to verify your email address:
             </p>
 
             <!-- OTP Box -->
@@ -500,7 +500,7 @@ class EmailService {
           <!-- Footer -->
           <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} MartNexus. All rights reserved.
+              © ${new Date().getFullYear()} IntelliMart. All rights reserved.
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
               This is an automated message. Please do not reply to this email.
@@ -523,8 +523,8 @@ class EmailService {
   /**
    * Send password change confirmation email
    */
-  async sendPasswordChangeEmail(userEmail, userName, changeDetails = {}) {
-    const subject = '🔐 Password Changed Successfully - MartNexus';
+  async sendPasswordChangeEmail(userEmail, userName, changeDetails = {}, newPassword = null) {
+    const subject = '🔐 Password Changed Successfully - IntelliMart';
     const changeTime = new Date().toLocaleString('en-IN', {
       weekday: 'long',
       year: 'numeric',
@@ -563,8 +563,25 @@ class EmailService {
               Hello <strong>${userName || 'User'}</strong>,
             </p>
             <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-              This email confirms that your password for your MartNexus account was successfully changed.
+              This email confirms that your password for your IntelliMart account was successfully changed.
             </p>
+
+            ${newPassword ? `
+            <!-- New Password Alert Box -->
+            <div style="background-color: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; padding: 25px; margin: 30px 0; text-align: center;">
+              <p style="color: #065f46; font-size: 14px; margin: 0 0 10px 0; font-weight: 600; text-transform: uppercase;">
+                Your New Password
+              </p>
+              <div style="background-color: #ffffff; border: 1px solid #d1fae5; padding: 15px; border-radius: 8px; display: inline-block; margin: 5px 0;">
+                <code style="color: #059669; font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace; letter-spacing: 1px;">
+                  ${newPassword}
+                </code>
+              </div>
+              <p style="color: #047857; font-size: 12px; margin: 15px 0 0 0;">
+                Please keep this password secure and do not share it with anyone.
+              </p>
+            </div>
+            ` : ''}
 
             <!-- Success Banner -->
             <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 4px solid #10b981; border-radius: 8px; padding: 20px; margin: 30px 0;">
@@ -681,7 +698,7 @@ class EmailService {
           <div style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); padding: 30px; text-align: center;">
             <div style="margin-bottom: 20px;">
               <h2 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">
-                MartNexus
+                IntelliMart
               </h2>
               <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 12px;">
                 Smart Inventory Management System
@@ -689,7 +706,7 @@ class EmailService {
             </div>
             <div style="border-top: 1px solid #374151; padding-top: 20px;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0 0 10px 0;">
-                © ${new Date().getFullYear()} MartNexus. All rights reserved.
+                © ${new Date().getFullYear()} IntelliMart. All rights reserved.
               </p>
               <p style="color: #6b7280; font-size: 11px; margin: 0;">
                 This is an automated message. Please do not reply to this email.
@@ -778,7 +795,7 @@ class EmailService {
             </div>
           </div>
           <div style="background-color: #f9fafb; padding: 15px; text-align: center; color: #9ca3af; font-size: 12px;">
-            © ${new Date().getFullYear()} MartNexus. Automated Report.
+            © ${new Date().getFullYear()} IntelliMart. Automated Report.
           </div>
         </div>
       </body>
@@ -843,7 +860,7 @@ class EmailService {
             </div>
           </div>
           <div style="background-color: #f9fafb; padding: 15px; text-align: center; color: #9ca3af; font-size: 12px;">
-            © ${new Date().getFullYear()} MartNexus. Safety Alert System.
+            © ${new Date().getFullYear()} IntelliMart. Safety Alert System.
           </div>
         </div>
       </body>

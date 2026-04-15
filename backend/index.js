@@ -53,7 +53,7 @@ app.use('/api/cron', cronRoutes);
 
 
 app.get('/', (req, res) => {
-    res.send('MartNexus Backend is running!');
+    res.send('IntelliMart Backend is running!');
 });
 
 app.get('/api/test', (req, res) => {

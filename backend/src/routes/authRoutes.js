@@ -83,7 +83,63 @@ router.post('/login', async (req, res) => {
 });
 
 // Forgot Password
-// ... (omitting unchanged forgot-password route part as it was recently edited)
+// Forgot Password
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = new Date(Date.now() + 10 * 60000); // 10 mins
+
+        await prisma.user.update({
+            where: { email },
+            data: { otp, otpExpires }
+        });
+
+        await emailService.sendOTPEmail(email, otp);
+
+        res.json({ message: 'OTP sent to your email' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        if (user.otp !== otp || user.otpExpires < new Date()) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await prisma.user.update({
+            where: { email },
+            data: { password: hashedPassword, otp: null, otpExpires: null }
+        });
+
+        // Send password change confirmation email
+        const userName = user.name || user.email.split('@')[0];
+        const changeDetails = {
+            ipAddress: req.ip || req.connection.remoteAddress || 'Unknown',
+            userAgent: req.get('user-agent') || 'Unknown device',
+            method: 'Password Reset via OTP'
+        };
+
+        // Send email notification (async)
+        emailService.sendPasswordChangeEmail(user.email, userName, changeDetails, newPassword)
+            .catch(err => console.error('Failed to send password reset confirmation email:', err));
+
+        res.json({ message: 'Password reset successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Get Current User (Me)
 router.get('/me', require('../middleware/authMiddleware'), async (req, res) => {
@@ -141,7 +197,7 @@ router.post('/change-password', require('../middleware/authMiddleware'), async (
         };
 
         // Send email notification (async, don't wait for it)
-        emailService.sendPasswordChangeEmail(user.email, userName, changeDetails)
+        emailService.sendPasswordChangeEmail(user.email, userName, changeDetails, newPassword)
             .catch(err => console.error('Failed to send password change email:', err));
 
         res.json({ message: 'Password changed successfully' });
