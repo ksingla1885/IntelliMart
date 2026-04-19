@@ -6,357 +6,92 @@
 
 ## 📋 Table of Contents
 
-- [Problem Statement](#-problem-statement)
-- [Target Users](#-target-users)
-- [Core Objectives](#-core-objectives)
-- [Technology Stack](#️-technology-stack)
-- [User Interface & Experience](#-user-interface--experience)
-- [User Roles](#-user-roles)
-- [Inventory Management Module](#-inventory-management-module)
-- [Billing & Invoicing Module](#-billing--invoicing-module)
-- [Reports & Analytics](#-reports--analytics)
-- [Data Backup & Export](#-data-backup--export)
-- [Multi-Shop Management](#-multi-shop-management)
-- [Notifications](#-notifications)
-- [Security Requirements](#-security-requirements)
-- [Architecture Overview](#️-architecture-overview)
-- [Development Scope](#-development-scope)
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Architecture Overview](#-architecture-overview)
+- [Project Structure](#-project-structure)
 - [Installation & Setup](#-installation--setup)
 - [Running the Application](#-running-the-application)
+- [Docker Deployment](#-docker-deployment)
+- [Future Roadmap](#-future-roadmap)
+- [Security & Performance](#-security--performance)
 
 ---
 
-## 🎯 Problem Statement
+## 🎯 Overview
 
-Small-scale **kirana and general-purpose stores** in small towns rely on manual notebooks and registers for inventory tracking. This leads to:
+Small-scale **kirana and general-purpose stores** often struggle with manual inventory tracking, leading to inaccurate stock counts, missed updates, and high mental stress. **IntelliMart** digitizes these processes with a simple, reliable, and stress-free solution tailored for non-technical shop owners.
 
-- ❌ Inaccurate stock counts
-- ❌ Missed updates
-- ❌ High mental stress for shop owners
-- ❌ Difficulty managing per-item quantities
-- ❌ No real-time visibility of remaining stock
-- ❌ Poor billing and reporting practices
-
-**IntelliMart** aims to digitize inventory, billing, and reporting in a way that is **simple, reliable, stress-free, and scalable** for small business owners.
+It provides GST-compliant billing, real-time inventory tracking, multi-shop management, and automated business analytics in a modern, responsive interface.
 
 ---
 
-## 👥 Target Users
+## ✨ Key Features
 
-**Primary User:** Shop Owner (non-technical)
+### 📦 Inventory & Stock Management
+- **Smart Tracking:** Real-time stock updates during billing.
+- **Quantity Support:** Support for Pieces, Kilograms, and Liters.
+- **Stock Movements:** Detailed logs for manual adjustments, additions, and sales.
+- **Low Stock Alerts:** Automated email notifications when products reach threshold levels.
+- **Categorization:** Organize products into custom categories for better management.
 
-**Business Type:**
-- Kirana / general stores
-- Small town / street retail shops
+### 🧾 Billing & Invoicing (GST Ready)
+- **Flexible Taxation:** Automatic CGST/SGST/IGST calculation.
+- **Invoice Generation:** Professional, printable PDF invoices.
+- **Customer Profiles:** Maintain customer history and specific pricing rules.
+- **Payment Modes:** Support for Cash, UPI, and Net Banking.
+
+### 🤝 Supplier & Purchase Management
+- **Supplier Directory:** Manage vendor contact details and payment terms.
+- **Purchase Orders:** Create and track orders from suppliers.
+- **Stock Integration:** Automatically update inventory when purchase orders are received.
+
+### 📊 Reports & Analytics
+- **Sales Insights:** Daily, monthly, and custom date-range revenue reports.
+- **Profit Tracking:** Cost vs. Selling price analysis.
+- **Inventory Summary:** Reports on current stock value and low-stock items.
+- **Product-wise Analysis:** Identify top-selling and slow-moving products.
+
+### 🏪 Multi-Shop Architecture
+- **Centralized Ownership:** One owner account can manage multiple store locations.
+- **Data Isolation:** Separate inventory, billing, and reports for each shop.
+- **Quick Switcher:** Seamlessly move between shop dashboards.
+
+### 💾 Data & Automation
+- **Auto-Backups:** Scheduled database backups in Excel/JSON formats.
+- **Cron Jobs:** Automated tasks for low stock monitoring and daily sales reports.
+- **Export Facility:** Manual export of any data to Excel for external accounting.
 
 ---
 
-## 🎯 Core Objectives
-
-✅ Simplify inventory management  
-✅ Track per-item stock accurately  
-✅ Reduce dependency on manual registers  
-✅ Provide GST-compliant billing  
-✅ Generate meaningful business reports  
-✅ Enable multi-shop ownership  
-✅ Prepare foundation for future scaling  
-
----
-
-## 🛠️ Technology Stack (Fixed)
+## 🛠️ Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React.js |
+| **Frontend** | React + TypeScript + Vite |
+| **Styling** | TailwindCSS + Shadcn/UI (Radix) |
+| **State Management** | Redux Toolkit + React Query |
 | **Backend** | Node.js + Express.js |
-| **Database** | MongoDB |
-| **Authentication** | Email + Password, OTP verification (email-based) |
-| **Deployment** | Localhost (Phase-1) |
+| **ORM** | Prisma |
+| **Database** | PostgreSQL (Supabase / Local) |
+| **Authentication** | JWT + OTP Verification (Email) |
+| **Deployment** | Docker / Vercel |
 
 ---
 
-## 🎨 User Interface & Experience
+## 🏗️ Architecture Overview
 
-✨ **Clean, modern, and advanced UI**  
-✨ **Large, readable buttons**  
-✨ **Extremely easy to use** for non-technical users  
-✨ **Fully responsive:**
-   - Desktop
-   - Tablet
-   - Mobile
-
-✨ **Unique branding** (not a generic admin panel)
-
----
-
-## 👤 User Roles
-
-### Phase-1
-- **Owner only**
-
-### Future Scope
-- Cashier role
-
----
-
-## 📦 Inventory Management Module
-
-### Product Fields
-
-| Field | Description |
-|-------|-------------|
-| **Product name** | Name of the product |
-| **Quantity type** | Pieces / Kilograms |
-| **Cost price** | Purchase price |
-| **Selling price** | Retail price |
-
-### Inventory Features
-
-✅ Manual stock increase/decrease by owner  
-✅ Automatic stock update during billing  
-✅ Per-item stock tracking  
-✅ Low stock threshold per product  
-✅ **Email alerts** when stock reaches end-point  
-
----
-
-## 🧾 Billing & Invoicing Module (GST Ready)
-
-### Billing
-
-✅ **GST-based billing:**
-   - CGST / SGST / IGST
-   - Automatic tax calculation
-
-✅ Unique bill number generation  
-✅ Stock auto-deduction during billing  
-
-### Invoice
-
-✅ Printable invoice  
-✅ Auto-saved bills  
-✅ Downloadable PDF format  
-
-### Customer Data
-
-**Store:**
-- Bill number
-- Customer name (existing or new)
-- No mandatory phone/email required
-
-### Payment Modes
-
-- 💵 Cash
-- 📱 UPI
-- 🏦 Net Banking
-
----
-
-## 📊 Reports & Analytics
-
-### Sales Reports
-
-- Daily
-- Monthly
-- Custom date range
-
-### Inventory Reports
-
-- Current stock summary
-- Low stock items
-
-### Time-based Views
-
-- Today
-- Last 7 days
-- Last 15 days
-- Monthly
-- Custom range
-
-### Report Details
-
-| Metric | Description |
-|--------|-------------|
-| **Product-wise sales** | Sales breakdown by product |
-| **Quantity sold** | Total units sold |
-| **Remaining stock** | Current inventory levels |
-| **Revenue** | Total sales revenue |
-| **GST collected** | Total GST amount |
-| **Profit** | Cost vs selling price analysis |
-
----
-
-## 💾 Data Backup & Export
-
-✅ **Automatic data backup** every 7 days  
-✅ **Auto-export data** in Excel format  
-✅ **Manual export option** for owner  
-
----
-
-## 🏪 Multi-Shop Management
-
-✅ One owner can manage **multiple shops**  
-✅ **Separate:**
-   - Inventory
-   - Billing
-   - Reports per shop
-
-✅ **Shop switcher** from dashboard  
-
----
-
-## 🔔 Notifications
-
-### Phase-1
-
-**Email alerts:**
-- Low stock notifications
-- Backup/export confirmation
-
----
-
-## 🔐 Security Requirements
-
-✅ Email + password authentication  
-✅ OTP verification during login  
-✅ Secure password hashing  
-✅ JWT-based session management  
-✅ Protected APIs  
-
----
-
-## 🏗️ Architecture Overview (HLD)
-
+```mermaid
+graph TD
+    User((Shop Owner)) --> Frontend[React + Shadcn UI]
+    Frontend -->|API Requests| Backend[Express + Node.js]
+    Backend -->|Auth| JWT[JWT + OTP Service]
+    Backend -->|ORM| Prisma[Prisma ORM]
+    Prisma -->|Query| DB[(PostgreSQL)]
+    Backend -->|Automation| Cron[node-cron Schedulers]
+    Backend -->|Files| Storage[Local/Cloud PDF & Exports]
 ```
-React Frontend
-      ↓
-Node.js + Express APIs
-      ↓
-MongoDB Database
-```
-
-### Modules
-
-1. **Authentication Service**
-2. **Inventory Service**
-3. **Billing Service**
-4. **Reporting Service**
-5. **Notification Service**
-
----
-
-## 🚀 Development Scope
-
-### ✅ Included in Phase-1
-
-- Online-only system
-- Localhost deployment
-- Full GST billing
-- Reports & exports
-
-### 🔮 Explicit Future Scope
-
-- Offline-first functionality with auto-sync
-- WhatsApp / SMS alerts
-- Cashier role
-- Supplier & purchase management
-- Cloud deployment
-- Mobile app (React Native)
-
----
-
-## 📥 Installation & Setup
-
-### Prerequisites
-
-- **Node.js** v18 or higher
-- **MongoDB** installed and running
-- **npm** or **yarn** package manager
-
-### Installation Steps
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd IntelliMart
-   ```
-
-2. **Install Backend Dependencies**
-
-   ```bash
-   cd backend
-   npm install
-   ```
-
-3. **Install Frontend Dependencies**
-
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-4. **Configure Environment Variables**
-
-   Create a `.env` file in the `backend` directory:
-
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/intellimart
-   JWT_SECRET=your_jwt_secret_key
-   EMAIL_SERVICE=gmail
-   EMAIL_USER=your_email@gmail.com
-   EMAIL_PASSWORD=your_email_password
-   ```
-
-5. **Set up MongoDB**
-
-   Ensure MongoDB is running on your system:
-
-   ```bash
-   mongod
-   ```
-
----
-
-## 🚀 Running the Application
-
-### Development Mode
-
-1. **Start Backend Server**
-
-   ```bash
-   cd backend
-   npm run dev
-   ```
-
-   Backend runs at: `http://localhost:5000`
-
-2. **Start Frontend Development Server**
-
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-   Frontend runs at: `http://localhost:5173`
-
-### Production Build
-
-1. **Build Frontend**
-
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. **Start Production Server**
-
-   ```bash
-   cd backend
-   npm start
-   ```
 
 ---
 
@@ -365,31 +100,130 @@ MongoDB Database
 ```
 IntelliMart/
 ├── backend/
-│   ├── controllers/      # Business logic
-│   ├── models/          # MongoDB schemas
-│   ├── routes/          # API routes
-│   ├── middleware/      # Auth & validation
-│   ├── services/        # Email, notifications
-│   ├── config/          # Configuration files
-│   └── server.js        # Entry point
+│   ├── prisma/             # Database schema & migrations
+│   ├── src/
+│   │   ├── controllers/    # Route handlers
+│   │   ├── middleware/    # Auth & validation
+│   │   ├── routes/         # API endpoints
+│   │   ├── scheduler/      # Cron jobs (Backups, Alerts)
+│   │   └── utils/          # Helpers (Email, PDF, Exports)
+│   └── index.js            # Entry point
 ├── frontend/
 │   ├── src/
-│   │   ├── components/  # Reusable components
-│   │   ├── pages/       # Page components
-│   │   ├── hooks/       # Custom hooks
-│   │   ├── services/    # API calls
-│   │   ├── utils/       # Utilities
-│   │   ├── context/     # Context providers
-│   │   └── App.jsx      # Root component
-│   └── public/          # Static assets
-└── README.md
+│   │   ├── components/     # UI Components (Shadcn)
+│   │   ├── pages/          # Application views
+│   │   ├── store/          # Redux state management
+│   │   ├── hooks/          # Custom react hooks
+│   │   └── integrations/   # API & Supabase clients
+│   └── tailwind.config.js  # Styling configuration
+└── docker-compose.yml       # Container orchestration
 ```
+
+---
+
+## 📥 Installation & Setup
+
+### Prerequisites
+- **Node.js** v18+
+- **PostgreSQL** instance
+- **npm** or **pnpm**
+
+### Step 1: Clone & Install
+```bash
+git clone <repository-url>
+cd IntelliMart
+
+# Install Backend
+cd backend
+npm install
+
+# Install Frontend
+cd ../frontend
+npm install
+```
+
+### Step 2: Environment Setup
+Create a `.env` in `backend/`:
+```env
+PORT=5000
+DATABASE_URL="postgresql://user:pass@localhost:5432/intellimart"
+JWT_SECRET="your_secret"
+EMAIL_SERVICE="gmail"
+EMAIL_USER="your-email@gmail.com"
+EMAIL_PASSWORD="app-password"
+```
+
+Create a `.env` in `frontend/`:
+```env
+VITE_API_URL="http://localhost:5000/api"
+VITE_SUPABASE_URL="your_supabase_url"
+VITE_SUPABASE_ANON_KEY="your_anon_key"
+```
+
+### Step 3: Database Initialize
+```bash
+cd backend
+npx prisma generate
+npx prisma db push
+```
+
+---
+
+## 🚀 Running the Application
+
+### Development Mode
+**Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+### Production Build
+```bash
+# Frontend
+cd frontend
+npm run build
+
+# Backend
+cd backend
+npm start
+```
+
+---
+
+## 🐳 Docker Deployment
+
+The project includes a `docker-compose.yml` for easy orchestration.
+
+```bash
+docker-compose up --build
+```
+This will spin up:
+- **Backend** at `http://localhost:5000`
+- **Frontend** at `http://localhost:5173`
+- **PostgreSQL** (if configured in compose)
+
+---
+
+## 🔐 Security & Performance
+
+- **OTP Authentication:** Two-factor security for login.
+- **Rate Limiting:** API protection against brute force.
+- **Serverless Ready:** Backend is optimized for Vercel/Serverless deployment.
+- **Lazy Loading:** Frontend uses route-based code splitting for performance.
+- **Responsive:** Mobile-first design for shop floor usage.
 
 ---
 
 ## 📝 License
 
-This project is **private and proprietary**. Unauthorized use or distribution is prohibited.
+This project is **private and proprietary**. Unauthorized use, distribution, or copying is prohibited.
 
 ---
 
