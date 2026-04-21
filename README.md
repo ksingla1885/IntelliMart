@@ -223,7 +223,7 @@ This will spin up:
 
 ## 📝 License
 
-This project is **private and proprietary**. Unauthorized use, distribution, or copying is prohibited.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
