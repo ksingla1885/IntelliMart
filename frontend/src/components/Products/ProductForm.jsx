@@ -13,6 +13,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { BarcodeScanner } from '@/components/Barcode/BarcodeScanner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Camera, Plus } from 'lucide-react';
 import { toast as sonnerToast } from 'sonner';
 import { CategoryForm } from '@/components/Categories/CategoryForm';
@@ -32,11 +33,12 @@ const productSchema = z.object({
 });
 
 export function ProductForm({ open, onClose, productId, onSuccess }) {
-  const { categories, fetchCategories } = useCategories(); // Ensure fetchCategories is available
-  const { getProduct, createProduct, updateProduct } = useProducts();
+  const { categories, fetchCategories } = useCategories(); 
+  const { products, getProduct, createProduct, updateProduct } = useProducts();
   const { toast } = useToast();
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(productSchema),
@@ -49,35 +51,48 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
       costPrice: '0',
       stock: '0',
       reorderLevel: '5',
-      quantityType: 'PIECES', // Default
+      quantityType: 'PIECES',
       barcode: '',
       isActive: true,
     },
   });
 
   useEffect(() => {
-    if (open) {
-      fetchCategories(); // Ensure categories are loaded when form opens
-    }
-    if (productId && open) {
-      loadProduct();
-    } else if (!open) {
-      form.reset();
-    }
-  }, [productId, open]);
-
-  // Auto-generate SKU
-  useEffect(() => {
-    if (!productId) {
-      const name = form.watch('name');
-      const categoryId = form.watch('categoryId');
-      if (name) {
-        const category = categories.find(c => c.id === categoryId);
-        const generatedSku = generateSKU(name, category?.name);
-        form.setValue('sku', generatedSku);
+    const initForm = async () => {
+      if (!open) {
+        form.reset();
+        return;
       }
-    }
-  }, [form.watch('name'), form.watch('categoryId'), productId, categories]);
+      
+      fetchCategories();
+      
+      if (productId) {
+        setLoadingProduct(true);
+        try {
+          const product = await getProduct(productId);
+          if (product) {
+            form.reset({
+              name: product.name || '',
+              sku: product.sku || '',
+              categoryId: product.categoryId || '',
+              description: product.description || '',
+              sellingPrice: (product.sellingPrice ?? 0).toString(),
+              costPrice: (product.costPrice ?? 0).toString(),
+              stock: (product.stock ?? 0).toString(),
+              reorderLevel: (product.reorderLevel ?? 5).toString(),
+              quantityType: product.quantityType || 'PIECES',
+              barcode: product.barcode || '',
+              isActive: product.isActive ?? true,
+            });
+          }
+        } finally {
+          setLoadingProduct(false);
+        }
+      }
+    };
+
+    initForm();
+  }, [productId, open, products]);
 
   const generateSKU = (productName, categoryName) => {
     const categoryPrefix = categoryName ? categoryName.substring(0, 3).toUpperCase() : 'GEN';
@@ -93,24 +108,18 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
     setScannerOpen(false);
   };
 
-  const loadProduct = async () => {
-    const product = await getProduct(productId);
-    if (product) {
-      form.reset({
-        name: product.name,
-        sku: product.sku || '',
-        categoryId: product.categoryId || '',
-        description: product.description || '',
-        sellingPrice: (product.sellingPrice || 0).toString(),
-        costPrice: (product.costPrice || 0).toString(),
-        stock: (product.stock || 0).toString(),
-        reorderLevel: (product.reorderLevel || 5).toString(),
-        quantityType: product.quantityType || 'PIECES',
-        barcode: product.barcode || '',
-        isActive: product.isActive,
-      });
+  // Auto-generate SKU
+  useEffect(() => {
+    if (!productId) {
+      const name = form.watch('name');
+      const categoryId = form.watch('categoryId');
+      if (name) {
+        const category = categories.find(c => c.id === categoryId);
+        const generatedSku = generateSKU(name, category?.name);
+        form.setValue('sku', generatedSku);
+      }
     }
-  };
+  }, [form.watch('name'), form.watch('categoryId'), productId, categories]);
 
   const onSubmit = async (data) => {
     try {
@@ -159,169 +168,193 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Product Name *</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter product name" className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="sku" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">SKU (Auto-generated)</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Auto-generated" readOnly className="bg-muted" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="categoryId" render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel className="text-sm font-semibold">Category *</FormLabel>
-                      <Button
-                        type="button"
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0 text-primary"
-                        onClick={() => setIsCategoryFormOpen(true)}
-                      >
-                        <Plus className="h-3 w-3 mr-1" /> Add New
-                      </Button>
-                    </div>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                        ))}
-                        {categories.length === 0 && <SelectItem value="none" disabled>No categories found</SelectItem>}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="quantityType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Quantity Type *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="PIECES">Pieces (Pcs)</SelectItem>
-                        <SelectItem value="KG">Kilograms (Kg)</SelectItem>
-                        <SelectItem value="LITERS">Liters (L)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-
-              <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-semibold">Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Enter description" className="resize-none" rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="sellingPrice" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Selling Price *</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="costPrice" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Cost Price *</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="stock" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Stock Quantity *</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" step="0.01" placeholder="0" className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="reorderLevel" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-semibold">Low Stock Threshold *</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="number" step="1" placeholder="5" className="h-10" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-
-              <FormField control={form.control} name="barcode" render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2 text-sm font-semibold">
-                    Barcode
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setScannerOpen(true)} className="h-6 px-2 text-xs">
-                      <Camera className="h-3.5 w-3.5 mr-1" /> Scan
-                    </Button>
-                  </FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter barcode or scan" className="h-10" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <BarcodeScanner open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleBarcodeScan} />
-
-              <FormField control={form.control} name="isActive" render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg border-2 p-4 bg-muted/30">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-sm font-semibold">Active Status</FormLabel>
-                    <div className="text-sm text-muted-foreground">Enable or disable this product</div>
+              {loadingProduct ? (
+                <div className="space-y-6 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
                   </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <Skeleton className="h-24 w-full" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div className="flex justify-end gap-3 pt-6 border-t">
+                    <Skeleton className="h-12 w-24" />
+                    <Skeleton className="h-12 w-32" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="name" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Product Name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter product name" className="h-10" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-              <div className="flex justify-end gap-3 pt-6 border-t">
-                <Button type="button" variant="outline" onClick={onClose} size="lg">Cancel</Button>
-                <Button type="submit" size="lg" className="shadow-lg">
-                  {productId ? 'Update Product' : 'Create Product'}
-                </Button>
-              </div>
+                    <FormField control={form.control} name="sku" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">SKU (Auto-generated)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Auto-generated" readOnly className="bg-muted" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="categoryId" render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between">
+                          <FormLabel className="text-sm font-semibold">Category *</FormLabel>
+                          <Button
+                            type="button"
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-primary"
+                            onClick={() => setIsCategoryFormOpen(true)}
+                          >
+                            <Plus className="h-3 w-3 mr-1" /> Add New
+                          </Button>
+                        </div>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                            ))}
+                            {categories.length === 0 && <SelectItem value="none" disabled>No categories found</SelectItem>}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="quantityType" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Quantity Type *</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="PIECES">Pieces (Pcs)</SelectItem>
+                            <SelectItem value="KG">Kilograms (Kg)</SelectItem>
+                            <SelectItem value="LITERS">Liters (L)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="description" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-semibold">Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Enter description" className="resize-none" rows={3} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="sellingPrice" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Selling Price *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="costPrice" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Cost Price *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="stock" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Stock Quantity *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" step="0.01" placeholder="0" className="h-10" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    <FormField control={form.control} name="reorderLevel" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-semibold">Low Stock Threshold *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="number" step="1" placeholder="5" className="h-10" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
+                  <FormField control={form.control} name="barcode" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2 text-sm font-semibold">
+                        Barcode
+                        <Button type="button" variant="ghost" size="sm" onClick={() => setScannerOpen(true)} className="h-6 px-2 text-xs">
+                          <Camera className="h-3.5 w-3.5 mr-1" /> Scan
+                        </Button>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter barcode or scan" className="h-10" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <BarcodeScanner open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleBarcodeScan} />
+
+                  <FormField control={form.control} name="isActive" render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border-2 p-4 bg-muted/30">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-sm font-semibold">Active Status</FormLabel>
+                        <div className="text-sm text-muted-foreground">Enable or disable this product</div>
+                      </div>
+                      <FormControl>
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )} />
+
+                  <div className="flex justify-end gap-3 pt-6 border-t">
+                    <Button type="button" variant="outline" onClick={onClose} size="lg">Cancel</Button>
+                    <Button type="submit" size="lg" className="shadow-lg">
+                      {productId ? 'Update Product' : 'Create Product'}
+                    </Button>
+                  </div>
+                </>
+              )}
             </form>
           </Form>
         </DialogContent>

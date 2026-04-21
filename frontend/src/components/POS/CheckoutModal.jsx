@@ -1,22 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useSales } from '@/hooks/useSales';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, User, CreditCard, Banknote, Smartphone, Wallet, ShoppingBag, CheckCircle2 } from 'lucide-react';
+import { Loader2, User, CreditCard, Banknote, Smartphone, Wallet, ShoppingBag, CheckCircle2, Percent } from 'lucide-react';
 const checkoutSchema = z.object({
   payment_method: z.enum(['cash', 'card', 'mobile', 'other']),
   notes: z.string().optional(),
+  // Manual customer details - Now Required for Walk-in transparency
+  customer_name: z.string().min(2, "Customer name is required"),
+  customer_phone: z.string().min(10, "Valid phone number is required").max(12, "Phone number is too long"),
+  customer_firm: z.string().min(2, "Firm/Business name is required"),
+  customer_gstin: z.string()
+    .min(15, "GSTIN must be 15 characters")
+    .max(15, "GSTIN must be 15 characters")
+    .regex(/^[0-9A-Z]{15}$/, "Invalid GSTIN format (must be 15 alphanumeric characters)"),
+  tax_rate: z.string().min(1),
 });
+const taxRates = [
+  { value: '0', label: '0% (Exempt)' },
+  { value: '5', label: '5% (GST)' },
+  { value: '12', label: '12% (GST)' },
+  { value: '18', label: '18% (GST)' },
+  { value: '28', label: '28% (GST)' },
+];
 const paymentMethods = [
   { value: 'cash', label: 'Cash', icon: Banknote, gradient: 'from-green-500 to-emerald-600' },
   { value: 'card', label: 'Card/Net Banking', icon: CreditCard, gradient: 'from-blue-500 to-cyan-600' },
@@ -32,17 +50,44 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
     defaultValues: {
       payment_method: 'cash',
       notes: '',
+      customer_name: '',
+      customer_phone: '',
+      customer_firm: '',
+      customer_gstin: '',
+      tax_rate: '18',
     },
   });
 
-  // GST Calculation: 18% on top of subtotal
-  const tax = subtotal * 0.18;
+  // Sync selected customer details to form
+  const { setValue } = form;
+  useEffect(() => {
+    if (customer) {
+      setValue('customer_name', customer.name || '');
+      setValue('customer_phone', customer.phone || '');
+      setValue('customer_firm', customer.firmName || '');
+      setValue('customer_gstin', customer.gstin || '');
+    }
+  }, [customer, setValue]);
+
+  // Dynamic values based on selected tax rate
+  const selectedTaxRate = parseFloat(form.watch('tax_rate') || '0');
+  const tax = subtotal * (selectedTaxRate / 100);
   const total = subtotal + tax;
+
   const onSubmit = async (data) => {
     if (cartItems.length === 0)
       return;
     setIsProcessing(true);
     try {
+      // Merge selected customer with manual form entries - Manual entries take priority
+      const customerInfo = {
+        id: customer?.id,
+        name: data.customer_name || "Walk-in Customer",
+        phone: data.customer_phone || "",
+        firmName: data.customer_firm || "",
+        gstin: data.customer_gstin || "",
+      };
+
       // Create sale - backend now handles bill numbering and stock deduction
       const sale = await createSale({
         items: cartItems.map(item => ({
@@ -52,7 +97,8 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
         })),
         payment_method: data.payment_method,
         notes: data.notes || null,
-        customer: customer // Pass customer object so createSale can extract ID
+        tax_rate: selectedTaxRate, // Pass user-selected tax rate
+        customer: customerInfo
       });
 
       toast({
@@ -86,6 +132,9 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
             </div>
             Complete Checkout
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Provide customer billing details and select payment method to finalize the sale.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Customer Info */}
@@ -110,16 +159,92 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
                 <span>Subtotal:</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm font-medium">
-                <span>GST (18%):</span>
-                <span>₹{tax.toFixed(2)}</span>
+              
+              <div className="grid grid-cols-2 items-center gap-4 py-1">
+                <FormField control={form.control} name="tax_rate" render={({ field }) => (
+                  <FormItem className="space-y-0">
+                    <div className="flex items-center gap-2">
+                       <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+                       <FormLabel className="text-sm font-medium">Tax Rate (GST)</FormLabel>
+                    </div>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="mt-1.5 h-8 text-xs font-semibold">
+                          <SelectValue placeholder="Select GST" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {taxRates.map(rate => (
+                          <SelectItem key={rate.value} value={rate.value}>{rate.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )} />
+                <div className="text-right">
+                  <span className="text-xs text-muted-foreground block">GST ({selectedTaxRate}%):</span>
+                  <span className="text-sm font-medium">₹{tax.toFixed(2)}</span>
+                </div>
               </div>
 
               <Separator className="my-3" />
-              <div className="flex justify-between items-center font-bold text-xl pt-2">
+              <div className="flex justify-between items-center font-bold text-xl pt-1">
                 <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Total:</span>
                 <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">₹{total.toFixed(2)}</span>
               </div>
+            </div>
+
+            {/* Customer Details - Strictly Required */}
+            <div className="space-y-4 p-5 bg-gradient-to-br from-primary/5 to-purple-500/5 backdrop-blur-sm rounded-xl border-2 border-primary/10 animate-in fade-in slide-in-from-bottom-4">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-lg">Billing Details (Required)</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="customer_name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">Customer Name *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Full Name" className="bg-background/50" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="customer_phone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">Phone Number *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="10-digit mobile" className="bg-background/50" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="customer_firm" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">Firm/Business Name *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Company Name" className="bg-background/50" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="customer_gstin" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold">GST Number *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="15-digit GSTIN" className="bg-background/50 uppercase" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              </div>
+              <p className="text-[10px] text-muted-foreground italic">* All billing details are mandatory for invoice generation.</p>
             </div>
 
             {/* Payment Method */}

@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Printer, Download, FileText, Building, Phone, Mail, MapPin, Globe } from 'lucide-react';
+import { Printer, Download, FileText, Building, Phone, Mail, MapPin, Globe, User } from 'lucide-react';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -40,13 +40,20 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
   };
 
   const shop = shopDetails || defaultShopDetails;
+  
+  // DRIVER: Derive the actual tax rate from the billed data to ensure summary matches table
+  const derivedRate = sale?.taxRate ? Number(sale.taxRate) : 
+                     (sale?.items?.[0]?.taxRate ? Number(sale.items[0].taxRate) : 
+                     (sale?.totalAmount > sale?.subTotal ? Math.round(((sale.totalAmount - sale.subTotal) / sale.subTotal) * 100) : 18));
+  
+  const currentTaxRate = derivedRate;
 
   // GST calculation helper
-  const calculateGST = (amount, rate = 0.18) => {
+  const calculateGST = (amount, ratePercent = currentTaxRate) => {
+    const rate = ratePercent / 100;
     const cgst = amount * rate / 2;
     const sgst = amount * rate / 2;
-    const igst = amount * rate;
-    return { cgst, sgst, igst, total: cgst + sgst };
+    return { cgst, sgst, total: cgst + sgst };
   };
 
   const handlePrint = () => {
@@ -125,6 +132,10 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
         yPosition = addText(`Customer: ${sale.customerName}`, margin, yPosition, 10);
       }
 
+      if (sale.customerGstin) {
+        yPosition = addText(`Customer GSTIN: ${sale.customerGstin}`, margin, yPosition, 10);
+      }
+
       yPosition = addText(`Payment: ${sale.paymentMode?.toUpperCase() || 'CASH'}`, margin, yPosition, 10);
       yPosition += 10;
 
@@ -134,7 +145,8 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
         const unitPrice = Number(item.price || item.unit_price || 0);
         const quantity = Number(item.quantity || 0);
         const subtotal = unitPrice * quantity;
-        const gst = calculateGST(subtotal);
+        const itemTaxRate = Number(item.taxRate || currentTaxRate);
+        const gst = calculateGST(subtotal, itemTaxRate);
 
         return [
           productName,
@@ -165,14 +177,14 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
       const total = Number(sale.totalAmount);
 
       yPosition = addText(`Subtotal: ₹${subtotal.toFixed(2)}`, pageWidth - 60, yPosition, 10);
-      yPosition = addText(`GST (18%): ₹${taxAmount.toFixed(2)}`, pageWidth - 60, yPosition, 10);
+      yPosition = addText(`GST (${currentTaxRate}%): ₹${taxAmount.toFixed(2)}`, pageWidth - 60, yPosition, 10);
       yPosition = addText(`Total: ₹${total.toFixed(2)}`, pageWidth - 60, yPosition, 12, true);
       yPosition += 15;
 
       // GST Summary
       yPosition = addText('GST Summary:', margin, yPosition, 11, true);
-      yPosition = addText(`CGST (9%): ₹${(taxAmount / 2).toFixed(2)}`, margin, yPosition, 10);
-      yPosition = addText(`SGST (9%): ₹${(taxAmount / 2).toFixed(2)}`, margin, yPosition, 10);
+      yPosition = addText(`CGST (${currentTaxRate / 2}%): ₹${(taxAmount / 2).toFixed(2)}`, margin, yPosition, 10);
+      yPosition = addText(`SGST (${currentTaxRate / 2}%): ₹${(taxAmount / 2).toFixed(2)}`, margin, yPosition, 10);
       yPosition = addText(`Total GST: ₹${taxAmount.toFixed(2)}`, margin, yPosition, 10);
 
       // Footer
@@ -212,6 +224,9 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
             <FileText className="h-5 w-5" />
             GST Invoice - {sale.billNumber}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Tax invoice details for {sale.customerName || "Walk-in Customer"} including GST breakdown.
+          </DialogDescription>
         </DialogHeader>
 
         <div id="invoice-content" className="space-y-6" ref={invoiceRef}>
@@ -251,9 +266,26 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
                   <div className="ml-6 space-y-1">
                     <p className="text-sm"><strong>Invoice #:</strong> {sale.billNumber}</p>
                     <p className="text-sm"><strong>Date:</strong> {format(new Date(sale.createdAt || new Date()), 'PPP')}</p>
-                    <p className="text-sm"><strong>Payment:</strong> <Badge variant="secondary">{sale.paymentMode?.toUpperCase() || 'CASH'}</Badge></p>
-                    {sale.customerName && (
-                      <p className="text-sm"><strong>Customer:</strong> {sale.customerName}</p>
+                    <div className="text-sm flex items-center gap-1">
+                      <strong>Payment:</strong> 
+                      <Badge variant="secondary">{sale.paymentMode?.toUpperCase() || 'CASH'}</Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-semibold">Billed To:</span>
+                  </div>
+                  <div className="ml-6 space-y-1">
+                    <p className="text-sm font-bold">{sale.customerName || 'Walk-in Customer'}</p>
+                    {sale.customerFirm && <p className="text-sm">{sale.customerFirm}</p>}
+                    {sale.customerMobile && <p className="text-sm">Ph: {sale.customerMobile}</p>}
+                    {(sale.customerGstin || sale.customer_gstin) && (
+                      <p className="text-sm mt-1">
+                         <strong>Customer GSTIN:</strong> {sale.customerGstin || sale.customer_gstin}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -261,9 +293,7 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
               <div className="mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm"><strong>GSTIN:</strong> {shop.gstin}</span>
-                  <span className="text-sm text-muted-foreground">|</span>
-                  <span className="text-sm"><strong>State Code:</strong> {shop.stateCode}</span>
+                  <span className="text-sm"><strong>Shop GSTIN:</strong> {shop.gstin}</span>
                 </div>
               </div>
             </CardContent>
@@ -292,7 +322,9 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
                       const unitPrice = Number(item.price || item.unit_price || 0);
                       const quantity = Number(item.quantity || 0);
                       const itemSubtotal = unitPrice * quantity;
-                      const itemGST = calculateGST(itemSubtotal);
+                      // Use item-level tax rate if available, fallback to sale level
+                      const itemTaxRate = Number(item.taxRate || currentTaxRate);
+                      const itemGST = calculateGST(itemSubtotal, itemTaxRate);
 
                       return (
                         <tr key={index} className="border-b">
@@ -319,11 +351,11 @@ export function GSTInvoice({ open, onClose, sale, shopDetails }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>CGST (9%):</span>
+                    <span>CGST ({currentTaxRate / 2}%):</span>
                     <span>₹{gstBreakdown.cgst.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>SGST (9%):</span>
+                    <span>SGST ({currentTaxRate / 2}%):</span>
                     <span>₹{gstBreakdown.sgst.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-semibold">

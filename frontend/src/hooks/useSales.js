@@ -21,16 +21,17 @@ export function useSales() {
 
             const payload = {
                 shopId: activeShop.id,
-                // customerId removed from here to add conditionally
                 customerName: data.customer?.name || "Walk-in Customer",
                 customerMobile: data.customer?.phone || "",
+                customerFirm: data.customer?.firmName || "", 
+                customerGstin: data.customer?.gstin || "",   
                 paymentMode: paymentModeMap[data.payment_method] || 'CASH',
                 notes: data.notes,
                 items: data.items.map(item => ({
                     productId: item.product_id || item.productId,
                     quantity: item.quantity,
                     price: item.unit_price || item.price,
-                    taxRate: 18 // Default 18% as used in frontend calculations
+                    taxRate: data.tax_rate || 18 // Dynamic tax rate from the checkout form
                 }))
             };
 

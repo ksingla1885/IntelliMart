@@ -54,11 +54,21 @@ export function useProducts() {
     }, [activeShop]);
 
     const getProduct = async (id) => {
-        // We can optimize this to find from state if available, or fetch
         try {
-            // If we had a single product endpoint, we'd use it. 
-            // For now, let's find it in the list if loaded, or we might need to rely on list
-            return products.find(p => p.id === id) || null;
+            // If local products are empty, attempt to fetch first
+            if (products.length === 0) {
+                await fetchProducts();
+            }
+            
+            // Re-check after fetch attempt
+            const found = products.find(p => p.id === id);
+            if (found) return found;
+
+            // Optional: fallback to a single product fetch if your API supports it
+            // const { data } = await api.get(`/products/${id}`);
+            // return data;
+            
+            return null;
         } catch (error) {
             console.error('Error fetching product:', error);
             return null;

@@ -1,13 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Package, ArrowLeft, ShieldCheck, Mail, Lock } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { setUser, setSession } from "@/store/slices/authSlice";
 
@@ -26,23 +24,19 @@ export default function Auth() {
   const { toast } = useToast();
   const dispatch = useDispatch();
 
-  // No auto-redirect here to allow user to see the page and potentially sign up with another account
-  const isLoggedIn = !!sessionStorage.getItem('token');
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', { email, password });
       sessionStorage.setItem('token', data.token);
-      // Construct a session object to match what slice expects vaguely, or just set user
       const user = { id: data.userId, email: email, name: data.name };
       dispatch(setUser(user));
       dispatch(setSession({ user, access_token: data.token }));
       navigate("/dashboard");
     } catch (error) {
       toast({
-        title: "Login Failed",
+        title: "Access Denied",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -58,12 +52,12 @@ export default function Auth() {
       await api.post('/auth/register', { email, password });
       setShowOtp(true);
       toast({
-        title: "OTP Sent",
-        description: "Please check your email for the verification code.",
+        title: "Security Verified",
+        description: "Check your inbox for the 6-digit access code.",
       });
     } catch (error) {
       toast({
-        title: "Registration Failed",
+        title: "Registration Error",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -78,15 +72,15 @@ export default function Auth() {
     try {
       await api.post('/auth/verify-otp', { email, otp });
       toast({
-        title: "Verified!",
-        description: "Your account is verified. You can now login.",
+        title: "Account Ready",
+        description: "Verification successful. You can now log in.",
       });
       setShowOtp(false);
       setOtp("");
       setActiveTab("login");
     } catch (error) {
       toast({
-        title: "Verification Failed",
+        title: "Invalid Code",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -102,12 +96,12 @@ export default function Auth() {
       await api.post('/auth/forgot-password', { email });
       setResetPasswordMode(true);
       toast({
-        title: "OTP Sent",
-        description: "Check email for password reset OTP.",
+        title: "Recovery Sent",
+        description: "Instructions sent to your email.",
       });
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Recovery Error",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -122,8 +116,8 @@ export default function Auth() {
     try {
       await api.post('/auth/reset-password', { email, otp, newPassword });
       toast({
-        title: "Success",
-        description: "Password reset successfully. Please login.",
+        title: "Password Updated",
+        description: "Your security credentials have been updated.",
       });
       setResetPasswordMode(false);
       setForgotPasswordMode(false);
@@ -132,7 +126,7 @@ export default function Auth() {
       setActiveTab("login");
     } catch (error) {
       toast({
-        title: "Error",
+        title: "Reset Failed",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -141,135 +135,211 @@ export default function Auth() {
     }
   };
 
-  return (<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-slate-50 to-violet-50 dark:from-gray-950 dark:via-indigo-950/30 dark:to-gray-950 p-4 relative overflow-hidden">
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-20 left-20 w-32 h-32 border-4 border-indigo-400/40 rounded-lg animate-float" />
-      <div className="absolute top-40 right-32 w-24 h-24 border-4 border-violet-400/40 rounded-lg animate-float animation-delay-1000" />
-      <div className="absolute bottom-32 left-40 w-28 h-28 border-4 border-blue-400/40 rounded-lg animate-float animation-delay-2000" />
-      <div className="absolute bottom-40 right-20 w-36 h-36 border-4 border-indigo-300/40 rounded-lg animate-float animation-delay-3000" />
-      <div className="absolute top-1/2 left-10 w-20 h-20 border-4 border-violet-300/40 rounded-lg animate-float animation-delay-1500" />
-      <div className="absolute top-1/3 right-10 w-24 h-24 border-4 border-blue-300/40 rounded-lg animate-float animation-delay-2500" />
-    </div>
-
-    <Card className="w-full max-w-md relative z-10 shadow-2xl border-2">
-      <CardHeader className="text-center space-y-3 pb-6">
-        <CardTitle className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 bg-clip-text text-transparent">
-          IntelliMart
-        </CardTitle>
-        <CardDescription className="text-base font-medium">Logistics & Inventory System</CardDescription>
-        {isLoggedIn && (
-          <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-md">
-            <p className="text-sm text-indigo-700 dark:text-indigo-400 font-medium">
-              Active session detected.
-            </p>
-            <Button variant="link" className="h-auto p-0 text-xs text-indigo-600 dark:text-indigo-500" onClick={() => { sessionStorage.removeItem('token'); navigate("/"); }}>
-              Sign Out
-            </Button>
-            <span className="mx-2 text-gray-300">|</span>
-            <Button variant="link" className="h-auto p-0 text-xs text-blue-600 dark:text-blue-500" onClick={() => navigate("/dashboard")}>
-              Go to Dashboard
-            </Button>
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
+      {/* Left Side: Clean Professional Visuals */}
+      <div className="hidden lg:flex flex-col bg-slate-900 p-12 text-white relative items-center justify-center overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+        <div className="absolute top-12 left-12 flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center">
+            <Package className="w-5 h-5" />
           </div>
-        )}
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-12 mb-6">
-            <TabsTrigger value="login" className="text-base font-semibold">Login</TabsTrigger>
-            <TabsTrigger value="signup" className="text-base font-semibold">Register</TabsTrigger>
-          </TabsList>
+          <span className="text-xl font-bold tracking-tight">IntelliMart</span>
+        </div>
 
-          <TabsContent value="login">
-            {forgotPasswordMode ? (
-              resetPasswordMode ? (
-                <form onSubmit={handleResetPassword} className="space-y-5">
-                  <div className="space-y-2">
-                    <Label>Email</Label>
-                    <Input type="email" value={email} disabled className="bg-gray-100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Verification Code</Label>
-                    <Input placeholder="Enter code" value={otp} onChange={(e) => setOtp(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>New Password</Label>
-                    <Input type="password" placeholder="New Password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-                  </div>
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={loading}>Reset Password</Button>
-                  <Button variant="ghost" className="w-full" onClick={() => { setResetPasswordMode(false); setForgotPasswordMode(false); }}>Cancel</Button>
-                </form>
+        <div className="relative z-10 max-w-md w-full">
+          <div className="mb-12">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-indigo-400 text-xs font-semibold mb-6">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Enterprise Grade Security</span>
+             </div>
+             <h2 className="text-4xl font-extrabold mb-6 tracking-tight leading-tight">
+               Precision Inventory <br/> for Modern Retailers.
+             </h2>
+             <p className="text-slate-400 text-lg font-medium leading-relaxed">
+               Access your multi-branch dashboard and oversee your logistics with absolute clarity and control.
+             </p>
+          </div>
+
+          <div className="space-y-6">
+             {[
+               "Real-time Stock Synchronization",
+               "Automated Branch Reporting",
+               "Granular Access Control"
+             ].map((text, i) => (
+               <div key={i} className="flex items-center gap-3">
+                 <div className="w-5 h-5 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
+                 </div>
+                 <span className="text-slate-300 font-medium">{text}</span>
+               </div>
+             ))}
+          </div>
+        </div>
+
+        <div className="absolute bottom-12 left-12 right-12 text-slate-500 text-xs font-medium border-t border-white/5 pt-8">
+            © {new Date().getFullYear()} IntelliMart Logistics Inc. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right Side: Clean Form */}
+      <div className="flex flex-col items-center justify-center p-8 md:p-12 bg-[#FDFDFD]">
+        <div className="w-full max-w-sm">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center gap-2 mb-12">
+            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <Package className="text-white w-6 h-6" />
+            </div>
+            <span className="text-2xl font-bold text-slate-900">IntelliMart</span>
+          </div>
+
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+              {activeTab === "login" ? (forgotPasswordMode ? "Reset Password" : "Welcome Back") : "Create Account"}
+            </h1>
+            <p className="text-slate-500 text-sm font-medium">
+              {activeTab === "login" 
+                ? (forgotPasswordMode ? "Enter your email to recover access" : "Please enter your details to sign in") 
+                : "Join over 2,500+ businesses today"}
+            </p>
+          </div>
+
+          {/* Verification View */}
+          {showOtp ? (
+            <form onSubmit={handleVerifyOtp} className="space-y-6">
+              <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100 text-sm text-indigo-700 font-medium mb-4">
+                We've sent a code to <br/><span className="font-bold underline">{email}</span>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-slate-700 font-semibold">Verification Code</Label>
+                <Input 
+                  placeholder="Enter 6-digit code" 
+                  value={otp} 
+                  onChange={(e) => setOtp(e.target.value)} 
+                  maxLength={6} 
+                  className="h-12 border-slate-200 focus:border-indigo-600 transition-all rounded-xl text-center text-xl font-bold tracking-[0.5em]"
+                  required 
+                />
+              </div>
+              <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Verify & Activate
+              </Button>
+              <Button variant="ghost" className="w-full h-12 rounded-xl text-slate-500 font-medium" onClick={() => setShowOtp(false)}>
+                Back to signup
+              </Button>
+            </form>
+          ) : (
+            <>
+              {/* Form Switching */}
+              {!forgotPasswordMode && (
+                <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
+                  <button 
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'login' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    onClick={() => setActiveTab('login')}
+                  >
+                    Login
+                  </button>
+                  <button 
+                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'signup' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    onClick={() => setActiveTab('signup')}
+                  >
+                    Register
+                  </button>
+                </div>
+              )}
+
+              {forgotPasswordMode ? (
+                /* Forgot/Reset Password Form */
+                resetPasswordMode ? (
+                  <form onSubmit={handleResetPassword} className="space-y-5">
+                    <div className="space-y-2">
+                       <Label className="text-slate-700 font-semibold">Email Address</Label>
+                       <Input value={email} disabled className="h-12 bg-slate-50 border-slate-100 text-slate-400 font-medium rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-slate-700 font-semibold">Security Code</Label>
+                       <Input placeholder="6-digit code" value={otp} onChange={(e) => setOtp(e.target.value)} className="h-12 border-slate-200 rounded-xl" required />
+                    </div>
+                    <div className="space-y-2">
+                       <Label className="text-slate-700 font-semibold">New Password</Label>
+                       <Input type="password" placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-12 border-slate-200 rounded-xl" required />
+                    </div>
+                    <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl" disabled={loading}>Reset Password</Button>
+                    <Button variant="ghost" className="w-full h-12 rounded-xl text-slate-500" onClick={() => { setResetPasswordMode(false); setForgotPasswordMode(false); }}>Cancel</Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label className="text-slate-700 font-semibold">Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 pl-10 border-slate-200 rounded-xl" required />
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold" disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Send Verification Code
+                    </Button>
+                    <button type="button" className="w-full text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center justify-center gap-2 pt-2" onClick={() => setForgotPasswordMode(false)}>
+                       <ArrowLeft className="w-3 h-3" /> Back to Login
+                    </button>
+                  </form>
+                )
               ) : (
-                <form onSubmit={handleForgotPassword} className="space-y-5">
+                /* Main Login/Signup Forms */
+                <form onSubmit={activeTab === 'login' ? handleLogin : handleSignup} className="space-y-5">
                   <div className="space-y-2">
-                    <Label>Email for Recovery</Label>
-                    <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <Label className="text-slate-700 font-semibold">Email Address</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input 
+                        type="email" 
+                        placeholder="your@email.com" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                        className="h-12 pl-10 border-slate-200 focus:ring-1 focus:ring-indigo-500 rounded-xl font-medium" 
+                        required 
+                      />
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={loading}>Send Recovery Code</Button>
-                  <Button variant="ghost" className="w-full" onClick={() => setForgotPasswordMode(false)}>Back to Login</Button>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <Label className="text-slate-700 font-semibold">Password</Label>
+                      {activeTab === 'login' && (
+                        <button type="button" className="text-xs font-bold text-indigo-600 hover:underline" onClick={() => setForgotPasswordMode(true)}>
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        className="h-12 pl-10 border-slate-200 focus:ring-1 focus:ring-indigo-500 rounded-xl font-medium" 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 transition-all active:scale-[0.98]" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {activeTab === 'login' ? 'Sign In to Dashboard' : 'Create Enterprise Account'}
+                  </Button>
+
+                  <p className="text-center text-xs text-slate-400 font-medium px-4 leading-relaxed mt-6">
+                    By continuing, you agree to IntelliMart's <br/>
+                    <span className="underline cursor-pointer hover:text-slate-600">Terms of Service</span> and <span className="underline cursor-pointer hover:text-slate-600">Privacy Policy</span>.
+                  </p>
                 </form>
-              )
-            ) : (
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="text-sm font-semibold">Email</Label>
-                  <Input id="login-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 text-base" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="text-sm font-semibold">Password</Label>
-                  <Input id="login-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 text-base" required />
-                  <div className="text-right">
-                    <span className="text-xs text-indigo-600 cursor-pointer hover:underline font-medium" onClick={() => setForgotPasswordMode(true)}>Forgot Password?</span>
-                  </div>
-                </div>
-                <Button type="submit" className="w-full h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg hover:shadow-xl transition-all duration-300" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign In
-                </Button>
-              </form>
-            )}
-          </TabsContent>
-
-          <TabsContent value="signup">
-            {showOtp ? (
-              <form onSubmit={handleVerifyOtp} className="space-y-5">
-                <div className="text-center text-sm text-gray-600 mb-2">Verification code sent to {email}</div>
-                <div className="space-y-2">
-                  <Label>Verification Code</Label>
-                  <Input placeholder="6-digit code" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} required />
-                </div>
-                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={loading}>Verify Account</Button>
-                <Button variant="ghost" className="w-full" onClick={() => setShowOtp(false)}>Back</Button>
-              </form>
-            ) : (
-              <form onSubmit={handleSignup} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email" className="text-sm font-semibold">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 text-base" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="text-sm font-semibold">Password</Label>
-                  <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 text-base" required />
-                </div>
-                <Button type="submit" className="w-full h-12 text-base font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-lg hover:shadow-xl transition-all duration-300" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Account
-                </Button>
-              </form>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
-
-
-    <style>{`
-        @keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(-3deg); } 100% { transform: translateY(0px) rotate(0deg); } }
-        .animate-float { animation: float 6s ease-in-out infinite; }
-        .animation-delay-1000 { animation-delay: 1s; }
-        .animation-delay-1500 { animation-delay: 1.5s; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-2500 { animation-delay: 2.5s; }
-        .animation-delay-3000 { animation-delay: 3s; }
-      `}</style>
-  </div>);
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

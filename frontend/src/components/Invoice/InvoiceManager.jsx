@@ -211,15 +211,18 @@ export function InvoiceManager() {
         </CardContent>
       </Card>
 
-      {/* Invoice Modal */}
-      <Dialog open={isInvoiceModalOpen} onOpenChange={setIsInvoiceModalOpen}>
+      {/* Invoice Modal - GSTInvoice already has a Dialog inside it */}
+      {selectedInvoice && (
         <GSTInvoice
           open={isInvoiceModalOpen}
-          onClose={() => setIsInvoiceModalOpen(false)}
+          onClose={() => {
+            setIsInvoiceModalOpen(false);
+            setSelectedInvoice(null);
+          }}
           sale={selectedInvoice}
           shopDetails={shopDetails}
         />
-      </Dialog>
+      )}
     </div>
   );
 }

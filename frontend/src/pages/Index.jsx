@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Package,
-  BarChart3,
+  LineChart,
   ShieldCheck,
   Zap,
   Globe,
   Users,
-  LayoutDashboard
+  LayoutDashboard,
+  CheckCircle2,
+  Store,
+  Layers,
+  Sparkles
 } from "lucide-react";
 
 const Index = () => {
@@ -16,250 +20,302 @@ const Index = () => {
   const isLoggedIn = sessionStorage.getItem('token');
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-[#FDFDFD] text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Package className="text-white w-6 h-6" />
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-100">
+              <Package className="text-white w-5 h-5" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold tracking-tight text-slate-900">
               IntelliMart
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#features" className="hover:text-primary transition-colors">Features</a>
-            <a href="#solutions" className="hover:text-primary transition-colors">Solutions</a>
-            <a href="#about" className="hover:text-primary transition-colors">About</a>
+          
+          <div className="hidden md:flex items-center gap-10 text-sm font-medium text-slate-500">
+            <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
+            <a href="#solutions" className="hover:text-indigo-600 transition-colors">Solutions</a>
+            <a href="#about" className="hover:text-indigo-600 transition-colors">About</a>
           </div>
-          <div>
+
+          <div className="flex items-center gap-4">
+            {!isLoggedIn && (
+              <Button
+                onClick={() => navigate("/auth")}
+                variant="ghost"
+                className="text-slate-600 font-medium hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                Sign In
+              </Button>
+            )}
             <Button
-              onClick={() => navigate("/auth")}
-              variant="ghost"
-              className="font-medium hover:bg-indigo-500/10 hover:text-indigo-600 transition-colors"
+              onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm px-5"
             >
-              Log In
-            </Button>
-            <Button
-              onClick={() => navigate("/auth")}
-              className="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 transition-all duration-300"
-            >
-              {isLoggedIn ? 'Go to Dashboard' : 'Get Started'}
+              {isLoggedIn ? 'Go to Dashboard' : 'Get Started Free'}
             </Button>
           </div>
         </div>
       </nav>
 
       <main>
-        {/* Hero Section */}
-        <section className="relative pt-32 pb-20 overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px]" />
-            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-violet-500/10 rounded-full blur-[100px]" />
+        {/* Simple & Clean Hero Section */}
+        <section className="relative pt-32 pb-24 md:pt-48 md:pb-32 container mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-[13px] font-semibold mb-8">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Modern Inventory Simplified</span>
           </div>
 
-          <div className="container mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 text-sm font-medium mb-8 animate-fade-in">
-              <Zap className="w-4 h-4" />
-              <span>Enterprise Logistics v2.0</span>
-            </div>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 max-w-4xl mx-auto leading-[1.1]">
+            Manage your inventory with <br className="hidden md:block" />
+            <span className="text-indigo-600 font-extrabold italic">effortless precision.</span>
+          </h1>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8">
-              Inventory Intelligence <br />
-              <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 bg-clip-text text-transparent">
-                Powering Retail.
-              </span>
-            </h1>
+          <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 mb-10 leading-relaxed font-medium">
+            IntelliMart helps growing businesses sync multiple branches, 
+            automate stock tracking, and generate deep retail insights in seconds.
+          </p>
 
-            <p className="max-w-2xl mx-auto text-xl text-muted-foreground mb-12 leading-relaxed">
-              Unlock the full potential of your business with IntelliMart.
-              Precision tracking, predictive analytics, and effortless multi-branch harmony.
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 px-4">
+            <Button
+              onClick={() => navigate(isLoggedIn ? "/dashboard" : "/auth")}
+              size="lg"
+              className="h-14 px-10 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-md w-full sm:w-auto rounded-xl"
+            >
+              {isLoggedIn ? 'Go to Dashboard' : 'Start Your Free Trial'}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-14 px-10 text-lg border-slate-200 text-slate-600 hover:bg-slate-50 w-full sm:w-auto rounded-xl"
+              onClick={() => {
+                const el = document.getElementById('features');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              See how it works
+            </Button>
+          </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                onClick={() => navigate("/auth")}
-                size="lg"
-                className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/30 transition-all duration-300 w-full sm:w-auto"
-              >
-                {isLoggedIn ? 'Go to Dashboard' : 'Start Journey'} <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-14 px-8 text-lg border-2 hover:bg-secondary w-full sm:w-auto"
-                onClick={() => navigate("/auth")}
-              >
-                Explore Solutions
-              </Button>
-            </div>
-
-            {/* Floating UI Element (Abstract representation) */}
-            <div className="mt-20 relative max-w-5xl mx-auto">
-              <div className="rounded-2xl border border-border/50 bg-background/50 backdrop-blur-xl shadow-2xl p-4 md:p-8 animate-slide-up">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div className="space-y-4 text-left p-4 rounded-xl hover:bg-indigo-500/5 transition-colors">
-                    <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-                      <LayoutDashboard className="w-6 h-6" />
+          {/* Clean Dashboard Preview Placeholder */}
+          <div className="max-w-6xl mx-auto relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-100 to-indigo-50 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative border border-slate-200 rounded-2xl bg-white shadow-xl p-2 md:p-4 overflow-hidden">
+              <div className="flex items-center gap-2 mb-4 px-2 pt-2 border-b border-slate-100 pb-3">
+                 <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                    <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                    <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                 </div>
+                 <div className="mx-auto bg-slate-50 rounded-md py-1 px-8 text-[10px] text-slate-400 font-mono">app.intellimart.io/dashboard</div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-2 md:p-6 text-left">
+                {[
+                  { label: "Total Revenue", val: "$42,850", trend: "+12.5%", color: "indigo" },
+                  { label: "Active Orders", val: "156", trend: "+8.2%", color: "amber" },
+                  { label: "Low Stock Items", val: "12", trend: "-5.0%", color: "slate" },
+                  { label: "Return Rate", val: "1.4%", trend: "-0.2%", color: "indigo" }
+                ].map((stat, i) => (
+                  <div key={i} className="p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                    <p className="text-xs text-slate-400 font-semibold mb-1 uppercase tracking-wider">{stat.label}</p>
+                    <div className="flex items-end justify-between">
+                      <span className="text-2xl font-bold text-slate-800">{stat.val}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${stat.trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                        {stat.trend}
+                      </span>
                     </div>
-                    <h3 className="text-xl font-bold">Smart Dashboard</h3>
-                    <p className="text-muted-foreground text-sm">Visualize your growth with our award-winning data interface.</p>
                   </div>
-                  <div className="space-y-4 text-left p-4 rounded-xl hover:bg-violet-500/5 transition-colors">
-                    <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-600">
-                      <BarChart3 className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold">Deep Insights</h3>
-                    <p className="text-muted-foreground text-sm">Automated reporting uncovered from your business data.</p>
-                  </div>
-                  <div className="space-y-4 text-left p-4 rounded-xl hover:bg-blue-500/5 transition-colors">
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
-                      <ShieldCheck className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold">Vault Security</h3>
-                    <p className="text-muted-foreground text-sm">Protected by industry-leading multi-layer encryption.</p>
-                  </div>
-                </div>
+                ))}
+              </div>
+              <div className="hidden md:flex gap-8 px-8 pb-8 pt-4">
+                 <div className="flex-1 h-40 rounded-xl bg-slate-50 relative flex items-center justify-center">
+                    <LineChart className="w-12 h-12 text-slate-200" />
+                 </div>
+                 <div className="w-1/3 h-40 rounded-xl bg-slate-50 flex items-center justify-center">
+                    <Users className="w-12 h-12 text-slate-200" />
+                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Social Proof */}
-        <section className="py-12 border-y border-border/50 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="container mx-auto px-6">
-            <p className="text-center text-sm font-semibold text-slate-400 uppercase tracking-widest mb-8">
-              Trusted by the world's most ambitious retailers
+        {/* Brand Bar */}
+        <section className="py-12 bg-white border-y border-slate-50">
+          <div className="container mx-auto px-6 overflow-hidden">
+            <p className="text-center text-xs font-bold text-slate-300 uppercase tracking-[0.2em] mb-8">
+              Reliable infrastructure for retail leaders
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-500 text-slate-600 dark:text-slate-300">
-              <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter">TECHSTORE</div>
-              <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter">MODERNA</div>
-              <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter">URBANFLOW</div>
-              <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter">GLOBALMART</div>
+            <div className="flex flex-wrap justify-between items-center gap-10 opacity-30 grayscale saturate-0 px-12">
+               <span className="text-xl font-bold tracking-tight">VANTAGE</span>
+               <span className="text-xl font-bold tracking-tight">ORBIT</span>
+               <span className="text-xl font-bold tracking-tight">ZEPHIR</span>
+               <span className="text-xl font-bold tracking-tight">ELEMENT</span>
+               <span className="text-xl font-bold tracking-tight">LUMINA</span>
             </div>
           </div>
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-24 relative overflow-hidden">
-          <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[100px] -z-10" />
-
+        <section id="features" className="py-24 bg-[#FDFDFD]">
           <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-black mb-4 tracking-tight">Everything you need</h2>
-              <p className="text-muted-foreground max-w-xl mx-auto text-lg">
-                Stop juggling multiple tools. IntelliMart brings all your retail operations into one cohesive experience.
+            <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-4">
+              <div className="text-left max-w-2xl">
+                <span className="text-indigo-600 font-bold text-sm tracking-widest uppercase mb-4 block">Power Features</span>
+                <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+                  Everything you need to <br/> scale your retail business.
+                </h2>
+              </div>
+              <p className="text-slate-500 font-medium max-w-sm md:text-right">
+                All-in-one platform built for speed, accuracy, and operational excellence.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { icon: Globe, title: "Multi-branch Sync", desc: "Manage multiple shops from one central account with synchronized data." },
-                { icon: Users, title: "Team Permissions", desc: "Granular role-based access control for all your team members." },
-                { icon: Zap, title: "Turbo POS", desc: "A smooth checkout experience that works even with massive inventories." },
-                { icon: Package, title: "Smart Inventory", desc: "Real-time alerts and automated stocking suggestions." }
-              ].map((feature, i) => (
-                <div key={i} className="p-8 rounded-2xl bg-background border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-                  <div className="w-14 h-14 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                    <feature.icon className="w-7 h-7" />
+                { 
+                  icon: Globe, 
+                  title: "Multi-branch Sync", 
+                  desc: "Connect all your physical and digital storefronts with real-time stock synchronization.",
+                  color: "bg-indigo-600" 
+                },
+                { 
+                  icon: LineChart, 
+                  title: "Predictive Analytics", 
+                  desc: "Anticipate demand surges and low-stock events before they impact your daily sales.",
+                  color: "bg-slate-900"
+                },
+                { 
+                  icon: ShieldCheck, 
+                  title: "Retail Integrity", 
+                  desc: "Role-based access controls and detailed audit logs of every movement in your warehouse.",
+                  color: "bg-indigo-600"
+                },
+                { 
+                   icon: Zap, 
+                   title: "Turbo-POS Integration", 
+                   desc: "Process sales faster than ever with an optimized interface designed for high-traffic stores.",
+                   color: "bg-slate-900"
+                },
+                { 
+                   icon: Layers, 
+                   title: "Inventory Intelligence", 
+                   desc: "Smart categorization and automated SKUs to keep your warehouse organized and efficient.",
+                   color: "bg-indigo-600"
+                },
+                { 
+                   icon: Store, 
+                   title: "Supplier Relations", 
+                   desc: "Integrated supplier portal to manage orders and track inbound logistics effortlessly.",
+                   color: "bg-slate-900"
+                }
+              ].map((f, i) => (
+                <div key={i} className="p-8 rounded-2xl bg-white border border-slate-100 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 group">
+                  <div className={`w-12 h-12 rounded-lg ${f.color} flex items-center justify-center text-white mb-6 transform transition-transform group-hover:scale-110`}>
+                    <f.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-sm">{feature.desc}</p>
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{f.title}</h3>
+                  <p className="text-slate-500 leading-relaxed text-sm font-medium">{f.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="py-24">
+        {/* CTA Section - Simple & Impactful */}
+        <section className="py-20">
           <div className="container mx-auto px-6">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 p-12 md:p-24 text-center text-white shadow-2xl">
-              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-[100px]" />
-              <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-black/10 rounded-full blur-[100px]" />
-
-              <div className="relative z-10">
-                <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">
-                  Ready to transform your <br /> business?
-                </h2>
-                <p className="text-xl text-indigo-50/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-                  Join over 10,000+ businesses that are growing faster with IntelliMart's powerful management tools.
-                </p>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                  <Button
-                    onClick={() => navigate("/auth")}
-                    size="lg"
-                    className="bg-white text-indigo-700 hover:bg-indigo-50 h-16 px-10 text-lg font-bold shadow-xl transition-all hover:scale-105"
-                  >
-                    Start Your Trial
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="lg"
-                    className="text-white h-16 px-10 text-lg font-semibold hover:text-indigo-200 transition-colors"
-                  >
-                    Watch a demo
-                  </Button>
-                </div>
-              </div>
+            <div className="bg-slate-900 rounded-[2.5rem] p-12 md:p-24 text-center text-white relative overflow-hidden shadow-2xl">
+               <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+               <div className="relative z-10">
+                  <h2 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-[1.1]">
+                    Stop guessing. <br/> Start growing.
+                  </h2>
+                  <p className="text-lg md:text-xl text-slate-400 mb-10 max-w-xl mx-auto font-medium">
+                    Join 2,500+ small businesses who managed to grow 40% faster after switching to IntelliMart.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Button
+                      onClick={() => navigate("/auth")}
+                      size="lg"
+                      className="bg-white text-slate-900 hover:bg-slate-100 h-16 px-12 text-lg font-bold rounded-xl"
+                    >
+                      Start Free Trial
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="h-16 px-12 text-lg border-slate-700 text-white hover:bg-slate-800 rounded-xl"
+                    >
+                      Talk to an expert
+                    </Button>
+                  </div>
+               </div>
             </div>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="py-16 border-t border-border bg-slate-50/50 dark:bg-slate-950/50">
+      <footer className="py-20 bg-white border-t border-slate-50">
         <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
-            <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Package className="text-white w-6 h-6" />
-                </div>
-                <span className="text-2xl font-bold tracking-tight text-foreground">IntelliMart</span>
-              </div>
-              <p className="text-muted-foreground text-sm max-w-xs text-center md:text-left">
-                The most advanced inventory management system for modern retailers.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="col-span-1 md:col-span-1">
+               <div className="flex items-center gap-2.5 mb-6">
+                  <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <Package className="text-white w-4 h-4" />
+                  </div>
+                  <span className="text-xl font-bold tracking-tight text-slate-900">IntelliMart</span>
+               </div>
+               <p className="text-slate-400 text-sm leading-relaxed mb-6 font-medium">
+                 The operating system for retail businesses. Trusted by modern shop owners worldwide.
+               </p>
+               <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group cursor-pointer">
+                     <Globe className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group cursor-pointer">
+                     <Users className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                  </div>
+               </div>
             </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-center md:text-left">
-              <div className="space-y-4">
-                <h4 className="font-bold text-sm uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Product</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Features</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Pricing</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Updates</a></li>
-                </ul>
-              </div>
-              <div className="space-y-4">
-                <h4 className="font-bold text-sm uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Company</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">About</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Privacy</a></li>
-                </ul>
-              </div>
-              <div className="hidden md:block space-y-4">
-                <h4 className="font-bold text-sm uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Resources</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Documentation</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">Support Center</a></li>
-                  <li><a href="#" className="hover:text-indigo-600 transition-colors">API Status</a></li>
-                </ul>
-              </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 col-span-1 md:col-span-3 gap-8">
+               <div className="space-y-6">
+                 <h4 className="font-bold text-xs uppercase tracking-[0.2em] text-slate-900">Platform</h4>
+                 <ul className="space-y-4 text-sm text-slate-500 font-medium">
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Features</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Integrations</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Security</a></li>
+                 </ul>
+               </div>
+               <div className="space-y-6">
+                 <h4 className="font-bold text-xs uppercase tracking-[0.2em] text-slate-900">Company</h4>
+                 <ul className="space-y-4 text-sm text-slate-500 font-medium">
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">About</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Career</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Press</a></li>
+                 </ul>
+               </div>
+               <div className="space-y-6">
+                 <h4 className="font-bold text-xs uppercase tracking-[0.2em] text-slate-900">Support</h4>
+                 <ul className="space-y-4 text-sm text-slate-500 font-medium">
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Help Center</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Community</a></li>
+                   <li><a href="#" className="hover:text-indigo-600 transition-colors">Status</a></li>
+                 </ul>
+               </div>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-xs text-muted-foreground italic">
-              Empowering the next generation of shop owners.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} IntelliMart Logistics. All rights reserved.
+          <div className="pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex gap-6 text-xs text-slate-400 font-medium">
+               <a href="#" className="hover:text-indigo-600 transition-colors">Privacy Policy</a>
+               <a href="#" className="hover:text-indigo-600 transition-colors">Terms of Service</a>
+               <a href="#" className="hover:text-indigo-600 transition-colors">Cookie Policy</a>
+            </div>
+            <p className="text-xs text-slate-400 font-medium">
+              © {new Date().getFullYear()} IntelliMart Logistics Inc. All rights reserved.
             </p>
           </div>
         </div>
