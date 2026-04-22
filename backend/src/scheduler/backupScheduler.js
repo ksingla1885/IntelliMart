@@ -10,7 +10,7 @@ const BACKUP_CRON_SCHEDULE = '0 2 * * 0'; // Every Sunday at 2:00 AM
  */
 async function performAutomaticBackup() {
     const jobName = 'Weekly Full Backup';
-    console.log(`Starting ${jobName}...`);
+
     
     await cronTracker.start(jobName, BACKUP_CRON_SCHEDULE, 'Performs a full database backup for all users and sends email notifications.');
 
@@ -38,7 +38,7 @@ async function performAutomaticBackup() {
 
         const result = `Completed: ${successCount} successful, ${failCount} failed.`;
         await cronTracker.complete(jobName, result);
-        console.log(`${jobName} completed successfully: ${result}`);
+
     } catch (error) {
         console.error(`${jobName} process failed:`, error.message);
         await cronTracker.fail(jobName, error);
@@ -51,7 +51,7 @@ async function performAutomaticBackup() {
 function initializeBackupScheduler() {
     // Schedule automatic backup
     cron.schedule(BACKUP_CRON_SCHEDULE, async () => {
-        console.log(`Triggered ${jobName} (${BACKUP_CRON_SCHEDULE})`);
+
         await performAutomaticBackup();
     });
 

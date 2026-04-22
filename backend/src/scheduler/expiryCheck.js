@@ -11,7 +11,7 @@ const EXPIRY_CHECK_CRON_SCHEDULE = '0 8 * * *'; // Every day at 8:00 AM
  */
 async function checkProductExpiries() {
     const jobName = 'Product Expiry Check';
-    console.log(`⏳ Starting ${jobName}...`);
+
     
     await cronTracker.start(jobName, EXPIRY_CHECK_CRON_SCHEDULE, 'Checks for stock batches expiring in the next 30 days and alerts shop owners.');
 
@@ -65,7 +65,7 @@ async function checkProductExpiries() {
         for (const shopId in shopAlerts) {
             const { shop, items } = shopAlerts[shopId];
             
-            console.log(`📧 Sending expiry alert for ${shop.name}: ${items.length} items`);
+
 
             if (shop.owner.email && shop.owner.isVerified) {
                 const result = await emailService.sendExpiryAlert(
@@ -79,7 +79,7 @@ async function checkProductExpiries() {
 
         const result = `Expiry alerts sent to ${alertsSent} shops. Total expiring items found: ${expiringBatches.length}`;
         await cronTracker.complete(jobName, result);
-        console.log(`✅ ${jobName} completed. ${result}`);
+
     } catch (error) {
         console.error(`❌ ${jobName} failed:`, error);
         await cronTracker.fail(jobName, error);
@@ -91,7 +91,7 @@ async function checkProductExpiries() {
  */
 function initializeExpiryCheckScheduler() {
     cron.schedule(EXPIRY_CHECK_CRON_SCHEDULE, async () => {
-        console.log(`⏰ Scheduled expiry check triggered (${EXPIRY_CHECK_CRON_SCHEDULE})`);
+
         await checkProductExpiries();
     });
 

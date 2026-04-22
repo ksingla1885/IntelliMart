@@ -70,12 +70,7 @@ router.post('/', authenticateToken, async (req, res) => {
             const count = await prisma.bill.count({ where: { shopId } });
             const billNumber = `INV-${shopId.slice(-4).toUpperCase()}-${dateStr}-${String(count + 1).padStart(4, '0')}`;
 
-            console.log('Creating bill with data:', JSON.stringify({
-                shopId,
-                customerId,
-                billNumber,
-                total: grandTotal
-            }));
+
 
             const billData = {
                 shopId,

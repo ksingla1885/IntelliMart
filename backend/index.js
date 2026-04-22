@@ -79,8 +79,7 @@ if (require.main === module) {
             initializeSalesReportScheduler();
             initializeExpiryCheckScheduler();
         } else {
-            console.log('Serverless environment detected. Schedulers disabled.');
-            console.log('Use /api/cron endpoints with external cron service.');
+
         }
     });
 }

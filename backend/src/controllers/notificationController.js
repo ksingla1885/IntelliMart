@@ -304,7 +304,7 @@ async function clearOldNotifications(req, res) {
  * Check low stock and send notifications (called by cron job)
  */
 async function checkLowStockAndNotify() {
-    console.log('Starting low stock check...');
+
 
     try {
         // Get all shops
@@ -362,11 +362,11 @@ async function checkLowStockAndNotify() {
                     emailSent: result.success
                 });
 
-                console.log(`Low stock alert sent for ${shop.name}: ${lowStockProducts.length} products`);
+
             }
         }
 
-        console.log(`Low stock check completed. Total low stock products: ${totalLowStockProducts}`);
+
 
         return {
             success: true,

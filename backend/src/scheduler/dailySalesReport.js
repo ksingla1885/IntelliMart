@@ -11,7 +11,7 @@ const SALES_REPORT_CRON_SCHEDULE = '0 21 * * *'; // Every day at 9:00 PM
  */
 async function generateDailySalesReports() {
     const jobName = 'Daily Sales Report';
-    console.log(`📊 Starting ${jobName}...`);
+
     
     await cronTracker.start(jobName, SALES_REPORT_CRON_SCHEDULE, 'Generates a summary of today\'s sales for each shop and emails it to the owner.');
 
@@ -46,7 +46,7 @@ async function generateDailySalesReports() {
             const totalBills = shop.bills.length;
             const avgBillValue = totalSales / totalBills;
 
-            console.log(`📧 Sending daily sales report for ${shop.name}: Total ₹${totalSales}`);
+
 
             // Send email to shop owner
             if (shop.owner.email && shop.owner.isVerified) {
@@ -69,7 +69,7 @@ async function generateDailySalesReports() {
 
         const result = `Daily sales reports sent: ${reportsSent}`;
         await cronTracker.complete(jobName, result);
-        console.log(`✅ ${jobName} completed. ${result}`);
+
     } catch (error) {
         console.error(`❌ ${jobName} failed:`, error);
         await cronTracker.fail(jobName, error);
@@ -81,7 +81,7 @@ async function generateDailySalesReports() {
  */
 function initializeSalesReportScheduler() {
     cron.schedule(SALES_REPORT_CRON_SCHEDULE, async () => {
-        console.log(`⏰ Scheduled daily sales report triggered (${SALES_REPORT_CRON_SCHEDULE})`);
+
         await generateDailySalesReports();
     });
 

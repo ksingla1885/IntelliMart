@@ -22,7 +22,7 @@ const verifyCronSecret = (req, res, next) => {
 // --- External Cron Endpoints ---
 router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
     try {
-        console.log('Cron job triggered: Automatic backup');
+
         await createAutomaticBackup();
         res.json({
             success: true,
@@ -41,7 +41,7 @@ router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
 
 router.post('/check-low-stock', verifyCronSecret, async (req, res) => {
     try {
-        console.log('Cron job triggered: Low stock check');
+
         await checkLowStockAndNotify();
         res.json({
             success: true,

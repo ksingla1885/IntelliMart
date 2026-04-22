@@ -572,7 +572,7 @@ async function exportFullDatabaseBackup(shopId, timestamp) {
  * Create automatic backup (called by cron job)
  */
 async function createAutomaticBackup() {
-    console.log('Starting automatic backup...');
+
 
     try {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -612,7 +612,7 @@ async function createAutomaticBackup() {
             // Send notification email
             await sendBackupNotification(true, fileInfo.fileName);
 
-            console.log('Automatic backup completed successfully');
+
             return { success: true, fileName: fileInfo.fileName };
         } catch (error) {
             // Update backup record with failure
@@ -664,7 +664,7 @@ async function sendBackupNotification(success, fileName, errorMessage) {
             text: body
         });
 
-        console.log('Backup notification sent');
+
     } catch (error) {
         console.error('Failed to send backup notification:', error);
     }

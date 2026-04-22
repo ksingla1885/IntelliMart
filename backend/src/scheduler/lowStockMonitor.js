@@ -10,7 +10,7 @@ const LOW_STOCK_CRON_SCHEDULE = '0 9 * * *'; // Every day at 9:00 AM
  */
 async function checkLowStockProducts() {
     const jobName = 'Daily Low Stock Check';
-    console.log(`🔍 Starting ${jobName}...`);
+
     
     await cronTracker.start(jobName, LOW_STOCK_CRON_SCHEDULE, 'Checks inventory levels across all shops and sends alerts to owners for products below reorder levels.');
 
@@ -57,7 +57,7 @@ async function checkLowStockProducts() {
 
                 if (result.success) {
                     totalAlertsSent++;
-                    console.log(`✅ Low stock alert sent to ${shop.owner.email}`);
+
                 } else {
                     console.error(`❌ Failed to send low stock alert to ${shop.owner.email}`);
                 }
@@ -66,7 +66,7 @@ async function checkLowStockProducts() {
 
         const result = `Low stock check completed. Alerts sent: ${totalAlertsSent}`;
         await cronTracker.complete(jobName, result);
-        console.log(`✅ ${jobName} completed. ${result}`);
+
         return { success: true, alertsSent: totalAlertsSent };
     } catch (error) {
         console.error(`❌ ${jobName} failed:`, error);
@@ -79,7 +79,7 @@ async function checkLowStockProducts() {
  * Manual trigger for low stock check (for testing or manual runs)
  */
 async function triggerLowStockCheck(shopId = null) {
-    console.log('🔍 Manual low stock check triggered...');
+
     // This can also be tracked as a manual run if needed
     try {
         const whereClause = shopId ? { id: shopId } : {};
@@ -107,7 +107,7 @@ async function triggerLowStockCheck(shopId = null) {
             );
 
             if (lowStockProducts.length === 0) {
-                console.log(`✓ No low stock products in ${shop.name}`);
+
                 continue;
             }
 
@@ -144,7 +144,7 @@ async function triggerLowStockCheck(shopId = null) {
 function initializeLowStockMonitoring() {
     // Check for low stock every day
     cron.schedule(LOW_STOCK_CRON_SCHEDULE, async () => {
-        console.log(`⏰ Scheduled low stock check triggered (${LOW_STOCK_CRON_SCHEDULE})`);
+
         await checkLowStockProducts();
     });
 
