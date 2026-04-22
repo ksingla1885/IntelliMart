@@ -122,11 +122,13 @@ model Bill {
   customerId     String?
   billNumber     String
   customerName   String?
+  customerMobile String?
+  customerFirm   String?
+  customerGstin  String?
   totalAmount    Decimal     @db.Decimal(10, 2)
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   cgst           Decimal     @default(0) @db.Decimal(10, 2)
-  customerMobile String?
   grandTotal     Decimal     @db.Decimal(10, 2)
   igst           Decimal     @default(0) @db.Decimal(10, 2)
   sgst           Decimal     @default(0) @db.Decimal(10, 2)

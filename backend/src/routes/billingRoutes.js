@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Create Bill
 router.post('/', authenticateToken, async (req, res) => {
-    const { shopId, customerId, customerName, customerMobile, paymentMode, items } = req.body;
+    const { shopId, customerId, customerName, customerMobile, customerFirm, customerGstin, paymentMode, items } = req.body;
     // items: [{ productId, quantity, price, taxRate }]
 
     if (!shopId || !items || items.length === 0) {
@@ -82,6 +82,8 @@ router.post('/', authenticateToken, async (req, res) => {
                 billNumber,
                 customerName,
                 customerMobile,
+                customerFirm: customerFirm || null,
+                customerGstin: customerGstin || null,
                 paymentMode,
                 status: 'PAID',
                 subTotal,
