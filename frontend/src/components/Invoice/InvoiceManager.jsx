@@ -72,6 +72,7 @@ export function InvoiceManager() {
   const filteredInvoices = invoices.filter(invoice =>
     invoice.billNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     invoice.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    invoice.customerFirm?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     invoice.paymentMode?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -165,7 +166,7 @@ export function InvoiceManager() {
                           {formatDate(invoice.createdAt)}
                         </div>
                         <div>
-                          Customer: <span className="font-medium text-foreground">{invoice.customerName}</span>
+                          Firm: <span className="font-medium text-foreground">{invoice.customerFirm || invoice.customerName || 'Walk-in Customer'}</span>
                         </div>
                         <div>
                           Items: <span className="font-medium text-foreground">{invoice.items?.length || 0}</span>
