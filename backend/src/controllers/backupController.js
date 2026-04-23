@@ -641,7 +641,7 @@ async function createAutomaticBackup() {
  */
 async function sendBackupNotification(success, fileName, errorMessage) {
     try {
-        const transporter = nodemailer.createTransporter({
+        const transporter = nodemailer.createTransport({
             service: process.env.EMAIL_SERVICE || 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
