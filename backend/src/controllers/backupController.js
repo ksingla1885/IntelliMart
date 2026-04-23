@@ -607,11 +607,12 @@ async function createAutomaticBackup() {
             });
 
             // Find the primary user and shop name to notify
-            const [primaryUser, shop] = await Promise.all([
-                prisma.user.findFirst({ where: { role: 'ADMIN' } }) || prisma.user.findFirst(),
-                prisma.shop.findFirst()
-            ]);
-
+            let primaryUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+            if (!primaryUser) {
+                primaryUser = await prisma.user.findFirst();
+            }
+            
+            const shop = await prisma.shop.findFirst();
             const recipientEmail = primaryUser?.email || process.env.EMAIL_USER;
             const businessName = shop?.name || 'IntelliMart';
 
@@ -641,7 +642,9 @@ async function createAutomaticBackup() {
             });
 
             // Send failure notification
-            const primaryUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } }) || await prisma.user.findFirst();
+            let primaryUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+            if (!primaryUser) primaryUser = await prisma.user.findFirst();
+            
             await emailService.sendBackupFailureEmail(primaryUser?.email || process.env.EMAIL_USER, {
                 error: error.message,
                 isAutomatic: true,
