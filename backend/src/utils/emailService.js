@@ -249,7 +249,8 @@ class EmailService {
    * Send backup success email
    */
   async sendBackupSuccessEmail(userEmail, backupInfo) {
-    const subject = '✅ Backup Completed Successfully - IntelliMart';
+    const shopName = backupInfo.shopName || 'IntelliMart';
+    const subject = `✅ Backup Completed Successfully - ${shopName}`;
 
     const html = `
       <!DOCTYPE html>
@@ -266,7 +267,7 @@ class EmailService {
               ✅ Backup Completed
             </h1>
             <p style="color: #d1fae5; margin: 10px 0 0 0; font-size: 14px;">
-              Your data is safe and secure
+              ${shopName} - Data is safe and secure
             </p>
           </div>
 

@@ -606,12 +606,14 @@ async function createAutomaticBackup() {
                 }
             });
 
-            // Find the primary user/admin to notify
-            const primaryUser = await prisma.user.findFirst({
-                where: { role: 'ADMIN' }
-            }) || await prisma.user.findFirst();
+            // Find the primary user and shop name to notify
+            const [primaryUser, shop] = await Promise.all([
+                prisma.user.findFirst({ where: { role: 'ADMIN' } }) || prisma.user.findFirst(),
+                prisma.shop.findFirst()
+            ]);
 
             const recipientEmail = primaryUser?.email || process.env.EMAIL_USER;
+            const businessName = shop?.name || 'IntelliMart';
 
             // Cleanup old backups (keep last 10)
             await cleanupOldBackups(10);
@@ -622,7 +624,8 @@ async function createAutomaticBackup() {
                 fileSize: fileInfo.fileSize,
                 type: 'FULL_DATABASE',
                 createdAt: new Date(),
-                isAutomatic: true
+                isAutomatic: true,
+                shopName: businessName
             });
 
             return { success: true, fileName: fileInfo.fileName };
