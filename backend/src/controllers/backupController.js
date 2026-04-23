@@ -617,8 +617,13 @@ async function createAutomaticBackup() {
             await cleanupOldBackups(10);
 
             // Send notification email
-            await sendBackupNotification(true, fileInfo.fileName, null, recipientEmail);
-
+            await emailService.sendBackupSuccessEmail(recipientEmail, {
+                fileName: fileInfo.fileName,
+                fileSize: fileInfo.fileSize,
+                type: 'FULL_DATABASE',
+                createdAt: new Date(),
+                isAutomatic: true
+            });
 
             return { success: true, fileName: fileInfo.fileName };
         } catch (error) {
@@ -634,38 +639,17 @@ async function createAutomaticBackup() {
 
             // Send failure notification
             const primaryUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } }) || await prisma.user.findFirst();
-            await sendBackupNotification(false, null, error.message, primaryUser?.email || process.env.EMAIL_USER);
+            await emailService.sendBackupFailureEmail(primaryUser?.email || process.env.EMAIL_USER, {
+                error: error.message,
+                isAutomatic: true,
+                type: 'FULL_DATABASE'
+            });
 
             throw error;
         }
     } catch (error) {
         console.error('Automatic backup error:', error);
         throw error;
-    }
-}
-
-/**
- * Send backup notification email
- */
-async function sendBackupNotification(success, fileName, errorMessage, recipientEmail) {
-    try {
-        const subject = success
-            ? '✅ Automatic Backup Completed Successfully'
-            : '❌ Automatic Backup Failed';
-
-        const body = success
-            ? `Your automatic database backup has been completed successfully.\n\nFile: ${fileName}\nTimestamp: ${new Date().toISOString()}`
-            : `Automatic backup failed.\n\nError: ${errorMessage}\nTimestamp: ${new Date().toISOString()}`;
-
-        await emailService.sendEmail({
-            to: recipientEmail,
-            subject,
-            html: `<div style="font-family: sans-serif; white-space: pre-wrap;">${body}</div>`,
-            type: success ? 'BACKUP_SUCCESS' : 'BACKUP_FAILURE'
-        });
-
-    } catch (error) {
-        console.error('Failed to send backup notification:', error);
     }
 }
 
