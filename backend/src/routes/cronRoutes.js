@@ -8,19 +8,22 @@ const authenticateToken = require('../middleware/authMiddleware');
 // Middleware to verify cron secret (for external services like Vercel/GitHub Actions)
 const verifyCronSecret = (req, res, next) => {
     const cronSecret = req.headers['x-cron-secret'] || req.query.secret;
+    const isVercelCron = req.headers['x-vercel-cron'] === '1';
 
-    if (!cronSecret || cronSecret !== process.env.CRON_SECRET) {
-        return res.status(401).json({
-            success: false,
-            message: 'Unauthorized: Invalid cron secret'
-        });
+    // Trust internal Vercel cron calls or validated external secrets
+    if (isVercelCron || (cronSecret && cronSecret === process.env.CRON_SECRET)) {
+        return next();
     }
 
-    next();
+    return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: Invalid cron secret'
+    });
 };
 
 // --- External Cron Endpoints ---
-router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
+// Use .all to support both POST (GitHub) and GET (Vercel)
+router.all('/trigger-backup', verifyCronSecret, async (req, res) => {
     try {
 
         await createAutomaticBackup();
@@ -39,7 +42,7 @@ router.post('/trigger-backup', verifyCronSecret, async (req, res) => {
     }
 });
 
-router.post('/check-low-stock', verifyCronSecret, async (req, res) => {
+router.all('/check-low-stock', verifyCronSecret, async (req, res) => {
     try {
 
         await checkLowStockAndNotify();

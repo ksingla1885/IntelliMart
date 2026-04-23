@@ -14,5 +14,15 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/trigger-backup",
+      "schedule": "0 0 */7 * *"
+    },
+    {
+      "path": "/api/cron/check-low-stock",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
