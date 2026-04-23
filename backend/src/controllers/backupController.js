@@ -13,7 +13,7 @@ const {
     getAvailableBackups,
     cleanupOldBackups
 } = require('../utils/backupUtils');
-const nodemailer = require('nodemailer');
+const emailService = require('../utils/emailService');
 
 /**
  * Create manual backup
@@ -641,14 +641,6 @@ async function createAutomaticBackup() {
  */
 async function sendBackupNotification(success, fileName, errorMessage) {
     try {
-        const transporter = nodemailer.createTransport({
-            service: process.env.EMAIL_SERVICE || 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
         const subject = success
             ? '✅ Automatic Backup Completed Successfully'
             : '❌ Automatic Backup Failed';
@@ -657,13 +649,12 @@ async function sendBackupNotification(success, fileName, errorMessage) {
             ? `Your automatic database backup has been completed successfully.\n\nFile: ${fileName}\nTimestamp: ${new Date().toISOString()}`
             : `Automatic backup failed.\n\nError: ${errorMessage}\nTimestamp: ${new Date().toISOString()}`;
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER, // Send to admin
+        await emailService.sendEmail({
+            to: process.env.EMAIL_USER,
             subject,
-            text: body
+            html: `<div style="font-family: sans-serif; white-space: pre-wrap;">${body}</div>`,
+            type: success ? 'BACKUP_SUCCESS' : 'BACKUP_FAILURE'
         });
-
 
     } catch (error) {
         console.error('Failed to send backup notification:', error);
