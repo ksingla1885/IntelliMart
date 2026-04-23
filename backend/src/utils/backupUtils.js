@@ -95,10 +95,13 @@ async function createFullDatabaseBackup(shopId = null) {
  * Save backup data to JSON file
  */
 async function saveBackupToFile(backupData, fileName) {
-    const backupDir = path.join(__dirname, '../../backups');
+    // On Vercel, we MUST use /tmp for writing files
+    const backupDir = process.env.VERCEL
+        ? '/tmp'
+        : path.join(__dirname, '../../backups');
 
-    // Ensure backup directory exists
-    if (!fs.existsSync(backupDir)) {
+    // Ensure backup directory exists (only if not using /tmp)
+    if (!process.env.VERCEL && !fs.existsSync(backupDir)) {
         fs.mkdirSync(backupDir, { recursive: true });
     }
 
@@ -121,7 +124,7 @@ async function saveBackupToFile(backupData, fileName) {
  */
 async function createBackupArchive(files, archiveName) {
     return new Promise((resolve, reject) => {
-        const backupDir = path.join(__dirname, '../../backups');
+        const backupDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '../../backups');
         const archivePath = path.join(backupDir, archiveName);
 
         const output = fs.createWriteStream(archivePath);
@@ -243,7 +246,7 @@ async function restoreBackupFromFile(filePath) {
  * Get list of available backups
  */
 async function getAvailableBackups() {
-    const backupDir = path.join(__dirname, '../../backups');
+    const backupDir = process.env.VERCEL ? '/tmp' : path.join(__dirname, '../../backups');
 
     if (!fs.existsSync(backupDir)) {
         return [];

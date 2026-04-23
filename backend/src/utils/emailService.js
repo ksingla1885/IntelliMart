@@ -26,7 +26,8 @@ class EmailService {
           pass: process.env.EMAIL_PASS,
         },
         tls: {
-          rejectUnauthorized: false // For development
+          // Only disable certificate verification in development
+          rejectUnauthorized: process.env.NODE_ENV !== 'production'
         }
       };
 
