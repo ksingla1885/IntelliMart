@@ -318,19 +318,21 @@ async function checkLowStockAndNotify() {
         const shopReports = [];
 
         for (const shop of shops) {
-            // Find products below reorder level
-            const lowStockProducts = await prisma.product.findMany({
+            // Find all active products and filter those at or below reorder level in JS
+            // (Prisma does not support column-to-column comparisons via prisma.raw)
+            const allActiveProducts = await prisma.product.findMany({
                 where: {
                     shopId: shop.id,
-                    isActive: true,
-                    stock: {
-                        lte: prisma.raw('reorder_level')
-                    }
+                    isActive: true
                 },
                 include: {
                     category: true
                 }
             });
+
+            const lowStockProducts = allActiveProducts.filter(
+                p => p.reorderLevel != null && p.stock <= p.reorderLevel
+            );
 
             if (lowStockProducts.length > 0) {
                 totalLowStockProducts += lowStockProducts.length;

@@ -2,11 +2,11 @@ name: Scheduled Cron Jobs
 
 on:
   schedule:
-    # Run backup every 7 days at midnight UTC (adjust timezone as needed)
+    # Run backup every 7 days at midnight UTC
     - cron: '0 0 */7 * *'
     # Run low stock check daily at 9 AM UTC
     - cron: '0 9 * * *'
-  
+
   # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
     inputs:
@@ -22,60 +22,78 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
-    # Run on schedule or manual trigger
     if: github.event_name == 'schedule' || github.event.inputs.job == 'backup' || github.event.inputs.job == 'both'
-    
+
     steps:
       - name: Trigger Backup
         run: |
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            ${{ secrets.BACKEND_URL }}/api/cron/trigger-backup \
+          echo "Triggering backup at ${{ secrets.BACKEND_URL }}/api/cron/trigger-backup"
+
+          response=$(curl -s \
+            --fail-with-body \
+            --max-time 60 \
+            --retry 3 \
+            --retry-delay 10 \
+            --retry-all-errors \
+            -w "\n%{http_code}" \
+            -X POST \
+            "${{ secrets.BACKEND_URL }}/api/cron/trigger-backup" \
             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json")
-          
+
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
-          
-          echo "Response: $body"
-          echo "HTTP Code: $http_code"
-          
+
+          echo "HTTP Status: $http_code"
+          echo "Response Body: $body"
+
           if [ "$http_code" -ne 200 ]; then
-            echo "Backup failed with status code: $http_code"
+            echo "::error::Backup failed with HTTP $http_code — $body"
             exit 1
           fi
-          
+
+          echo "Backup completed successfully."
+
       - name: Notify on Failure
         if: failure()
         run: |
-          echo "Backup job failed! Check the logs above."
-          # You can add email notification or Slack webhook here
+          echo "::error::Backup job failed. Check the step above for the HTTP status and error body."
 
   low-stock-check:
     runs-on: ubuntu-latest
-    # Run on schedule or manual trigger
     if: github.event_name == 'schedule' || github.event.inputs.job == 'low-stock' || github.event.inputs.job == 'both'
-    
+
     steps:
       - name: Check Low Stock
         run: |
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            ${{ secrets.BACKEND_URL }}/api/cron/check-low-stock \
+          echo "Triggering low stock check at ${{ secrets.BACKEND_URL }}/api/cron/check-low-stock"
+
+          response=$(curl -s \
+            --fail-with-body \
+            --max-time 60 \
+            --retry 3 \
+            --retry-delay 10 \
+            --retry-all-errors \
+            -w "\n%{http_code}" \
+            -X POST \
+            "${{ secrets.BACKEND_URL }}/api/cron/check-low-stock" \
             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json")
-          
+
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
-          
-          echo "Response: $body"
-          echo "HTTP Code: $http_code"
-          
+
+          echo "HTTP Status: $http_code"
+          echo "Response Body: $body"
+
           if [ "$http_code" -ne 200 ]; then
-            echo "Low stock check failed with status code: $http_code"
+            echo "::error::Low stock check failed with HTTP $http_code — $body"
             exit 1
           fi
-          
+
+          echo "Low stock check completed successfully."
+
       - name: Notify on Failure
         if: failure()
         run: |
-          echo "Low stock check job failed! Check the logs above."
-          # You can add email notification or Slack webhook here
+          echo "::error::Low stock check job failed. Check the step above for the HTTP status and error body."
