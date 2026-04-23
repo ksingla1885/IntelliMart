@@ -5,16 +5,19 @@ const { checkLowStockAndNotify } = require('../controllers/notificationControlle
 const cronController = require('../controllers/cronController');
 const authenticateToken = require('../middleware/authMiddleware');
 
-// Middleware to verify cron secret (for external services like Vercel/GitHub Actions)
 const verifyCronSecret = (req, res, next) => {
     const cronSecret = req.headers['x-cron-secret'] || req.query.secret;
-    const isVercelCron = req.headers['x-vercel-cron'] === '1';
+    const isVercelCron = req.headers['x-vercel-cron'] === '1' || req.headers['user-agent']?.includes('vercel-cron');
+
+    // For debugging: log the auth attempt (will show up in Vercel Runtime Logs)
+    console.log(`Cron Auth Attempt - UA: ${req.headers['user-agent']}, Vercel-Cron Header: ${req.headers['x-vercel-cron']}`);
 
     // Trust internal Vercel cron calls or validated external secrets
     if (isVercelCron || (cronSecret && cronSecret === process.env.CRON_SECRET)) {
         return next();
     }
 
+    console.error('Cron Auth Failed: Unauthorized access attempt');
     return res.status(401).json({
         success: false,
         message: 'Unauthorized: Invalid cron secret'
