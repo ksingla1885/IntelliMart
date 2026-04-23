@@ -606,11 +606,18 @@ async function createAutomaticBackup() {
                 }
             });
 
+            // Find the primary user/admin to notify
+            const primaryUser = await prisma.user.findFirst({
+                where: { role: 'ADMIN' }
+            }) || await prisma.user.findFirst();
+
+            const recipientEmail = primaryUser?.email || process.env.EMAIL_USER;
+
             // Cleanup old backups (keep last 10)
             await cleanupOldBackups(10);
 
             // Send notification email
-            await sendBackupNotification(true, fileInfo.fileName);
+            await sendBackupNotification(true, fileInfo.fileName, null, recipientEmail);
 
 
             return { success: true, fileName: fileInfo.fileName };
@@ -626,7 +633,8 @@ async function createAutomaticBackup() {
             });
 
             // Send failure notification
-            await sendBackupNotification(false, null, error.message);
+            const primaryUser = await prisma.user.findFirst({ where: { role: 'ADMIN' } }) || await prisma.user.findFirst();
+            await sendBackupNotification(false, null, error.message, primaryUser?.email || process.env.EMAIL_USER);
 
             throw error;
         }
@@ -639,7 +647,7 @@ async function createAutomaticBackup() {
 /**
  * Send backup notification email
  */
-async function sendBackupNotification(success, fileName, errorMessage) {
+async function sendBackupNotification(success, fileName, errorMessage, recipientEmail) {
     try {
         const subject = success
             ? '✅ Automatic Backup Completed Successfully'
@@ -650,7 +658,7 @@ async function sendBackupNotification(success, fileName, errorMessage) {
             : `Automatic backup failed.\n\nError: ${errorMessage}\nTimestamp: ${new Date().toISOString()}`;
 
         await emailService.sendEmail({
-            to: process.env.EMAIL_USER,
+            to: recipientEmail,
             subject,
             html: `<div style="font-family: sans-serif; white-space: pre-wrap;">${body}</div>`,
             type: success ? 'BACKUP_SUCCESS' : 'BACKUP_FAILURE'
