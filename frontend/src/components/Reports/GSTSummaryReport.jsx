@@ -7,10 +7,20 @@ import { Receipt, Download, Calculator, TrendingUp, FileText } from 'lucide-reac
 import { useState, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import * as XLSX from 'xlsx';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ReceiptModal } from '@/components/POS/ReceiptModal';
 
 export function GSTSummaryReport({ data, loading }) {
   const [period, setPeriod] = useState('current');
   const [gstType, setGstType] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedBill, setSelectedBill] = useState(null);
 
   const mockGSTData = useMemo(() => ({
     summary: {
@@ -437,7 +447,11 @@ Generated on: ${format(new Date(), 'dd MMM yyyy HH:mm:ss')}
                 </thead>
                 <tbody>
                   {gstData.categoryGST.map((category, index) => (
-                    <tr key={index} className="border-b hover:bg-muted/25">
+                    <tr 
+                      key={index} 
+                      className="border-b hover:bg-muted/25 cursor-pointer"
+                      onClick={() => setSelectedCategory(category)}
+                    >
                       <td className="p-3 font-medium">{category.category}</td>
                       <td className="text-right p-3">₹{category.taxableAmount.toFixed(2)}</td>
                       <td className="text-right p-3">₹{category.cgst.toFixed(2)}</td>
@@ -515,6 +529,72 @@ Generated on: ${format(new Date(), 'dd MMM yyyy HH:mm:ss')}
           </div>
         </div>
       </CardContent>
+
+      {/* Category Invoices Dialog */}
+      <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Invoices for {selectedCategory?.category}</DialogTitle>
+            <DialogDescription>
+              All transactions containing products from this category
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 sticky top-0">
+                <tr className="text-left border-b">
+                  <th className="p-2">Invoice #</th>
+                  <th className="p-2">Customer/Firm</th>
+                  <th className="p-2">Date</th>
+                  <th className="p-2 text-right">Total Amount</th>
+                  <th className="p-2 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedCategory?.bills?.map((bill) => (
+                  <tr key={bill.id} className="border-b hover:bg-muted/25">
+                    <td className="p-2 font-medium">#{bill.billNumber}</td>
+                    <td className="p-2">
+                      <div className="font-medium">{bill.customerFirm || bill.customerName || 'Walk-in'}</div>
+                      {bill.customerFirm && bill.customerName && (
+                        <div className="text-xs text-muted-foreground">{bill.customerName}</div>
+                      )}
+                    </td>
+                    <td className="p-2">{format(new Date(bill.createdAt), 'dd MMM yyyy')}</td>
+                    <td className="p-2 text-right font-medium">₹{bill.totalAmount.toFixed(2)}</td>
+                    <td className="p-2 text-center">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedBill(bill);
+                        }}
+                      >
+                        View Receipt
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+                {(!selectedCategory?.bills || selectedCategory.bills.length === 0) && (
+                  <tr>
+                    <td colSpan={4} className="p-4 text-center text-muted-foreground italic">
+                      No bill details available for this report.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bill Receipt Modal */}
+      <ReceiptModal 
+        open={!!selectedBill} 
+        onClose={() => setSelectedBill(null)} 
+        sale={selectedBill} 
+      />
     </Card>
   );
 }

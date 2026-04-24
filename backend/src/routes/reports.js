@@ -103,7 +103,9 @@ router.get('/sales', auth, async (req, res) => {
           total_quantity: 0,
           total_revenue: 0,
           total_cost: 0,
-          total_profit: 0
+          total_profit: 0,
+          currentStock: item.product.stock,
+          reorderLevel: item.product.reorderLevel
         };
 
         existing.total_quantity += item.quantity;
@@ -382,9 +384,14 @@ router.get('/gst', auth, async (req, res) => {
       include: {
         items: {
           include: {
-            product: true
+            product: {
+              include: {
+                category: true
+              }
+            }
           }
-        }
+        },
+        customer: true
       }
     });
 
@@ -443,7 +450,7 @@ router.get('/gst', auth, async (req, res) => {
         const tax = (taxable * gstRate) / 100;
 
         // Category-wise
-        const categoryName = item.product.categoryId || 'Uncategorized';
+        const categoryName = item.product.category?.name || 'Uncategorized';
         const catData = categoryMap.get(categoryName) || {
           category: categoryName,
           taxableAmount: 0,
@@ -453,20 +460,36 @@ router.get('/gst', auth, async (req, res) => {
           totalGST: 0,
           gstRate,
           invoices: 0,
-          exempted: 0
+          exempted: 0,
+          bills: [] // Store bill objects for drill-down
         };
         catData.taxableAmount += taxable;
         catData.cgst += tax / 2;
         catData.sgst += tax / 2;
         catData.totalGST += tax;
-        catData.invoices += 1;
+        
+        // Track unique bills per category
+        if (!catData.bills.some(b => b.id === sale.id)) {
+          catData.bills.push({
+            id: sale.id,
+            billNumber: sale.billNumber,
+            customerName: sale.customerName || sale.customer?.name,
+            customerFirm: sale.customerFirm,
+            totalAmount: toNum(sale.totalAmount),
+            createdAt: sale.createdAt
+          });
+          catData.invoices += 1;
+        }
         categoryMap.set(categoryName, catData);
 
         // Rate-wise
-        const rData = rateMap.get(gstRate) || { rate: gstRate, taxableAmount: 0, gstAmount: 0, invoices: 0 };
+        const rData = rateMap.get(gstRate) || { rate: gstRate, taxableAmount: 0, gstAmount: 0, invoices: 0, billIds: [] };
         rData.taxableAmount += taxable;
         rData.gstAmount += tax;
-        rData.invoices += 1;
+        if (!rData.billIds.includes(sale.id)) {
+          rData.billIds.push(sale.id);
+          rData.invoices += 1;
+        }
         rateMap.set(gstRate, rData);
       });
     });
@@ -526,6 +549,7 @@ router.get('/products', auth, async (req, res) => {
           cost: 0,
           profit: 0,
           currentStock: item.product.stock,
+          reorderLevel: item.product.reorderLevel,
           lastSold: sale.createdAt,
         };
 

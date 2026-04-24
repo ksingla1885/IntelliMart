@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Package, TrendingUp, TrendingDown, Download, Search, Filter, BarChart3, Star } from 'lucide-react';
+import { Package, TrendingUp, TrendingDown, Download, Search, Filter, BarChart3, Database } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -205,8 +205,8 @@ export function ProductWiseReport({ data, loading }) {
           return bProf - aProf;
         case 'margin':
           return bMargin - aMargin;
-        case 'rating':
-          return bRating - aRating;
+        case 'stock':
+          return (b.currentStock || 0) - (a.currentStock || 0);
         case 'name':
           return aName.localeCompare(bName);
         default:
@@ -230,8 +230,7 @@ export function ProductWiseReport({ data, loading }) {
     const topPerformers = margins.filter(m => m >= 25).length;
     const lowPerformers = margins.filter(m => m < 15).length;
 
-    const totalRating = products.reduce((sum, p) => sum + (p.rating || 0), 0);
-    const averageRating = totalProducts > 0 ? totalRating / totalProducts : 0;
+    const totalStock = products.reduce((sum, p) => sum + (p.currentStock || 0), 0);
 
     return {
       totalProducts,
@@ -241,7 +240,7 @@ export function ProductWiseReport({ data, loading }) {
       averageMargin,
       topPerformers,
       lowPerformers,
-      averageRating
+      totalStock
     };
   }, [products]);
 
@@ -325,23 +324,7 @@ export function ProductWiseReport({ data, loading }) {
     return <Badge variant="default">In Stock</Badge>;
   };
 
-  const getRatingStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
 
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />);
-    }
-    if (hasHalfStar) {
-      stars.push(<Star key="half" className="h-3 w-3 fill-yellow-200 text-yellow-400" />);
-    }
-    for (let i = stars.length; i < 5; i++) {
-      stars.push(<Star key={i} className="h-3 w-3 text-gray-300" />);
-    }
-
-    return stars;
-  };
 
   return (
     <Card>
@@ -423,13 +406,13 @@ export function ProductWiseReport({ data, loading }) {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Avg Rating</p>
-                  <p className="text-2xl font-bold">{summary.averageRating.toFixed(1)}</p>
-                  <div className="flex mt-1">
-                    {getRatingStars(summary.averageRating)}
-                  </div>
+                  <p className="text-sm font-medium text-muted-foreground">Total Stock</p>
+                  <p className="text-2xl font-bold">{summary.totalStock}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Items in inventory
+                  </p>
                 </div>
-                <Star className="h-8 w-8 text-yellow-500" />
+                <Database className="h-8 w-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -470,7 +453,7 @@ export function ProductWiseReport({ data, loading }) {
                   <SelectItem value="quantity">Quantity</SelectItem>
                   <SelectItem value="profit">Profit</SelectItem>
                   <SelectItem value="margin">Margin</SelectItem>
-                  <SelectItem value="rating">Rating</SelectItem>
+                  <SelectItem value="stock">Stock</SelectItem>
                   <SelectItem value="name">Name</SelectItem>
                 </SelectContent>
               </Select>
@@ -498,7 +481,7 @@ export function ProductWiseReport({ data, loading }) {
                     <th className="text-right p-3 font-medium">Profit</th>
                     <th className="text-right p-3 font-medium">Margin</th>
                     <th className="text-right p-3 font-medium">Stock</th>
-                    <th className="text-center p-3 font-medium">Rating</th>
+                    <th className="text-right p-3 font-medium">Stock Qty</th>
                     <th className="text-center p-3 font-medium">Performance</th>
                   </tr>
                 </thead>
@@ -542,15 +525,9 @@ export function ProductWiseReport({ data, loading }) {
                         <td className="text-right p-3">
                           {getStockBadge(stock, reorder)}
                         </td>
-                        <td className="text-center p-3">
-                          <div className="flex items-center justify-center gap-1">
-                            <div className="flex">
-                              {getRatingStars(product.rating)}
-                            </div>
-                            <span className="text-xs text-muted-foreground ml-1">
-                              {(product.rating || 0).toFixed(1)}
-                            </span>
-                          </div>
+                        <td className="text-right p-3">
+                          <div className="font-medium">{stock}</div>
+                          {/* <div className="text-xs text-muted-foreground">available</div> */}
                         </td>
                         <td className="text-center p-3">
                           {getPerformanceBadge(margin)}
