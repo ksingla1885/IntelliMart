@@ -12,8 +12,10 @@ import { useProducts } from '@/hooks/useProducts';
 import { useStockMovements } from '@/hooks/useStockMovements';
 import { useToast } from '@/hooks/use-toast';
 import { BarcodeScanner } from '@/components/Barcode/BarcodeScanner';
+import { useBarcodeInput } from '@/hooks/useBarcodeInput';
 import { Camera } from 'lucide-react';
 import { toast as sonnerToast } from 'sonner';
+
 const movementSchema = z.object({
     product_id: z.string().min(1, 'Product is required'),
     movement_type: z.enum(['in', 'out', 'adjustment']),
@@ -23,16 +25,19 @@ const movementSchema = z.object({
     reference_number: z.string().optional(),
     notes: z.string().optional(),
 });
+
 export function StockMovementForm({ open, onClose, onSuccess }) {
     const { products, fetchProducts } = useProducts();
     const { createMovement } = useStockMovements();
     const { toast } = useToast();
     const [scannerOpen, setScannerOpen] = useState(false);
+
     useEffect(() => {
         if (open) {
             fetchProducts();
         }
     }, [open]);
+
     const form = useForm({
         resolver: zodResolver(movementSchema),
         defaultValues: {
@@ -45,16 +50,25 @@ export function StockMovementForm({ open, onClose, onSuccess }) {
             notes: '',
         },
     });
+
     const handleBarcodeScan = (barcode) => {
         const product = products.find((p) => p.barcode === barcode || p.sku === barcode);
         if (product) {
             form.setValue('product_id', product.id);
             sonnerToast.success(`Selected: ${product.name}`);
+            setScannerOpen(false);
         }
         else {
             sonnerToast.error(`Product not found: ${barcode}`);
         }
     };
+
+    // Integrate physical barcode scanner
+    useBarcodeInput({
+        onScan: handleBarcodeScan,
+        enabled: open && !scannerOpen,
+    });
+
     const onSubmit = async (data) => {
         try {
             await createMovement({
@@ -82,6 +96,7 @@ export function StockMovementForm({ open, onClose, onSuccess }) {
             });
         }
     };
+
     return (<Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, AlertTriangle, Calendar, Bell, ClipboardCheck } from 'lucide-react';
+import { Plus, AlertTriangle, Calendar, Bell, ClipboardCheck, Search, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InventoryList } from '@/components/Inventory/InventoryList';
 import { StockMovementForm } from '@/components/Inventory/StockMovementForm';
@@ -12,11 +13,16 @@ import { PurchaseOrderForm } from '@/components/Suppliers/PurchaseOrderForm';
 import { useProducts } from '@/hooks/useProducts';
 import { useReorderAlerts } from '@/hooks/useReorderAlerts';
 import { useSuppliers } from '@/hooks/useSuppliers';
+import { BarcodeScanner } from '@/components/Barcode/BarcodeScanner';
+import { useBarcodeInput } from '@/hooks/useBarcodeInput';
+import { toast } from 'sonner';
 
 export default function Inventory() {
     const [isMovementFormOpen, setIsMovementFormOpen] = useState(false);
     const [isPOFormOpen, setIsPOFormOpen] = useState(false);
     const [selectedProductForPO, setSelectedProductForPO] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [scannerOpen, setScannerOpen] = useState(false);
     const { products, fetchProducts } = useProducts();
     const { suggestedPOs, refetch: refetchAlerts } = useReorderAlerts();
     const { suppliers, fetchSuppliers } = useSuppliers();
@@ -26,8 +32,17 @@ export default function Inventory() {
         fetchSuppliers();
     }, []);
 
-    const lowStockProducts = products.filter((p) => p.stock <= (p.reorderLevel || p.reorder_level || 5));
-    const expiringProducts = products.filter((p) => {
+    const filteredProducts = products.filter(p => {
+        const query = searchQuery.toLowerCase();
+        return (
+            p.name?.toLowerCase().includes(query) ||
+            p.sku?.toLowerCase().includes(query) ||
+            p.barcode?.toLowerCase().includes(query)
+        );
+    });
+
+    const lowStockProducts = filteredProducts.filter((p) => p.stock <= (p.reorderLevel || p.reorder_level || 5));
+    const expiringProducts = filteredProducts.filter((p) => {
         if (!p.expiry_date)
             return false;
         const expiryDate = new Date(p.expiry_date);
@@ -40,6 +55,17 @@ export default function Inventory() {
         setIsPOFormOpen(true);
     };
 
+    const handleBarcodeScan = (barcode) => {
+        setSearchQuery(barcode);
+        toast.success(`Scanned: ${barcode}`);
+        setScannerOpen(false);
+    };
+
+    useBarcodeInput({
+        onScan: handleBarcodeScan,
+        enabled: !isMovementFormOpen && !isPOFormOpen && !scannerOpen,
+    });
+
     return (<div className="space-y-4 sm:space-y-6 pb-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
@@ -50,14 +76,31 @@ export default function Inventory() {
             Track stock levels, movements, and alerts
           </p>
         </div>
-        <Button onClick={() => setIsMovementFormOpen(true)} className="w-full sm:w-auto">
+        <Button onClick={() => setIsMovementFormOpen(true)} className="w-full sm:w-auto shadow-md">
           <Plus className="w-4 h-4 mr-2"/>
           Add Stock Movement
         </Button>
       </div>
 
+      <div className="flex gap-2 max-w-xl">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input 
+            placeholder="Search products by name, SKU, or barcode..." 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            className="pl-9 h-10 border-2 focus:border-primary/50 transition-all" 
+          />
+        </div>
+        <Button variant="outline" size="icon" onClick={() => setScannerOpen(true)} className="shrink-0 h-10 w-10">
+          <Camera className="w-4 h-4" />
+        </Button>
+      </div>
+
+      <BarcodeScanner open={scannerOpen} onClose={() => setScannerOpen(false)} onScan={handleBarcodeScan} />
+
       {(lowStockProducts.length > 0 || expiringProducts.length > 0) && (<div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          {lowStockProducts.length > 0 && (<div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 sm:p-4">
+          {lowStockProducts.length > 0 && (<div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 sm:p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive"/>
                 <h3 className="font-semibold text-sm sm:text-base text-destructive">
@@ -69,7 +112,7 @@ export default function Inventory() {
               </p>
             </div>)}
 
-          {expiringProducts.length > 0 && (<div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 sm:p-4">
+          {expiringProducts.length > 0 && (<div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 sm:p-4 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500"/>
                 <h3 className="font-semibold text-sm sm:text-base text-orange-500">
@@ -83,7 +126,7 @@ export default function Inventory() {
         </div>)}
 
       <Tabs defaultValue="inventory" className="space-y-4">
-        <TabsList className="w-full justify-start overflow-x-auto flex-nowrap">
+        <TabsList className="w-full justify-start overflow-x-auto flex-nowrap bg-muted/50 p-1">
           <TabsTrigger value="inventory" className="text-xs sm:text-sm whitespace-nowrap">All Inventory</TabsTrigger>
           <TabsTrigger value="stocktake" className="flex items-center gap-1 text-xs sm:text-sm whitespace-nowrap">
             <ClipboardCheck className="h-3 w-3 sm:h-4 sm:w-4"/>
@@ -106,7 +149,7 @@ export default function Inventory() {
         </TabsList>
 
         <TabsContent value="inventory">
-          <InventoryList products={products} onRefresh={fetchProducts}/>
+          <InventoryList products={filteredProducts} onRefresh={fetchProducts}/>
         </TabsContent>
 
         <TabsContent value="stocktake">

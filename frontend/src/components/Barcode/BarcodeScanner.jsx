@@ -9,16 +9,31 @@ export const BarcodeScanner = ({ open, onClose, onScan }) => {
     const scannerRef = useRef(null);
     const containerId = 'barcode-scanner-container';
     useEffect(() => {
+        let timeoutId;
         if (open && !isScanning) {
-            startScanner();
+            // Add a small delay to ensure the dialog is fully open and the container is in the DOM
+            timeoutId = setTimeout(() => {
+                startScanner();
+            }, 300);
         }
         return () => {
+            if (timeoutId) clearTimeout(timeoutId);
             stopScanner();
         };
     }, [open]);
+
     const startScanner = async () => {
         try {
             setError(null);
+            
+            // Double check if element exists
+            const element = document.getElementById(containerId);
+            if (!element) {
+                console.warn('Scanner container not found, retrying...');
+                setError('Initialising camera...');
+                return;
+            }
+
             const html5QrCode = new Html5Qrcode(containerId);
             scannerRef.current = html5QrCode;
             await html5QrCode.start({ facingMode: 'environment' }, {
@@ -32,12 +47,15 @@ export const BarcodeScanner = ({ open, onClose, onScan }) => {
                 // Ignore scan failures
             });
             setIsScanning(true);
+            setError(null);
         }
         catch (err) {
+            console.error('Camera start error:', err);
             setError(err.message || 'Failed to start camera');
             setIsScanning(false);
         }
     };
+
     const stopScanner = async () => {
         if (scannerRef.current && isScanning) {
             try {

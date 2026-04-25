@@ -14,8 +14,10 @@ import { useStocktakes } from '@/hooks/useStocktakes';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BarcodeScanner } from '@/components/Barcode/BarcodeScanner';
+import { useBarcodeInput } from '@/hooks/useBarcodeInput';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+
 export function StocktakeDetail({ stocktakeId, onBack }) {
     const [stocktake, setStocktake] = useState(null);
     const [items, setItems] = useState([]);
@@ -29,6 +31,7 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
     const [scannerOpen, setScannerOpen] = useState(false);
     const itemRefs = useRef(new Map());
     const { updateItemCount, completeStocktake, cancelStocktake } = useStocktakes();
+
     const fetchData = useCallback(async () => {
         setLoading(true);
         try {
@@ -55,13 +58,16 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
             setLoading(false);
         }
     }, [stocktakeId]);
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
     const handleStartEdit = (item) => {
         setEditingItemId(item.id);
         setEditValue(item.counted_quantity?.toString() || '');
     };
+
     const handleSaveCount = async (itemId) => {
         const count = parseInt(editValue, 10);
         if (isNaN(count) || count < 0) {
@@ -78,6 +84,7 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
             toast.error('Failed to save count');
         }
     };
+
     const handleComplete = async () => {
         setCompleting(true);
         try {
@@ -95,6 +102,7 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
             setShowCompleteDialog(false);
         }
     };
+
     const handleCancel = async () => {
         try {
             await cancelStocktake(stocktakeId);
@@ -105,16 +113,19 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
             toast.error('Failed to cancel stocktake');
         }
     };
+
     const filteredItems = items.filter(item => {
         const searchLower = search.toLowerCase();
         return (item.product?.name.toLowerCase().includes(searchLower) ||
             item.product?.sku.toLowerCase().includes(searchLower) ||
             item.product?.barcode?.toLowerCase().includes(searchLower));
     });
+
     const countedItems = items.filter(i => i.counted_quantity !== null).length;
     const itemsWithVariance = items.filter(i => i.variance !== null && i.variance !== 0);
     const totalVariance = itemsWithVariance.reduce((sum, i) => sum + (i.variance || 0), 0);
     const isInProgress = stocktake?.status === 'in_progress';
+
     const handleBarcodeScan = (barcode) => {
         const item = items.find(i => i.product?.barcode?.toLowerCase() === barcode.toLowerCase() ||
             i.product?.sku.toLowerCase() === barcode.toLowerCase());
@@ -131,11 +142,19 @@ export function StocktakeDetail({ stocktakeId, onBack }) {
                 handleStartEdit(item);
             }
             toast.success(`Found: ${item.product?.name}`);
+            setScannerOpen(false);
         }
         else {
             toast.error('Product not found in this stocktake');
         }
     };
+
+    // Integrate physical barcode scanner
+    useBarcodeInput({
+        onScan: handleBarcodeScan,
+        enabled: isInProgress && !scannerOpen,
+    });
+
     const exportToCSV = () => {
         const headers = ['Product Name', 'SKU', 'Barcode', 'System Qty', 'Counted Qty', 'Variance', 'Notes'];
         const rows = items.map(item => [

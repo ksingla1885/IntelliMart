@@ -13,6 +13,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useToast } from '@/hooks/use-toast';
 import { BarcodeScanner } from '@/components/Barcode/BarcodeScanner';
+import { useBarcodeInput } from '@/hooks/useBarcodeInput';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Camera, Plus } from 'lucide-react';
 import { toast as sonnerToast } from 'sonner';
@@ -107,6 +108,12 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
     sonnerToast.success(`Barcode scanned: ${barcode}`);
     setScannerOpen(false);
   };
+
+  // Integrate physical barcode scanner
+  useBarcodeInput({
+    onScan: handleBarcodeScan,
+    enabled: open && !scannerOpen,
+  });
 
   // Auto-generate SKU
   useEffect(() => {
