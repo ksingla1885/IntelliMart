@@ -70,6 +70,7 @@ export function PurchaseOrderList({ purchaseOrders, onRefresh }) {
                 <TableRow>
                   <TableHead>PO Number</TableHead>
                   <TableHead>Supplier</TableHead>
+                  <TableHead>Items</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead>Date</TableHead>
@@ -79,10 +80,20 @@ export function PurchaseOrderList({ purchaseOrders, onRefresh }) {
               <TableBody>
                 {purchaseOrders.map((po) => (
                   <TableRow key={po.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-xs">
                       {po.po_number || po.id?.substring(0, 8).toUpperCase()}
                     </TableCell>
-                    <TableCell>{po.supplier?.name}</TableCell>
+                    <TableCell className="font-medium">{po.supplier?.name}</TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {po.items?.[0]?.product?.name || 'No items'}
+                        {po.items?.length > 1 && (
+                          <span className="text-muted-foreground ml-1 text-xs">
+                            (+{po.items.length - 1} more)
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{getStatusBadge(po.status)}</TableCell>
                     <TableCell className="text-right">
                       ₹{Number(po.total_amount).toFixed(2)}

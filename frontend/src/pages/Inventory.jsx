@@ -8,16 +8,25 @@ import { LowStockAlerts } from '@/components/Inventory/LowStockAlerts';
 import { ExpiringItems } from '@/components/Inventory/ExpiringItems';
 import { ReorderAlerts } from '@/components/Inventory/ReorderAlerts';
 import { StocktakeList } from '@/components/Inventory/StocktakeList';
+import { PurchaseOrderForm } from '@/components/Suppliers/PurchaseOrderForm';
 import { useProducts } from '@/hooks/useProducts';
 import { useReorderAlerts } from '@/hooks/useReorderAlerts';
+import { useSuppliers } from '@/hooks/useSuppliers';
+
 export default function Inventory() {
     const [isMovementFormOpen, setIsMovementFormOpen] = useState(false);
+    const [isPOFormOpen, setIsPOFormOpen] = useState(false);
+    const [selectedProductForPO, setSelectedProductForPO] = useState(null);
     const { products, fetchProducts } = useProducts();
-    const { suggestedPOs } = useReorderAlerts();
+    const { suggestedPOs, refetch: refetchAlerts } = useReorderAlerts();
+    const { suppliers, fetchSuppliers } = useSuppliers();
+
     useEffect(() => {
         fetchProducts();
+        fetchSuppliers();
     }, []);
-    const lowStockProducts = products.filter((p) => p.stock <= p.reorder_level);
+
+    const lowStockProducts = products.filter((p) => p.stock <= (p.reorderLevel || p.reorder_level || 5));
     const expiringProducts = products.filter((p) => {
         if (!p.expiry_date)
             return false;
@@ -25,6 +34,12 @@ export default function Inventory() {
         const daysUntilExpiry = Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
         return daysUntilExpiry <= 30 && daysUntilExpiry >= 0;
     });
+
+    const handleOrder = (product) => {
+        setSelectedProductForPO(product);
+        setIsPOFormOpen(true);
+    };
+
     return (<div className="space-y-4 sm:space-y-6 pb-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
@@ -99,11 +114,11 @@ export default function Inventory() {
         </TabsContent>
 
         <TabsContent value="reorder-alerts">
-          <ReorderAlerts />
+          <ReorderAlerts onOrder={handleOrder} />
         </TabsContent>
 
         <TabsContent value="low-stock">
-          <LowStockAlerts products={lowStockProducts} onRefresh={fetchProducts}/>
+          <LowStockAlerts products={lowStockProducts} onOrder={handleOrder} onRefresh={fetchProducts}/>
         </TabsContent>
 
         <TabsContent value="expiring">
@@ -114,6 +129,21 @@ export default function Inventory() {
       <StockMovementForm open={isMovementFormOpen} onClose={() => setIsMovementFormOpen(false)} onSuccess={() => {
             setIsMovementFormOpen(false);
             fetchProducts();
+        }}/>
+
+      <PurchaseOrderForm 
+        open={isPOFormOpen} 
+        suppliers={suppliers} 
+        initialProduct={selectedProductForPO}
+        onClose={() => {
+            setIsPOFormOpen(false);
+            setSelectedProductForPO(null);
+        }} 
+        onSuccess={() => {
+            setIsPOFormOpen(false);
+            setSelectedProductForPO(null);
+            fetchProducts();
+            refetchAlerts();
         }}/>
     </div>);
 }

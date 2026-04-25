@@ -50,8 +50,8 @@ export function ProductSearch({ products, onAddToCart }) {
     if (!product.is_active)
       return false;
     const query = searchQuery.toLowerCase();
-    return (product.name.toLowerCase().includes(query) ||
-      product.sku.toLowerCase().includes(query) ||
+    return (product.name?.toLowerCase().includes(query) ||
+      product.sku?.toLowerCase().includes(query) ||
       product.barcode?.toLowerCase().includes(query));
   });
   const handleBarcodeInput = (value) => {
