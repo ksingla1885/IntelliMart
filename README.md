@@ -221,9 +221,18 @@ This will spin up:
 
 ---
 
-## 📝 License
+## 📝 License & Commercial Use
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is **Dual-Licensed**:
+
+1. **Open Source Use**: Licensed under the [GNU Affero General Public License (AGPL) v3](LICENSE). This version is free for personal use and for those who are willing to open-source their own work.
+2. **Commercial Use**: For businesses that want to use IntelliMart without the AGPL's "share-alike" restrictions (e.g., keeping your own modifications secret or using it in a proprietary product), a **Commercial License** is required.
+
+### Why Dual Licensing?
+The AGPL ensures that the software remains free and open for the community. The Commercial License provides a way for businesses to support the project's development while receiving a license tailored for professional and private use.
+
+For commercial licensing inquiries, pricing, or to obtain a version of IntelliMart without AGPL restrictions, please contact:
+**Ketan Singla** - [heyketankumar@gmail.com](mailto:heyketankumar@gmail.com)
 
 ---
 
