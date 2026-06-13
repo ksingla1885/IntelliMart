@@ -319,3 +319,18 @@ enum NotificationStatus {
   FAILED
   RETRYING
 }
+
+model AuditLog {
+  id             String    @id @default(uuid())
+  userId         String?   @map("user_id") @db.Uuid
+  action         String
+  tableName      String    @map("table_name")
+  recordId       String?   @map("record_id") @db.Uuid
+  oldData        Json?     @map("old_data")
+  newData        Json?     @map("new_data")
+  changedFields  String[]  @map("changed_fields")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("audit_logs")
+}
+

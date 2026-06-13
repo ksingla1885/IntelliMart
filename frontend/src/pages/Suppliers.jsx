@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, ShoppingCart } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Plus, ShoppingCart, Building2, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SupplierList } from '@/components/Suppliers/SupplierList';
@@ -8,6 +9,8 @@ import { PurchaseOrderList } from '@/components/Suppliers/PurchaseOrderList';
 import { PurchaseOrderForm } from '@/components/Suppliers/PurchaseOrderForm';
 import { useSuppliers } from '@/hooks/useSuppliers';
 export default function Suppliers() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'suppliers';
     const [isSupplierFormOpen, setIsSupplierFormOpen] = useState(false);
     const [isPOFormOpen, setIsPOFormOpen] = useState(false);
     const [editingSupplierId, setEditingSupplierId] = useState(null);
@@ -68,15 +71,17 @@ export default function Suppliers() {
       </div>
 
       {/* Tabs Section */}
-      <Tabs defaultValue="suppliers" className="space-y-4">
-        <TabsList className="w-full grid grid-cols-2 h-auto p-1 bg-muted/50">
-          <TabsTrigger value="suppliers" className="data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300 py-2.5 sm:py-3">
+      <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="space-y-4">
+        <TabsList className="w-full grid grid-cols-2 h-auto p-1 bg-muted/50 rounded-xl">
+          <TabsTrigger value="suppliers" className="flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg transition-all duration-300 data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-muted/70">
+            <Building2 className="w-4 h-4" />
             <span className="text-xs sm:text-sm font-medium">Suppliers ({suppliers.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="purchase-orders" className="data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300 py-2.5 sm:py-3">
+          <TabsTrigger value="purchase-orders" className="flex items-center justify-center gap-2 py-2.5 sm:py-3 rounded-lg transition-all duration-300 data-[state=active]:bg-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-muted/70">
+            <ClipboardList className="w-4 h-4" />
             <span className="text-xs sm:text-sm font-medium">
               Purchase Orders 
-              {pendingPOs.length > 0 && (<span className="ml-1.5 px-1.5 py-0.5 text-xs rounded-full bg-orange-500 text-white">
+              {pendingPOs.length > 0 && (<span className="ml-1.5 px-1.5 py-0.5 text-xs font-semibold rounded-full bg-orange-500 text-white shadow-sm animate-pulse">
                   {pendingPOs.length}
                 </span>)}
             </span>

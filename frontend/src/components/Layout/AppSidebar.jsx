@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, Warehouse, ShoppingCart, TrendingUp, Users, FileText, FolderOpen, CreditCard, History, User, Receipt, Database, Bell, Activity } from "lucide-react";
+import { LayoutDashboard, Package, Warehouse, ShoppingCart, TrendingUp, Users, FileText, FolderOpen, CreditCard, History, User, Receipt, Database, Bell, Activity, ClipboardList } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar, } from "@/components/ui/sidebar";
 import { useRoles } from "@/hooks/useRoles";
@@ -15,6 +15,7 @@ const mainItems = [
 ];
 const managementItems = [
   { title: "Suppliers", url: "/suppliers", icon: FileText, roles: PERMISSIONS.VIEW_SUPPLIERS },
+  { title: "Purchase Orders", url: "/suppliers?tab=purchase-orders", icon: ClipboardList, roles: PERMISSIONS.VIEW_SUPPLIERS },
   { title: "Customers", url: "/customers", icon: Users, roles: PERMISSIONS.VIEW_CUSTOMERS },
   { title: "Audit Logs", url: "/audit-logs", icon: History, roles: ['admin', 'manager'] },
 ];

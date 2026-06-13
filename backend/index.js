@@ -20,6 +20,7 @@ const supplierRoutes = require('./src/routes/supplierRoutes');
 const purchaseOrderRoutes = require('./src/routes/purchaseOrderRoutes');
 const customerRoutes = require('./src/routes/customerRoutes');
 const cronRoutes = require('./src/routes/cronRoutes');
+const auditLogRoutes = require('./src/routes/auditLogRoutes');
 
 
 // Schedulers
@@ -50,6 +51,7 @@ app.use('/api/suppliers', supplierRoutes);
 app.use('/api/purchase-orders', purchaseOrderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/cron', cronRoutes);
+app.use('/api/audit-logs', auditLogRoutes);
 
 
 app.get('/', (req, res) => {
