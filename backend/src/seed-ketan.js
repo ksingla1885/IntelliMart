@@ -172,10 +172,10 @@ async function run() {
         console.log("Creating customers...");
         const customers = [];
         const customerData = [
-            { name: "Devin Patel", email: "devin@gmail.com", phone: "9876543001", address: "123 Main St, New York" },
-            { name: "Elena Rostova", email: "elena@gmail.com", phone: "9876543002", address: "456 Oak Ave, Boston" },
-            { name: "Marcus Aurelius", email: "marcus@rome.org", phone: "9876543003", address: "1 Palace Way, Rome" },
-            { name: "Priyah Sharma", email: "priyah@outlook.com", phone: "9876543004", address: "789 Lotus Blvd, Mumbai" }
+            { name: "Devin Patel", email: "devin@gmail.com", phone: "9876543001", address: "123 Main St, New York", firmName: "Patel Tech Solutions", gstin: "27AAAAA1111A1Z1" },
+            { name: "Elena Rostova", email: "elena@gmail.com", phone: "9876543002", address: "456 Oak Ave, Boston", firmName: "Rostova Trading Co", gstin: "27BBBBB2222B2Z2" },
+            { name: "Marcus Aurelius", email: "marcus@rome.org", phone: "9876543003", address: "1 Palace Way, Rome", firmName: "Imperium Goods", gstin: "27CCCCC3333C3Z3" },
+            { name: "Priyah Sharma", email: "priyah@outlook.com", phone: "9876543004", address: "789 Lotus Blvd, Mumbai", firmName: "Sharma & Sons", gstin: "27DDDDD4444D4Z4" }
         ];
 
         for (const c of customerData) {

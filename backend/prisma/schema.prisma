@@ -72,6 +72,8 @@ model Customer {
   phone     String?
   address   String?
   discountPercentage Decimal @default(0) @db.Decimal(5, 2)
+  firmName  String?
+  gstin     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   shop      Shop     @relation(fields: [shopId], references: [id], onDelete: Cascade)

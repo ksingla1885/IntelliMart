@@ -69,10 +69,13 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
     }
   }, [customer, setValue]);
 
-  // Dynamic values based on selected tax rate
+  // Dynamic values based on selected tax rate and customer discount
+  const discountPercentage = customer ? (parseFloat(customer.discountPercentage) || 0) : 0;
+  const discountAmount = subtotal * (discountPercentage / 100);
+  const taxableAmount = subtotal - discountAmount;
   const selectedTaxRate = parseFloat(form.watch('tax_rate') || '0');
-  const tax = subtotal * (selectedTaxRate / 100);
-  const total = subtotal + tax;
+  const tax = taxableAmount * (selectedTaxRate / 100);
+  const total = taxableAmount + tax;
 
   const onSubmit = async (data) => {
     if (cartItems.length === 0)
@@ -93,7 +96,7 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
         items: cartItems.map(item => ({
           productId: item.productId,
           quantity: item.quantity,
-          price: item.price,
+          price: item.price * (1 - discountPercentage / 100),
         })),
         payment_method: data.payment_method,
         notes: data.notes || null,
@@ -159,6 +162,13 @@ export function CheckoutModal({ open, onClose, cartItems, subtotal, customer, on
                 <span>Subtotal:</span>
                 <span>₹{subtotal.toFixed(2)}</span>
               </div>
+              
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-sm font-medium text-emerald-600">
+                  <span>Discount ({discountPercentage}%):</span>
+                  <span>-₹{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
               
               <div className="grid grid-cols-2 items-center gap-4 py-1">
                 <FormField control={form.control} name="tax_rate" render={({ field }) => (

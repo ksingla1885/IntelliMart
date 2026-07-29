@@ -22,7 +22,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // Create customer
 router.post('/', authenticateToken, async (req, res) => {
-    const { shopId, name, email, phone, address, discountPercentage } = req.body;
+    const { shopId, name, email, phone, address, discountPercentage, firmName, gstin } = req.body;
 
     if (!shopId || !name) return res.status(400).json({ error: 'Shop ID and Name are required' });
 
@@ -34,7 +34,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 email,
                 phone,
                 address,
-                discountPercentage: parseFloat(discountPercentage) || 0
+                discountPercentage: parseFloat(discountPercentage) || 0,
+                firmName,
+                gstin
             }
         });
 
@@ -47,7 +49,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Update customer
 router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const { name, email, phone, address, discountPercentage } = req.body;
+    const { name, email, phone, address, discountPercentage, firmName, gstin } = req.body;
 
 
     try {
@@ -58,7 +60,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 email,
                 phone,
                 address,
-                discountPercentage: discountPercentage !== undefined ? parseFloat(discountPercentage) : undefined
+                discountPercentage: discountPercentage !== undefined ? parseFloat(discountPercentage) : undefined,
+                firmName,
+                gstin
             }
         });
 

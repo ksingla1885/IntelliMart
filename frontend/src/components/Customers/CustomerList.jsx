@@ -63,6 +63,7 @@ export const CustomerList = ({ onAdd, onEdit, onPricing, onHistory }) => {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
+            <TableHead>Firm Details</TableHead>
             <TableHead>Contact</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Discount</TableHead>
@@ -72,6 +73,13 @@ export const CustomerList = ({ onAdd, onEdit, onPricing, onHistory }) => {
         <TableBody>
           {filteredCustomers.map((customer) => (<TableRow key={customer.id}>
             <TableCell className="font-medium">{customer.name}</TableCell>
+            <TableCell>
+              <div className="text-sm">
+                {customer.firmName && <div className="font-medium">{customer.firmName}</div>}
+                {customer.gstin && <div className="text-xs text-muted-foreground">GST: {customer.gstin}</div>}
+                {!customer.firmName && !customer.gstin && <span className="text-muted-foreground">-</span>}
+              </div>
+            </TableCell>
             <TableCell>
               <div className="text-sm">
                 {customer.email && <div>{customer.email}</div>}

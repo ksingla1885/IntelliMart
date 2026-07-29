@@ -16,6 +16,8 @@ const customerSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   discountPercentage: z.coerce.number().min(0).max(100).default(0),
+  firmName: z.string().optional().or(z.literal('')),
+  gstin: z.string().optional().or(z.literal('')),
 });
 
 export const CustomerForm = ({ open, onClose, customer }) => {
@@ -30,6 +32,8 @@ export const CustomerForm = ({ open, onClose, customer }) => {
       phone: '',
       address: '',
       discountPercentage: 0,
+      firmName: '',
+      gstin: '',
     },
   });
 
@@ -41,6 +45,8 @@ export const CustomerForm = ({ open, onClose, customer }) => {
         phone: customer.phone || '',
         address: customer.address || '',
         discountPercentage: Number(customer.discountPercentage) || 0,
+        firmName: customer.firmName || '',
+        gstin: customer.gstin || '',
       });
     } else {
       form.reset({
@@ -49,6 +55,8 @@ export const CustomerForm = ({ open, onClose, customer }) => {
         phone: '',
         address: '',
         discountPercentage: 0,
+        firmName: '',
+        gstin: '',
       });
     }
   }, [customer, form]);
@@ -64,6 +72,8 @@ export const CustomerForm = ({ open, onClose, customer }) => {
       phone: data.phone || null,
       address: data.address || null,
       discountPercentage: data.discountPercentage,
+      firmName: data.firmName || null,
+      gstin: data.gstin || null,
     };
 
     console.log('Customer data to send:', customerData);
@@ -140,6 +150,35 @@ export const CustomerForm = ({ open, onClose, customer }) => {
                       </FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="+1 234 567 8900" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firmName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Firm Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter firm name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gstin"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GSTIN / GST Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter GST number" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
