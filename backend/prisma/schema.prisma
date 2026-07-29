@@ -334,3 +334,12 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+enum AppRole {
+  admin
+  manager
+  cashier
+
+  @@map("app_role")
+}
+
+

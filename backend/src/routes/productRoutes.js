@@ -114,6 +114,20 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Get suppliers linked to a product
+router.get('/:id/suppliers', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const supplierProducts = await prisma.supplierProduct.findMany({
+            where: { productId: id },
+            include: { supplier: true }
+        });
+        res.json(supplierProducts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Get Low Stock Products
 router.get('/low-stock', authenticateToken, async (req, res) => {
     const { shopId } = req.query;

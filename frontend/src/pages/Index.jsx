@@ -129,12 +129,148 @@ const Index = () => {
                 ))}
               </div>
               <div className="hidden md:flex gap-8 px-8 pb-8 pt-4">
-                 <div className="flex-1 h-40 rounded-xl bg-slate-50 relative flex items-center justify-center">
-                    <LineChart className="w-12 h-12 text-slate-200" />
-                 </div>
-                 <div className="w-1/3 h-40 rounded-xl bg-slate-50 flex items-center justify-center">
-                    <Users className="w-12 h-12 text-slate-200" />
-                 </div>
+                {/* Revenue Analytics Chart Card */}
+                <div className="flex-1 h-56 rounded-xl border border-slate-100 bg-white/70 backdrop-blur-sm p-5 flex flex-col justify-between relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Revenue Analytics</h4>
+                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">Monthly progression & targets</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-lg border border-slate-100">
+                      {['1W', '1M', '3M'].map((t) => (
+                        <button
+                          key={t}
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded transition-colors ${
+                            t === '1M' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chart Visualization */}
+                  <div className="relative flex-1 flex items-end">
+                    <svg className="w-full h-[95px] overflow-visible" viewBox="0 0 450 95" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="chartAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.18" />
+                          <stop offset="100%" stopColor="#4F46E5" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      
+                      {/* Horizontal grid lines */}
+                      <line x1="0" y1="15" x2="450" y2="15" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4 4" />
+                      <line x1="0" y1="50" x2="450" y2="50" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4 4" />
+                      <line x1="0" y1="85" x2="450" y2="85" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4 4" />
+
+                      {/* Path for Area fill */}
+                      <path
+                        d="M 0 95 L 0 80 C 40 70, 70 85, 110 58 C 150 30, 180 65, 220 40 C 260 15, 290 70, 330 32 C 370 -5, 410 25, 450 10 L 450 95 Z"
+                        fill="url(#chartAreaGrad)"
+                      />
+                      
+                      {/* Path for Line stroke */}
+                      <path
+                        d="M 0 80 C 40 70, 70 85, 110 58 C 150 30, 180 65, 220 40 C 260 15, 290 70, 330 32 C 370 -5, 410 25, 450 10"
+                        fill="none"
+                        stroke="#4F46E5"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+
+                      {/* Indicator dotted vertical line */}
+                      <line x1="330" y1="0" x2="330" y2="95" stroke="#818CF8" strokeWidth="1" strokeDasharray="3 3" />
+
+                      {/* Active Dot */}
+                      <circle cx="330" cy="32" r="4.5" fill="#4F46E5" stroke="#FFFFFF" strokeWidth="2" />
+                      <circle cx="330" cy="32" r="9" fill="#4F46E5" fillOpacity="0.15" className="animate-pulse" />
+                    </svg>
+                    
+                    {/* Dynamic Tooltip */}
+                    <div className="absolute top-[0px] left-[70%] bg-slate-950 text-white text-[9px] py-1 px-2 rounded shadow-lg font-medium pointer-events-none flex flex-col border border-slate-800">
+                      <span className="text-[8px] text-slate-400">June 24</span>
+                      <span className="font-bold text-[10px] text-indigo-400">$42,850</span>
+                    </div>
+                  </div>
+
+                  {/* X Axis Labels */}
+                  <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold mt-1 px-1">
+                    <span>Jun 01</span>
+                    <span>Jun 08</span>
+                    <span>Jun 15</span>
+                    <span>Jun 22</span>
+                    <span>Jun 30</span>
+                  </div>
+                </div>
+
+                {/* Live Sales Feed Card */}
+                <div className="w-1/3 h-56 rounded-xl border border-slate-100 bg-white/70 backdrop-blur-sm p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                        </span>
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Live Activity</h4>
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">Real-time store updates</p>
+                    </div>
+                    <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded-full">Live</span>
+                  </div>
+
+                  {/* Activity list */}
+                  <div className="flex-1 flex flex-col gap-2.5 justify-center">
+                    {[
+                      {
+                        initials: "VS",
+                        title: "Vantage Shop",
+                        desc: "Order #4891 processed",
+                        amount: "+$245.00",
+                        time: "Just now",
+                        bg: "from-indigo-500 to-violet-500"
+                      },
+                      {
+                        initials: "MS",
+                        title: "Main Street",
+                        desc: "Restocked Coffee Maker",
+                        amount: "15 items",
+                        time: "3m ago",
+                        bg: "from-emerald-500 to-teal-500",
+                        isQty: true
+                      },
+                      {
+                        initials: "OL",
+                        title: "Online Store",
+                        desc: "Order #4890 processed",
+                        amount: "+$89.90",
+                        time: "12m ago",
+                        bg: "from-amber-500 to-orange-500"
+                      }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-left">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-7 h-7 rounded bg-gradient-to-br ${item.bg} flex items-center justify-center text-[9px] font-bold text-white shadow-sm`}>
+                            {item.initials}
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-bold text-slate-700 leading-tight">{item.title}</p>
+                            <p className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-[11px] font-bold ${item.isQty ? 'text-slate-600' : 'text-emerald-600'} leading-tight`}>{item.amount}</p>
+                          <p className="text-[8px] text-slate-400 font-medium leading-none mt-0.5">{item.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -245,7 +381,7 @@ const Index = () => {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="h-16 px-12 text-lg border-slate-700 text-white hover:bg-slate-800 rounded-xl"
+                      className="h-16 px-12 text-lg border-white/20 text-white bg-transparent hover:bg-white/10 hover:text-white rounded-xl transition-all"
                     >
                       Talk to an expert
                     </Button>

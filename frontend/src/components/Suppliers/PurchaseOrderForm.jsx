@@ -26,7 +26,7 @@ export function PurchaseOrderForm({ open, suppliers, onClose, onSuccess, initial
   const [unitCost, setUnitCost] = useState('');
   const [supplierProducts, setSupplierProducts] = useState([]);
 
-  const { createPurchaseOrder, fetchSupplierProducts } = useSuppliers();
+  const { createPurchaseOrder, fetchSupplierProducts, fetchProductSuppliers } = useSuppliers();
   const { products, fetchProducts } = useProducts();
 
   const form = useForm({
@@ -57,14 +57,38 @@ export function PurchaseOrderForm({ open, suppliers, onClose, onSuccess, initial
   // Handle initial product pre-filling
   useEffect(() => {
     if (open && initialProduct && products.length > 0) {
-      // If we have an initial product, we want to make it easy to order it.
-      // We don't necessarily know which supplier the user will pick yet.
-      // So we just set the selected product in the "Add Item" section.
-      setSelectedProduct(initialProduct.id);
-      setUnitCost(String(initialProduct.costPrice || initialProduct.cost || 0));
-      setQuantity(String(Math.max(1, (initialProduct.reorderLevel || 5) - initialProduct.stock)));
+      const autoFillSupplierAndProduct = async () => {
+        try {
+          const productSuppliers = await fetchProductSuppliers(initialProduct.id);
+          if (productSuppliers && productSuppliers.length > 0) {
+            // Find preferred supplier or default to the first one
+            const preferred = productSuppliers.find(sp => sp.isPreferred) || productSuppliers[0];
+            form.setValue('supplier_id', preferred.supplierId);
+            
+            // Pre-fetch supplier products to populate dropdown list immediately
+            await fetchSupplierProducts(preferred.supplierId);
+            
+            const cost = preferred.costPrice || initialProduct.costPrice || initialProduct.cost || 0;
+            
+            setSelectedProduct(initialProduct.id);
+            setUnitCost(String(cost));
+            setQuantity(''); // Don't prefill quantity - let user enter it
+            setItems([]);
+          } else {
+            // Fallback to manual selection if no supplier is linked
+            setSelectedProduct(initialProduct.id);
+            setUnitCost(String(initialProduct.costPrice || initialProduct.cost || 0));
+            setQuantity(''); // Don't prefill quantity - let user enter it
+            setItems([]);
+          }
+        } catch (err) {
+          console.error("Error auto-filling supplier and product:", err);
+        }
+      };
+      
+      autoFillSupplierAndProduct();
     }
-  }, [open, initialProduct, products]);
+  }, [open, initialProduct, products, fetchProductSuppliers, fetchSupplierProducts]);
 
   const handleProductSelect = (productId) => {
     setSelectedProduct(productId);
@@ -114,6 +138,9 @@ export function PurchaseOrderForm({ open, suppliers, onClose, onSuccess, initial
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;
+
+  const selectedProductDetails = products.find(p => p.id === selectedProduct);
+  const displaySellingPrice = selectedProductDetails ? (selectedProductDetails.sellingPrice || selectedProductDetails.price || 0) : '';
 
   const onSubmit = async (data) => {
     let finalItems = [...items];
@@ -210,48 +237,67 @@ export function PurchaseOrderForm({ open, suppliers, onClose, onSuccess, initial
             <div className="border rounded-lg p-4 space-y-3">
               <h4 className="font-medium">Order Items</h4>
 
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Select
-                  value={selectedProduct}
-                  onValueChange={handleProductSelect}
-                  disabled={!selectedSupplierId}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder={selectedSupplierId ? "Select product" : "Select supplier first"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {supplierProducts.length > 0 ? (
-                      supplierProducts.map((sp) => (
-                        <SelectItem key={sp.product.id} value={sp.product.id}>
-                          {sp.product.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="p-2 text-sm text-muted-foreground text-center">
-                        No products available for this supplier
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Qty"
-                    className="w-20"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    min="1"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Cost"
-                    className="w-24"
-                    value={unitCost}
-                    onChange={(e) => setUnitCost(e.target.value)}
-                    min="0"
-                    step="0.01"
-                  />
-                  <Button type="button" variant="outline" size="icon" onClick={addItem}>
+              <div className="flex flex-col sm:flex-row gap-2 items-end">
+                <div className="flex-1 flex flex-col gap-1 w-full">
+                  <span className="text-xs font-semibold text-muted-foreground">Product</span>
+                  <Select
+                    value={selectedProduct}
+                    onValueChange={handleProductSelect}
+                    disabled={!selectedSupplierId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={selectedSupplierId ? "Select product" : "Select supplier first"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {supplierProducts.length > 0 ? (
+                        supplierProducts.map((sp) => (
+                          <SelectItem key={sp.product.id} value={sp.product.id}>
+                            {sp.product.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          No products available for this supplier
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2 items-end w-full sm:w-auto">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-muted-foreground">Qty</span>
+                    <Input
+                      type="number"
+                      placeholder="Qty"
+                      className="w-20"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      min="1"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-muted-foreground">CP</span>
+                    <Input
+                      type="number"
+                      placeholder="Cost"
+                      className="w-24"
+                      value={unitCost}
+                      onChange={(e) => setUnitCost(e.target.value)}
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-muted-foreground">SP</span>
+                    <Input
+                      type="text"
+                      placeholder="Sell Price"
+                      className="w-24 bg-muted cursor-not-allowed"
+                      value={displaySellingPrice ? `₹${Number(displaySellingPrice).toFixed(2)}` : ''}
+                      readOnly
+                    />
+                  </div>
+                  <Button type="button" variant="outline" size="icon" onClick={addItem} className="h-10 w-10 shrink-0">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>

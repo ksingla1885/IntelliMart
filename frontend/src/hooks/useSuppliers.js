@@ -77,6 +77,16 @@ export function useSuppliers() {
         }
     }, []);
 
+    const fetchProductSuppliers = useCallback(async (productId) => {
+        try {
+            const { data } = await api.get(`/products/${productId}/suppliers`);
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching product suppliers:', error);
+            return [];
+        }
+    }, []);
+
     const linkProductToSupplier = useCallback(async (supplierId, productId, costPrice, supplierSku, isPreferred) => {
         try {
             await api.post(`/suppliers/${supplierId}/products`, {
@@ -178,6 +188,7 @@ export function useSuppliers() {
         updateSupplier,
         deleteSupplier,
         fetchSupplierProducts,
+        fetchProductSuppliers,
         linkProductToSupplier,
         unlinkProduct,
         fetchPurchaseOrders,
