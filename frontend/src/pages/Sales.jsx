@@ -69,7 +69,8 @@ export default function Sales() {
   const filteredSales = sales.filter(sale => {
     const matchesSearch = (sale.billNumber || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (sale.notes || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (sale.customerName || '').toLowerCase().includes(searchQuery.toLowerCase());
+      (sale.customerName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (sale.customerFirm || '').toLowerCase().includes(searchQuery.toLowerCase());
 
     // Normalize backend payment mode to frontend filter values (cash, card, mobile/upi)
     // Backend: CASH, NET_BANKING, UPI

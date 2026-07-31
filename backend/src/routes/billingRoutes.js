@@ -160,7 +160,8 @@ router.get('/', authenticateToken, async (req, res) => {
         where.OR = [
             { billNumber: { contains: search, mode: 'insensitive' } },
             { customerName: { contains: search, mode: 'insensitive' } },
-            { customerMobile: { contains: search, mode: 'insensitive' } }
+            { customerMobile: { contains: search, mode: 'insensitive' } },
+            { customerFirm: { contains: search, mode: 'insensitive' } }
         ];
     }
 

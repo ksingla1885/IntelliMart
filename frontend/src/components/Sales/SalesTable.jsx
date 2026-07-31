@@ -83,7 +83,20 @@ export function SalesTable({ sales, loading, onViewReceipt, onCancelSale }) {
           <TableBody>
             {sales.map((sale) => (
               <TableRow key={sale.id} className={sale.status === 'CANCELLED' ? 'opacity-60 bg-muted/50' : ''}>
-                <TableCell className="font-medium">{sale.billNumber}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="font-semibold text-slate-900 dark:text-slate-100">{sale.billNumber}</div>
+                  {(sale.customerFirm || sale.customerName) && (
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                      {sale.customerFirm && (
+                        <span className="font-medium text-primary">{sale.customerFirm}</span>
+                      )}
+                      {sale.customerFirm && sale.customerName && <span className="text-muted-foreground/40">•</span>}
+                      {sale.customerName && (
+                        <span className="text-muted-foreground">{sale.customerName}</span>
+                      )}
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="space-y-1">
                     <div className="font-medium">
@@ -147,6 +160,17 @@ export function SalesTable({ sales, loading, onViewReceipt, onCancelSale }) {
                 <div>
                   <div className="font-semibold text-sm text-muted-foreground">Invoice Number</div>
                   <div className="font-bold text-base">{sale.billNumber}</div>
+                  {(sale.customerFirm || sale.customerName) && (
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      {sale.customerFirm && (
+                        <span className="font-medium text-primary">{sale.customerFirm}</span>
+                      )}
+                      {sale.customerFirm && sale.customerName && <span>•</span>}
+                      {sale.customerName && (
+                        <span>{sale.customerName}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <Badge variant={getStatusBadge(sale.status)}>
                   {sale.status}

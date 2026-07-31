@@ -229,7 +229,7 @@ export default function Profile() {
                     Personal Information
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Update your name and email address
+                    Update your full name
                   </p>
                 </div>
                 {!isEditing && (
@@ -274,14 +274,17 @@ export default function Profile() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Email Address</FormLabel>
+                          <span className="text-xs text-muted-foreground font-normal">Fixed (cannot be changed)</span>
+                        </div>
                         <FormControl>
                           <Input
                             {...field}
                             type="email"
-                            disabled={!isEditing}
+                            disabled={true}
                             placeholder="Enter your email"
-                            className={!isEditing ? 'bg-muted/50' : ''}
+                            className="bg-muted/50 cursor-not-allowed opacity-80"
                           />
                         </FormControl>
                         <FormMessage />

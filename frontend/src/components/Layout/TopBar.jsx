@@ -1,4 +1,4 @@
-import { Bell, User, LogOut, Store, Plus, ChevronDown } from "lucide-react";
+import { User, LogOut, Store, Plus, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -91,10 +91,6 @@ export function TopBar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-        </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">

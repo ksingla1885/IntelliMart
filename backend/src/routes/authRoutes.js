@@ -156,13 +156,13 @@ router.get('/me', require('../middleware/authMiddleware'), async (req, res) => {
 });
 
 
-// Update Profile
+// Update Profile (Name only - email is fixed)
 router.put('/update-profile', require('../middleware/authMiddleware'), async (req, res) => {
-    const { name, email } = req.body;
+    const { name } = req.body;
     try {
         const user = await prisma.user.update({
             where: { id: req.user.userId || req.user.id },
-            data: { name, email }
+            data: { name }
         });
         res.json({ message: 'Profile updated successfully', user: { id: user.id, email: user.email, name: user.name } });
     } catch (error) {
