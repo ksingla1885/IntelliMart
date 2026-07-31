@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Download, TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
+import { Calendar, Download, TrendingUp, TrendingDown, IndianRupee, BarChart3 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -138,7 +138,7 @@ export function MonthlySalesReport({ data, loading }) {
                     </span>
                   </div>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>

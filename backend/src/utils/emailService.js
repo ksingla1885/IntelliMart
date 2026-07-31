@@ -460,55 +460,109 @@ class EmailService {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
-              Email Verification
-            </h1>
-            <p style="color: #dbeafe; margin: 10px 0 0 0; font-size: 14px;">
-              IntelliMart
-            </p>
-          </div>
+      <body style="margin: 0; padding: 0; background-color: #FAF8F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #FAF8F5; padding: 40px 0;">
+          <tr>
+            <td align="center">
+              <!-- Top Logo block -->
+              <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td align="center" style="vertical-align: middle; padding-right: 8px;">
+                    <table border="0" cellpadding="0" cellspacing="0" style="background-color: #2563eb; border-radius: 50%; width: 28px; height: 28px;">
+                      <tr>
+                        <td align="center" valign="middle" style="height: 28px; width: 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: bold; color: #ffffff; line-height: 28px;">il</td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 20px; font-weight: bold; color: #0f172a; vertical-align: middle; letter-spacing: -0.3px;">
+                    IntelliMart
+                  </td>
+                </tr>
+              </table>
 
-          <!-- Content -->
-          <div style="padding: 30px;">
-            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              Hello,
-            </p>
-            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              Thank you for registering with IntelliMart. Please use the following OTP to verify your email address:
-            </p>
+              <!-- Main Card Container -->
+              <table width="480" border="0" cellpadding="0" cellspacing="0" style="width: 480px; max-width: 100%; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02); border: 1px solid #eaeaea;">
+                <!-- Card Header with gradient -->
+                <tr>
+                  <td align="center" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 26px 20px;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: 0.2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      Email Verification
+                    </h1>
+                  </td>
+                </tr>
+                
+                <!-- Card Body -->
+                <tr>
+                  <td style="padding: 40px 35px 35px 35px; text-align: left;">
+                    <p style="color: #334155; font-size: 16px; margin: 0 0 16px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      Hello,
+                    </p>
+                    <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 32px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      Thank you for registering with IntelliMart. Please use the following OTP to verify your email address:
+                    </p>
 
-            <!-- OTP Box -->
-            <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px dashed #3b82f6; border-radius: 12px; padding: 30px; margin: 30px 0; text-align: center;">
-              <p style="color: #1e40af; font-size: 14px; margin: 0 0 10px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                Your OTP Code
+                    <!-- OTP Code Grid -->
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 28px auto;">
+                      <tr>
+                        <!-- Digit 1 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[0]}</td>
+                        <td style="width: 10px;"></td>
+                        <!-- Digit 2 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[1]}</td>
+                        <td style="width: 10px;"></td>
+                        <!-- Digit 3 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[2]}</td>
+                        <td style="width: 10px;"></td>
+                        <!-- Digit 4 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[3]}</td>
+                        <td style="width: 10px;"></td>
+                        <!-- Digit 5 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[4]}</td>
+                        <td style="width: 10px;"></td>
+                        <!-- Digit 6 -->
+                        <td align="center" style="width: 48px; height: 56px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 28px; font-weight: bold; color: #1e3a8a; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">${otp[5]}</td>
+                      </tr>
+                    </table>
+
+                    <!-- Expiry text -->
+                    <p align="center" style="color: #64748b; font-size: 14px; margin: 0 0 32px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      This code will expire in <span style="font-weight: 500; color: #475569;">10 minutes</span>
+                    </p>
+
+                    <!-- Verify Account button -->
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 10px auto;">
+                      <tr>
+                        <td align="center" style="border-radius: 24px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);">
+                          <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" target="_blank" style="display: inline-block; padding: 14px 40px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0.2px;">
+                            Verify Account
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Notice under card -->
+              <p align="center" style="color: #64748b; font-size: 13px; margin: 24px 0 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; padding: 0 20px;">
+                If you didn't request this verification, please ignore this email.
               </p>
-              <p style="color: #1e3a8a; font-size: 42px; font-weight: 700; margin: 0; letter-spacing: 8px; font-family: 'Courier New', monospace;">
-                ${otp}
-              </p>
-              <p style="color: #6b7280; font-size: 12px; margin: 15px 0 0 0;">
-                This code will expire in 10 minutes
-              </p>
-            </div>
 
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 20px 0 0 0;">
-              If you didn't request this verification, please ignore this email.
-            </p>
-          </div>
+              <!-- Horizontal divider -->
+              <table width="480" border="0" cellpadding="0" cellspacing="0" style="width: 480px; max-width: 100%; margin-bottom: 24px;">
+                <tr>
+                  <td style="border-top: 1px solid #e2e8f0;"></td>
+                </tr>
+              </table>
 
-          <!-- Footer -->
-          <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              © ${new Date().getFullYear()} IntelliMart. All rights reserved.
-            </p>
-            <p style="color: #9ca3af; font-size: 12px; margin: 5px 0 0 0;">
-              This is an automated message. Please do not reply to this email.
-            </p>
-          </div>
-        </div>
+              <!-- Copyright Footer -->
+              <p align="center" style="color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                © ${new Date().getFullYear()} IntelliMart. All rights reserved.<br>
+                <span style="color: #94a3b8;">This is an automated message. Please do not reply to this email.</span>
+              </p>
+            </td>
+          </tr>
+        </table>
       </body>
       </html>
     `;

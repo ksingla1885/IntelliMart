@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Percent } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, ShoppingCart, Package, Percent } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,7 +17,7 @@ export function SalesOverview({ data, loading }) {
         {
             label: 'Total Revenue',
             value: data?.totalRevenue || 0,
-            icon: DollarSign,
+            icon: IndianRupee,
             format: 'currency',
             color: 'text-blue-600',
             bgColor: 'bg-blue-50',
@@ -44,7 +44,7 @@ export function SalesOverview({ data, loading }) {
         {
             label: 'Average Order Value',
             value: data?.averageOrderValue || 0,
-            icon: DollarSign,
+            icon: IndianRupee,
             format: 'currency',
             color: 'text-violet-600',
             bgColor: 'bg-violet-50',

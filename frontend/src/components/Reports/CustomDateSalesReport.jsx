@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { CalendarIcon, Download, Filter, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
+import { CalendarIcon, Download, Filter, TrendingUp, IndianRupee, ShoppingCart } from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
@@ -213,7 +213,7 @@ ${filteredData.map(day =>
                     From {filteredData.length} days
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -260,7 +260,7 @@ ${filteredData.map(day =>
                     Per transaction
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>

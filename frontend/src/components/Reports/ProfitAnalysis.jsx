@@ -1,7 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TrendingUp, DollarSign, Percent } from 'lucide-react';
+import { TrendingUp, IndianRupee, Percent } from 'lucide-react';
 const COLORS = ['hsl(var(--primary))', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 export function ProfitAnalysis({ data, loading }) {
     if (loading) {
@@ -28,7 +28,7 @@ export function ProfitAnalysis({ data, loading }) {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-blue-500/10 rounded-lg">
-              <DollarSign className="w-5 h-5 text-blue-500"/>
+              <IndianRupee className="w-5 h-5 text-blue-500"/>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Total Revenue</p>

@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, MoreHorizontal, Pencil, Trash2, DollarSign, History, AlertTriangle } from 'lucide-react';
+import { Plus, Search, MoreHorizontal, Pencil, Trash2, IndianRupee, History, AlertTriangle } from 'lucide-react';
 import { useCustomers } from '@/hooks/useCustomers';
 export const CustomerList = ({ onAdd, onEdit, onPricing, onHistory }) => {
   const { customers, isLoading, fetchCustomers, deleteCustomer } = useCustomers();
@@ -100,7 +100,7 @@ export const CustomerList = ({ onAdd, onEdit, onPricing, onHistory }) => {
                     <Pencil className="mr-2 h-4 w-4" /> Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onPricing(customer)}>
-                    <DollarSign className="mr-2 h-4 w-4" /> Custom Pricing
+                    <IndianRupee className="mr-2 h-4 w-4" /> Custom Pricing
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onHistory(customer)}>
                     <History className="mr-2 h-4 w-4" /> Purchase History

@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, DollarSign, Calculator, Download, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, IndianRupee, Calculator, Download, PieChart } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -196,7 +196,7 @@ export function ProfitCalculationReport({ data, loading }) {
                     Gross sales
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>

@@ -1,4 +1,4 @@
-import { Edit, Trash2, Package, DollarSign, Box, AlertTriangle, Barcode } from 'lucide-react';
+import { Edit, Trash2, Package, IndianRupee, Box, AlertTriangle, Barcode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -75,25 +75,38 @@ export function ProductList({ products, loading, onEdit, onDelete }) {
               </div>
 
               {/* Price and Stock - Simplified */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2.5 rounded-md bg-muted/50 border">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <DollarSign className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-                    <span className="text-xs text-muted-foreground">Price</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                {/* Selling Price */}
+                <div className="p-2 rounded-md bg-muted/50 border">
+                  <div className="flex items-center gap-1 mb-1">
+                    <IndianRupee className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+                    <span className="text-[10px] font-medium text-muted-foreground">Price</span>
                   </div>
-                  <p className="font-semibold text-sm text-green-600 dark:text-green-400">
+                  <p className="font-semibold text-xs text-green-600 dark:text-green-400">
                     ₹{parseFloat(product.sellingPrice).toFixed(2)}
                   </p>
                 </div>
 
-                <div className={`p-2.5 rounded-md border ${isLowStock
+                {/* Cost Price */}
+                <div className="p-2 rounded-md bg-muted/50 border">
+                  <div className="flex items-center gap-1 mb-1">
+                    <IndianRupee className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="text-[10px] font-medium text-muted-foreground">Cost</span>
+                  </div>
+                  <p className="font-semibold text-xs text-slate-700 dark:text-slate-300">
+                    ₹{parseFloat(product.costPrice || 0).toFixed(2)}
+                  </p>
+                </div>
+
+                {/* Stock Quantity */}
+                <div className={`p-2 rounded-md border ${isLowStock
                   ? 'bg-destructive/5 border-destructive/20'
                   : 'bg-muted/50'}`}>
-                  <div className="flex items-center gap-1.5 mb-1">
+                  <div className="flex items-center gap-1 mb-1">
                     <Box className={`w-3.5 h-3.5 ${isLowStock ? 'text-destructive' : 'text-blue-600 dark:text-blue-400'}`} />
-                    <span className="text-xs text-muted-foreground">Stock</span>
+                    <span className="text-[10px] font-medium text-muted-foreground">Stock</span>
                   </div>
-                  <p className={`font-semibold text-sm ${isLowStock ? 'text-destructive' : 'text-blue-600 dark:text-blue-400'}`}>
+                  <p className={`font-semibold text-xs truncate ${isLowStock ? 'text-destructive' : 'text-blue-600 dark:text-blue-400'}`}>
                     {parseFloat(product.stock)} {getUnitLabel(product.quantityType)}
                   </p>
                 </div>

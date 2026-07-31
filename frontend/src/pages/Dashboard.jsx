@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Package, ShoppingCart, TrendingUp, AlertTriangle, RefreshCw,
-  DollarSign, Receipt, TrendingDown, Calendar, Clock, Store
+  IndianRupee, Receipt, TrendingDown, Calendar, Clock, Store
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -172,7 +172,7 @@ export default function Dashboard() {
               <Card className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-green-600" />
+                    <IndianRupee className="w-6 h-6 text-green-600" />
                   </div>
                   <div className={`flex items-center gap-1 text-sm font-medium ${(data?.metrics?.revenueChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>

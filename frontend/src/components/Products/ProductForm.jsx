@@ -296,7 +296,7 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
                       <FormItem>
                         <FormLabel className="text-sm font-semibold">Cost Price *</FormLabel>
                         <FormControl>
-                          <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" />
+                          <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" disabled={!!productId} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

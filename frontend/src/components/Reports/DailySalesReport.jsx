@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, TrendingUp, TrendingDown, DollarSign, ShoppingCart } from 'lucide-react';
+import { Calendar, Download, TrendingUp, TrendingDown, IndianRupee, ShoppingCart } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 
@@ -86,7 +86,7 @@ export function DailySalesReport({ data, loading, onExport }) {
                     </span>
                   </div>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>
@@ -133,7 +133,7 @@ export function DailySalesReport({ data, loading, onExport }) {
                     Per transaction value
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <IndianRupee className="h-8 w-8 text-muted-foreground" />
               </div>
             </CardContent>
           </Card>

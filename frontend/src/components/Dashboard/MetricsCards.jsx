@@ -1,4 +1,4 @@
-import { DollarSign, ShoppingCart, Package, TrendingUp, TrendingDown, Users, Calendar, Target } from 'lucide-react';
+import { IndianRupee, ShoppingCart, Package, TrendingUp, TrendingDown, Users, Calendar, Target } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 export function MetricsCards({ data, loading }) {
@@ -16,7 +16,7 @@ export function MetricsCards({ data, loading }) {
             label: "Today's Revenue",
             value: data?.todayRevenue || 0,
             format: 'currency',
-            icon: DollarSign,
+            icon: IndianRupee,
             color: 'text-green-500',
             bgColor: 'bg-green-500/10',
             change: data?.revenueChange || 0,
