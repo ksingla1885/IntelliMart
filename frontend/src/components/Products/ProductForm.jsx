@@ -25,7 +25,8 @@ const productSchema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   description: z.string().optional(),
   sellingPrice: z.string().min(1, 'Selling price is required').refine((val) => parseFloat(val) > 0, { message: 'Selling price must be greater than 0' }),
-  costPrice: z.string().min(1, 'Cost price is required').refine((val) => parseFloat(val) > 0, { message: 'Cost price must be greater than 0' }),
+  costPrice: z.string().min(1, 'Cost price is required').refine((val) => parseFloat(val) >= 0, { message: 'Cost price must be 0 or greater' }),
+  gstRate: z.string().optional(),
   stock: z.string().min(1, 'Stock quantity is required').refine((val) => parseFloat(val) >= 0, { message: 'Stock must be 0 or greater' }),
   reorderLevel: z.string().min(1, 'Reorder level is required').refine((val) => parseFloat(val) >= 0, { message: 'Reorder level must be 0 or greater' }),
   quantityType: z.enum(['PIECES', 'KG', 'LITERS']), // Added Enum
@@ -40,6 +41,10 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
   const [loadingProduct, setLoadingProduct] = useState(false);
+  const [isCustomGst, setIsCustomGst] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const GST_PRESETS = [0, 5, 8, 12, 15, 18, 21, 23, 27];
 
   const form = useForm({
     resolver: zodResolver(productSchema),
@@ -50,6 +55,7 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
       description: '',
       sellingPrice: '0',
       costPrice: '0',
+      gstRate: '0',
       stock: '0',
       reorderLevel: '5',
       quantityType: 'PIECES',
@@ -72,6 +78,9 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
         try {
           const product = await getProduct(productId);
           if (product) {
+            const productGst = Number(product.gstRate ?? 0);
+            const isPreset = GST_PRESETS.includes(productGst);
+            setIsCustomGst(!isPreset);
             form.reset({
               name: product.name || '',
               sku: product.sku || '',
@@ -79,6 +88,7 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
               description: product.description || '',
               sellingPrice: (product.sellingPrice ?? 0).toString(),
               costPrice: (product.costPrice ?? 0).toString(),
+              gstRate: productGst.toString(),
               stock: (product.stock ?? 0).toString(),
               reorderLevel: (product.reorderLevel ?? 5).toString(),
               quantityType: product.quantityType || 'PIECES',
@@ -129,6 +139,7 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
   }, [form.watch('name'), form.watch('categoryId'), productId, categories]);
 
   const onSubmit = async (data) => {
+    setSubmitting(true);
     try {
       let finalSku = data.sku;
       if (!productId && !finalSku) {
@@ -143,6 +154,7 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
         description: data.description || null,
         sellingPrice: parseFloat(data.sellingPrice),
         costPrice: parseFloat(data.costPrice),
+        gstRate: parseFloat(data.gstRate || 0),
         stock: parseFloat(data.stock),
         reorderLevel: parseFloat(data.reorderLevel),
         quantityType: data.quantityType,
@@ -160,8 +172,15 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
       onSuccess();
     } catch (error) {
       toast({ title: "Error", description: `Failed to ${productId ? 'update' : 'create'} product`, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  const watchedCostPrice = parseFloat(form.watch('costPrice') || 0);
+  const watchedGstRate = parseFloat(form.watch('gstRate') || 0);
+  const calculatedGstAmount = (watchedCostPrice * watchedGstRate) / 100;
+  const calculatedRealCostPrice = watchedCostPrice + calculatedGstAmount;
 
   return (
     <>
@@ -294,13 +313,85 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
 
                     <FormField control={form.control} name="costPrice" render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-semibold">Cost Price *</FormLabel>
+                        <FormLabel className="text-sm font-semibold">Cost Price (Excl. GST) *</FormLabel>
                         <FormControl>
                           <Input {...field} type="number" step="0.01" placeholder="0.00" className="h-10" disabled={!!productId} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
+                  </div>
+
+                  {/* GST Selection (Optional) */}
+                  <FormField control={form.control} name="gstRate" render={({ field }) => (
+                    <FormItem className="space-y-2 border rounded-lg p-3 bg-muted/20">
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-sm font-semibold">GST Rate % (Optional)</FormLabel>
+                        <span className="text-xs text-muted-foreground">Presets: [5, 8, 12, 15, 18, 21, 23, 27] or custom</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {GST_PRESETS.map((rate) => {
+                          const isSelected = !isCustomGst && parseFloat(field.value || 0) === rate;
+                          return (
+                            <Button
+                              key={rate}
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                              size="sm"
+                              className="h-8 px-2.5 text-xs font-medium"
+                              onClick={() => {
+                                setIsCustomGst(false);
+                                form.setValue('gstRate', rate.toString());
+                              }}
+                            >
+                              {rate === 0 ? '0%' : `${rate}%`}
+                            </Button>
+                          );
+                        })}
+                        <Button
+                          type="button"
+                          variant={isCustomGst ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 px-2.5 text-xs font-medium"
+                          onClick={() => {
+                            setIsCustomGst(true);
+                          }}
+                        >
+                          Custom
+                        </Button>
+                        {isCustomGst && (
+                          <div className="flex items-center gap-1 w-28 ml-1">
+                            <Input
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              placeholder="e.g. 18"
+                              className="h-8 text-xs"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            />
+                            <span className="text-xs font-semibold">%</span>
+                          </div>
+                        )}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  {/* Real Cost Price Breakdown Card */}
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-xs space-y-1.5">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Base Cost Price (Excl. GST):</span>
+                      <span className="font-medium">₹{watchedCostPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>GST ({watchedGstRate}%):</span>
+                      <span className="font-medium">+ ₹{calculatedGstAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-sm text-primary pt-1.5 border-t border-primary/20">
+                      <span>Real Cost Price (Owner's Net Cost Incl. GST):</span>
+                      <span>₹{calculatedRealCostPrice.toFixed(2)}</span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -355,9 +446,9 @@ export function ProductForm({ open, onClose, productId, onSuccess }) {
                   )} />
 
                   <div className="flex justify-end gap-3 pt-6 border-t">
-                    <Button type="button" variant="outline" onClick={onClose} size="lg">Cancel</Button>
-                    <Button type="submit" size="lg" className="shadow-lg">
-                      {productId ? 'Update Product' : 'Create Product'}
+                    <Button type="button" variant="outline" onClick={onClose} size="lg" disabled={submitting}>Cancel</Button>
+                    <Button type="submit" size="lg" className="shadow-lg" disabled={submitting}>
+                      {submitting ? (productId ? 'Updating...' : 'Creating...') : (productId ? 'Update Product' : 'Create Product')}
                     </Button>
                   </div>
                 </>

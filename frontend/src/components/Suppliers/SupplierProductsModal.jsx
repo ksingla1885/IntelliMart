@@ -8,11 +8,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useProducts } from '@/hooks/useProducts';
+import { toast as sonnerToast } from 'sonner';
+
 export function SupplierProductsModal({ supplier, open, onClose }) {
   const [linkedProducts, setLinkedProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [costPrice, setCostPrice] = useState('');
   const [supplierSku, setSupplierSku] = useState('');
+  const [isLinking, setIsLinking] = useState(false);
+  const [unlinkingId, setUnlinkingId] = useState(null);
+
   const { fetchSupplierProducts, linkProductToSupplier, unlinkProduct } = useSuppliers();
   const { products, fetchProducts } = useProducts();
   useEffect(() => {
@@ -28,18 +33,32 @@ export function SupplierProductsModal({ supplier, open, onClose }) {
   const handleLink = async () => {
     if (!selectedProduct || !costPrice)
       return;
-    const success = await linkProductToSupplier(supplier.id, selectedProduct, Number(costPrice), supplierSku || undefined);
-    if (success) {
-      loadData();
-      setSelectedProduct('');
-      setCostPrice('');
-      setSupplierSku('');
+    const selectedProd = products.find(p => p.id === selectedProduct);
+    setIsLinking(true);
+    try {
+      const success = await linkProductToSupplier(supplier.id, selectedProduct, Number(costPrice), supplierSku || undefined);
+      if (success) {
+        sonnerToast.success(`Successfully linked ${selectedProd?.name || 'product'} to ${supplier.name}`);
+        loadData();
+        setSelectedProduct('');
+        setCostPrice('');
+        setSupplierSku('');
+      }
+    } finally {
+      setIsLinking(false);
     }
   };
-  const handleUnlink = async (id) => {
-    const success = await unlinkProduct(id);
-    if (success)
-      loadData();
+  const handleUnlink = async (lp) => {
+    setUnlinkingId(lp.id);
+    try {
+      const success = await unlinkProduct(lp.id);
+      if (success) {
+        sonnerToast.success(`Successfully unlinked ${lp.product?.name || 'product'} from ${supplier.name}`);
+        loadData();
+      }
+    } finally {
+      setUnlinkingId(null);
+    }
   };
   const linkedProductIds = linkedProducts.map(lp => lp.productId);
   const availableProducts = products.filter(p => !linkedProductIds.includes(p.id));
@@ -60,6 +79,8 @@ export function SupplierProductsModal({ supplier, open, onClose }) {
                 const p = products.find(prod => prod.id === value);
                 if (p?.sku) setSupplierSku(p.sku);
                 else setSupplierSku('');
+                if (p) setCostPrice(String(p.costPrice || p.cost || ''));
+                else setCostPrice('');
               }}
             >
               <SelectTrigger>
@@ -80,9 +101,9 @@ export function SupplierProductsModal({ supplier, open, onClose }) {
             <label className="text-sm font-medium mb-1 block">Supplier SKU</label>
             <Input placeholder="SKU" value={supplierSku} onChange={(e) => setSupplierSku(e.target.value)} />
           </div>
-          <Button onClick={handleLink} disabled={!selectedProduct || !costPrice}>
+          <Button onClick={handleLink} disabled={isLinking || !selectedProduct || !costPrice}>
             <Plus className="w-4 h-4 mr-1" />
-            Link
+            {isLinking ? 'Linking...' : 'Link'}
           </Button>
         </div>
 
@@ -112,7 +133,7 @@ export function SupplierProductsModal({ supplier, open, onClose }) {
                 ₹{Number(lp.costPrice).toFixed(2)}
               </TableCell>
               <TableCell>
-                <Button variant="ghost" size="sm" onClick={() => handleUnlink(lp.id)}>
+                <Button variant="ghost" size="sm" onClick={() => handleUnlink(lp)} disabled={unlinkingId === lp.id}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </TableCell>

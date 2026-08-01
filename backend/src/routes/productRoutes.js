@@ -4,13 +4,19 @@ const prisma = require('../utils/prismaClient');
 
 const router = express.Router();
 
+const parseNum = (val, fallback = 0) => {
+    if (val === undefined || val === null || val === '') return fallback;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? fallback : parsed;
+};
+
 // Add Product
 router.post('/', authenticateToken, async (req, res) => {
-    // Determine quantityType default if not provided? Schema default is PIECES.
-    const sPrice = parseFloat(req.body.sellingPrice ?? req.body.price ?? 0);
-    const cPrice = parseFloat(req.body.costPrice ?? req.body.cost ?? 0);
-    const stockQty = parseFloat(req.body.stock ?? 0);
-    const rLevel = parseFloat(req.body.reorderLevel ?? req.body.reorder_level ?? 5);
+    const sPrice = parseNum(req.body.sellingPrice ?? req.body.price, 0);
+    const cPrice = parseNum(req.body.costPrice ?? req.body.cost, 0);
+    const gRate = parseNum(req.body.gstRate ?? req.body.gst_rate, 0);
+    const stockQty = parseNum(req.body.stock, 0);
+    const rLevel = parseNum(req.body.reorderLevel ?? req.body.reorder_level, 5);
 
     try {
         const product = await prisma.product.create({
@@ -21,6 +27,7 @@ router.post('/', authenticateToken, async (req, res) => {
                 quantityType: req.body.quantityType ?? req.body.quantity_type ?? 'PIECES',
                 costPrice: cPrice,
                 sellingPrice: sPrice,
+                gstRate: gRate,
                 stock: stockQty,
                 reorderLevel: rLevel,
                 sku: req.body.sku,
@@ -44,11 +51,8 @@ router.get('/', authenticateToken, async (req, res) => {
     try {
         const whereClause = {
             shopId,
-            // isActive: true // By default show active? Or maybe all for management.
-            // Let's show all for management page, filter in frontend if needed
         };
 
-        // If search is provided
         if (search) {
             whereClause.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
@@ -63,7 +67,7 @@ router.get('/', authenticateToken, async (req, res) => {
 
         const products = await prisma.product.findMany({
             where: whereClause,
-            include: { category: true }, // Include category details
+            include: { category: true },
             orderBy: { name: 'asc' }
         });
         res.json(products);
@@ -75,10 +79,11 @@ router.get('/', authenticateToken, async (req, res) => {
 // Update Product
 router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
-    const sPrice = req.body.sellingPrice !== undefined ? parseFloat(req.body.sellingPrice) : (req.body.price !== undefined ? parseFloat(req.body.price) : undefined);
-    const cPrice = req.body.costPrice !== undefined ? parseFloat(req.body.costPrice) : (req.body.cost !== undefined ? parseFloat(req.body.cost) : undefined);
-    const stockQty = req.body.stock !== undefined ? parseFloat(req.body.stock) : undefined;
-    const rLevel = req.body.reorderLevel !== undefined ? parseFloat(req.body.reorderLevel) : (req.body.reorder_level !== undefined ? parseFloat(req.body.reorder_level) : undefined);
+    const sPrice = req.body.sellingPrice !== undefined || req.body.price !== undefined ? parseNum(req.body.sellingPrice ?? req.body.price, 0) : undefined;
+    const cPrice = req.body.costPrice !== undefined || req.body.cost !== undefined ? parseNum(req.body.costPrice ?? req.body.cost, 0) : undefined;
+    const gRate = req.body.gstRate !== undefined || req.body.gst_rate !== undefined ? parseNum(req.body.gstRate ?? req.body.gst_rate, 0) : undefined;
+    const stockQty = req.body.stock !== undefined ? parseNum(req.body.stock, 0) : undefined;
+    const rLevel = req.body.reorderLevel !== undefined || req.body.reorder_level !== undefined ? parseNum(req.body.reorderLevel ?? req.body.reorder_level, 5) : undefined;
 
     try {
         const product = await prisma.product.update({
@@ -89,6 +94,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 quantityType: req.body.quantityType ?? req.body.quantity_type,
                 costPrice: cPrice,
                 sellingPrice: sPrice,
+                gstRate: gRate,
                 stock: stockQty,
                 reorderLevel: rLevel,
                 sku: req.body.sku,

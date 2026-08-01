@@ -171,7 +171,6 @@ export function PurchaseOrderList({ purchaseOrders, onRefresh }) {
                   <p className="text-sm">{selectedPO.notes}</p>
                 </div>
               )}
-
               <div>
                 <h4 className="font-medium mb-2">Items</h4>
                 <Table>
@@ -180,41 +179,59 @@ export function PurchaseOrderList({ purchaseOrders, onRefresh }) {
                       <TableHead>Product</TableHead>
                       <TableHead>SKU</TableHead>
                       <TableHead className="text-right">Qty</TableHead>
-                      <TableHead className="text-right">Unit Cost</TableHead>
-                      <TableHead className="text-right">Subtotal</TableHead>
+                      <TableHead className="text-right">Base Cost</TableHead>
+                      <TableHead className="text-right">GST %</TableHead>
+                      <TableHead className="text-right">Real Unit Cost</TableHead>
+                      <TableHead className="text-right">Line Total</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {poItems.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.product?.name}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {item.product?.sku}
-                        </TableCell>
-                        <TableCell className="text-right">{item.quantity}</TableCell>
-                        <TableCell className="text-right">
-                          ₹{Number(item.unit_cost || item.costPrice).toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          ₹{Number((item.quantity * (item.unit_cost || item.costPrice)) || 0).toFixed(2)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {poItems.map((item) => {
+                      const baseCost = Number(item.unit_cost || item.costPrice || 0);
+                      const gstRate = Number(item.gstRate || 0);
+                      const realCost = baseCost * (1 + gstRate / 100);
+                      const lineTotal = Number(item.quantity) * realCost;
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.product?.name}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {item.product?.sku}
+                          </TableCell>
+                          <TableCell className="text-right">{item.quantity}</TableCell>
+                          <TableCell className="text-right">₹{baseCost.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">{gstRate}%</TableCell>
+                          <TableCell className="text-right font-medium text-primary">₹{realCost.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-semibold">
+                            ₹{lineTotal.toFixed(2)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
 
-              <div className="border-t pt-4 space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal:</span>
-                  {/* Calculated subtotal since backend might not send it */}
-                  <span>₹{Number(selectedPO.total_amount).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-medium text-base">
-                  <span>Total:</span>
-                  <span>₹{Number(selectedPO.total_amount).toFixed(2)}</span>
-                </div>
-              </div>
+              {(() => {
+                const subtotalExclGst = poItems.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.unit_cost || item.costPrice || 0)), 0);
+                const totalGst = poItems.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.unit_cost || item.costPrice || 0) * (Number(item.gstRate || 0) / 100)), 0);
+                const grandTotal = Number(selectedPO.total_amount || (subtotalExclGst + totalGst));
+                return (
+                  <div className="border-t pt-3 space-y-1.5 text-sm bg-primary/5 p-3 rounded-lg">
+                    <div className="flex justify-between text-muted-foreground text-xs">
+                      <span>Subtotal (Excl. GST):</span>
+                      <span>₹{subtotalExclGst.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground text-xs">
+                      <span>Total GST Tax:</span>
+                      <span>+ ₹{totalGst.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-base text-primary pt-1.5 border-t border-primary/20">
+                      <span>Grand Total (Owner's Net Cost Incl. GST):</span>
+                      <span>₹{grandTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {isDraft(selectedPO.status) && (
                 <div className="flex justify-end gap-2 pt-4">

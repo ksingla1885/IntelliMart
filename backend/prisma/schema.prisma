@@ -45,6 +45,7 @@ model Product {
   name           String
   costPrice      Decimal         @default(0) @db.Decimal(10, 2)
   sellingPrice   Decimal         @default(0) @db.Decimal(10, 2)
+  gstRate        Decimal?        @default(0) @db.Decimal(5, 2)
   stock          Float           @default(0)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -239,6 +240,7 @@ model PurchaseOrderItem {
   productId       String
   quantity        Float
   costPrice       Decimal       @db.Decimal(10, 2)
+  gstRate         Decimal?      @default(0) @db.Decimal(5, 2)
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   product         Product       @relation(fields: [productId], references: [id])
 }
@@ -323,7 +325,7 @@ enum NotificationStatus {
 }
 
 model AuditLog {
-  id             String    @id @default(uuid())
+  id             String    @id @default(dbgenerated("gen_random_uuid()"))
   userId         String?   @map("user_id") @db.Uuid
   action         String
   tableName      String    @map("table_name")

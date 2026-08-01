@@ -24,17 +24,27 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
+const parseNum = (val, fallback = 0) => {
+    if (val === undefined || val === null || val === '') return fallback;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? fallback : parsed;
+};
+
 // Create purchase order
 router.post('/', authenticateToken, async (req, res) => {
     const { shopId, supplier_id, order_date, expected_delivery_date, notes, items } = req.body;
-    // items: [{ productId, quantity, costPrice }]
 
     if (!shopId || !supplier_id || !items || items.length === 0) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-        const total_amount = items.reduce((acc, item) => acc + (item.quantity * item.costPrice), 0);
+        const total_amount = items.reduce((acc, item) => {
+            const baseCost = parseNum(item.costPrice, 0);
+            const gst = parseNum(item.gstRate, 0);
+            const realCost = baseCost * (1 + gst / 100);
+            return acc + (parseNum(item.quantity, 0) * realCost);
+        }, 0);
 
         const po = await prisma.purchaseOrder.create({
             data: {
@@ -47,8 +57,9 @@ router.post('/', authenticateToken, async (req, res) => {
                 items: {
                     create: items.map(item => ({
                         productId: item.productId,
-                        quantity: parseFloat(item.quantity),
-                        costPrice: parseFloat(item.costPrice)
+                        quantity: parseNum(item.quantity, 0),
+                        costPrice: parseNum(item.costPrice, 0),
+                        gstRate: parseNum(item.gstRate, 0),
                     }))
                 }
             },
@@ -72,7 +83,7 @@ router.patch('/:id/status', authenticateToken, async (req, res) => {
             data: { status }
         });
 
-        // If received, update stocks
+        // If received, update stocks and product real cost price
         if (status === 'RECEIVED') {
             const poWithItems = await prisma.purchaseOrder.findUnique({
                 where: { id },
@@ -80,11 +91,16 @@ router.patch('/:id/status', authenticateToken, async (req, res) => {
             });
 
             for (const item of poWithItems.items) {
+                const baseCost = parseFloat(item.costPrice);
+                const gst = parseFloat(item.gstRate || 0);
+                const realCost = baseCost * (1 + gst / 100);
+
                 await prisma.product.update({
                     where: { id: item.productId },
                     data: {
                         stock: { increment: item.quantity },
-                        costPrice: item.costPrice
+                        costPrice: realCost,
+                        gstRate: gst
                     }
                 });
 

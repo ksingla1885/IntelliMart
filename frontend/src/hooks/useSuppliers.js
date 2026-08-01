@@ -152,7 +152,8 @@ export function useSuppliers() {
                 items: items.map(item => ({
                     productId: item.productId,
                     quantity: item.quantity,
-                    costPrice: item.unitCost
+                    costPrice: item.unitCost,
+                    gstRate: item.gstRate || 0
                 })),
                 expected_delivery_date: expectedDelivery,
                 notes
