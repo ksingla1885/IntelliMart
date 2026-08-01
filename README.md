@@ -198,7 +198,7 @@ EMAIL_PASS="your-gmail-app-password" # Obtain via Google Account -> App Password
 
 # Frontend Mapping & Automation
 FRONTEND_URL="http://localhost:3000"
-CRON_SECRET="intellimart_cron_secret_2025"
+CRON_SECRET=".........................."
 BACKEND_URL="http://localhost:5000"
 ```
 > [!NOTE]
@@ -395,10 +395,3 @@ This project is **Dual-Licensed**:
 For commercial licensing requests, custom feature developments, or pricing details, please reach out directly:
 - **Licensing Manager:** Ketan Singla
 - **Contact Email:** [heyketankumar@gmail.com](mailto:heyketankumar@gmail.com)
-
----
-
-## 🤝 Contributing & Support
-
-- **Contribution Policy:** This is a private commercial workspace. External pull requests are currently restricted. Please reach out to authorized developers for access keys.
-- **Technical Support:** Report bugs, request features, or check on deployment issues by contacting the developer at [heyketankumar@gmail.com](mailto:heyketankumar@gmail.com).
