@@ -1,3 +1,0 @@
-node_modules
-.git
-# .env (removed so Vite can bake it into the build)

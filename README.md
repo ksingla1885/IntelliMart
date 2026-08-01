@@ -5,7 +5,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg?style=flat-square)](#)
 [![License](https://img.shields.io/badge/license-AGPLv3%20%2F%20Commercial-blue?style=flat-square)](file:///d:/IntelliMart/LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Vercel%20%7C%20Docker-orange?style=flat-square)](https://vercel.com)
+[![Platform](https://img.shields.io/badge/platform-Vercel-orange?style=flat-square)](https://vercel.com)
 
 ---
 
@@ -23,7 +23,6 @@
   - [Step 3: Database Initialization and Seeding](#step-3-database-initialization-and-seeding)
 - [Running the Application](#-running-the-application)
 - [API Documentation](#-api-documentation)
-- [Docker Orchestration](#-docker-orchestration)
 - [Testing & Quality Assurance](#-testing--quality-assurance)
 - [License & Commercial Use](#-license--commercial-use)
 - [Contributing & Support](#-contributing--support)
@@ -91,7 +90,6 @@ It provides GST-compliant billing, real-time inventory tracking, multi-shop mana
 | **Database** | PostgreSQL (Supabase / Local) | Secure, relational database with transaction support and foreign key constraints. |
 | **Authentication** | JWT + OTP (SMTP Email) | Two-factor verification for identity and session management. |
 | **Background Tasks** | node-cron + Vercel Crons | Serverless and persistent automated reporting and database backup triggers. |
-| **Containerization** | Docker + Docker Compose | Containerization for reproducible builds across dev and production. |
 
 ---
 
@@ -134,19 +132,18 @@ IntelliMart/
 │   ├── prisma.config.js           # Dynamic Prisma defineConfig setup
 │   ├── vercel.json                # Vercel Serverless Function configuration
 │   └── package.json               # Backend script & dependency declarations
-├── frontend/                      # Frontend Vite + React client
-│   ├── public/                    # Static assets & icons
-│   ├── src/                       
-│   │   ├── components/            # UI components (Shadcn/UI & Radix wrappers)
-│   │   ├── hooks/                 # Custom React Hooks
-│   │   ├── integrations/          # API configurations & Supabase client integration
-│   │   ├── pages/                 # Full application page views
-│   │   └── store/                 # Redux Slices (Auth, Shops, etc.)
-│   ├── tailwind.config.js         # Tailwind layout configuration
-│   ├── vercel.json                # Vercel deployment routes mapping
-│   ├── vite.config.js             # Vite development server configs
-│   └── package.json               # Frontend dependencies & Vite scripts
-└── docker-compose.yml             # Docker multi-container orchestration configuration
+└── frontend/                      # Frontend Vite + React client
+    ├── public/                    # Static assets & icons
+    ├── src/                       
+    │   ├── components/            # UI components (Shadcn/UI & Radix wrappers)
+    │   ├── hooks/                 # Custom React Hooks
+    │   ├── integrations/          # API configurations & Supabase client integration
+    │   ├── pages/                 # Full application page views
+    │   └── store/                 # Redux Slices (Auth, Shops, etc.)
+    ├── tailwind.config.js         # Tailwind layout configuration
+    ├── vercel.json                # Vercel deployment routes mapping
+    ├── vite.config.js             # Vite development server configs
+    └── package.json               # Frontend dependencies & Vite scripts
 ```
 
 ---
@@ -354,24 +351,6 @@ All routes expect the header `Authorization: Bearer <JWT_TOKEN>` unless they are
   "status": "........................"
 }
 ```
-
----
-
-## 🐳 Docker Orchestration
-
-Deploy the entire IntelliMart stack inside isolated containers using the integrated [docker-compose.yml](file:///d:/IntelliMart/docker-compose.yml).
-
-```bash
-# Build and run containers in background
-docker-compose up --build -d
-
-# Stop and remove containers
-docker-compose down
-```
-
-### Port Mapping:
-- **Backend Service:** Bound to `http://localhost:5000`
-- **Frontend App:** Bound to `http://localhost:3000` (Nginx static proxy)
 
 ---
 
