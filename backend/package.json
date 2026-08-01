@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build": "prisma generate",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,7 +15,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "archiver": "^7.0.1",
     "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
@@ -31,7 +33,6 @@
     "pg": "^8.18.0"
   },
   "devDependencies": {
-    "@prisma/client": "^7.8.0",
     "prisma": "^7.8.0"
   }
 }
