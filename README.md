@@ -394,4 +394,4 @@ This project is **Dual-Licensed**:
 
 For commercial licensing requests, custom feature developments, or pricing details, please reach out directly:
 - **Licensing Manager:** Ketan Singla
-- **Contact Email:** [heyketankumar@gmail.com](mailto:heyketankumar@gmail.com)
+- **Contact Email:** [heyketankumar@gmail.com](mailto:ketansingla7988@gmail.com)
