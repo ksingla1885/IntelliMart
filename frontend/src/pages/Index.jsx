@@ -11,8 +11,7 @@ import {
   LayoutDashboard,
   CheckCircle2,
   Store,
-  Layers,
-  Sparkles
+  Layers
 } from "lucide-react";
 
 const Index = () => {
@@ -62,14 +61,9 @@ const Index = () => {
       <main>
         {/* Simple & Clean Hero Section */}
         <section className="relative pt-32 pb-24 md:pt-48 md:pb-32 container mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-[13px] font-semibold mb-8">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Modern Inventory Simplified</span>
-          </div>
-
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-6 max-w-4xl mx-auto leading-[1.1]">
             Manage your inventory with <br className="hidden md:block" />
-            <span className="text-indigo-600 font-extrabold italic">effortless precision.</span>
+            <span className="text-indigo-600">effortless precision.</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 mb-10 leading-relaxed font-medium">
