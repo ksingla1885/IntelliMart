@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Mail, CheckCircle, XCircle, Clock, RefreshCw, Trash2, Send, BarChart3, Filter, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -39,13 +40,8 @@ const Notifications = () => {
             if (filter.status) params.append('status', filter.status);
             params.append('limit', '50');
 
-            const response = await fetch(`http://localhost:5000/api/notifications/logs?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
-
-            const data = await response.json();
+            const response = await api.get(`/notifications/logs?${params.toString()}`);
+            const data = response.data;
             if (data.success) {
                 setNotifications(data.notifications);
             }
@@ -59,13 +55,8 @@ const Notifications = () => {
             const params = new URLSearchParams();
             if (activeShop) params.append('shopId', activeShop.id);
 
-            const response = await fetch(`http://localhost:5000/api/notifications/stats?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
-
-            const data = await response.json();
+            const response = await api.get(`/notifications/stats?${params.toString()}`);
+            const data = response.data;
             if (data.success) {
                 setStats(data.stats);
             }
@@ -76,14 +67,8 @@ const Notifications = () => {
 
     const handleRetry = async (notificationId) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/notifications/retry/${notificationId}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
-
-            const data = await response.json();
+            const response = await api.post(`/notifications/retry/${notificationId}`);
+            const data = response.data;
             if (data.success) {
                 toast.success('Notification resent successfully');
                 fetchNotifications();
@@ -104,14 +89,8 @@ const Notifications = () => {
     const handleDeleteConfirm = async () => {
         if (notificationToDelete) {
             try {
-                const response = await fetch(`http://localhost:5000/api/notifications/${notificationToDelete.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                    }
-                });
-
-                const data = await response.json();
+                const response = await api.delete(`/notifications/${notificationToDelete.id}`);
+                const data = response.data;
                 if (data.success) {
                     toast.success('Notification deleted');
                     fetchNotifications();
@@ -135,16 +114,8 @@ const Notifications = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/notifications/test-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ testEmail })
-            });
-
-            const data = await response.json();
+            const response = await api.post('/notifications/test-email', { testEmail });
+            const data = response.data;
             if (data.success) {
                 toast.success('Test email sent successfully!');
                 setTestEmail('');

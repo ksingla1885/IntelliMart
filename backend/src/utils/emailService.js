@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer');
 const prisma = require('./prismaClient');
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 /**
  * Email Service Configuration
  * Supports multiple email providers with fallback
@@ -207,7 +209,7 @@ class EmailService {
 
             <!-- Action Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/inventory" 
+              <a href="${FRONTEND_URL}/inventory" 
                  style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                 View Inventory
               </a>
@@ -313,7 +315,7 @@ class EmailService {
 
             <!-- Action Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/backup-export" 
+              <a href="${FRONTEND_URL}/backup-export" 
                  style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                 View Backup History
               </a>
@@ -413,7 +415,7 @@ class EmailService {
 
             <!-- Action Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/backup-export" 
+              <a href="${FRONTEND_URL}/backup-export" 
                  style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                 Try Manual Backup
               </a>
@@ -533,7 +535,7 @@ class EmailService {
                     <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto 10px auto;">
                       <tr>
                         <td align="center" style="border-radius: 24px; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);">
-                          <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}" target="_blank" style="display: inline-block; padding: 14px 40px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0.2px;">
+                          <a href="${FRONTEND_URL}" target="_blank" style="display: inline-block; padding: 14px 40px; color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; letter-spacing: 0.2px;">
                             Verify Account
                           </a>
                         </td>
@@ -732,14 +734,14 @@ class EmailService {
 
             <!-- Action Buttons -->
             <div style="text-align: center; margin: 40px 0 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/login" 
+              <a href="${FRONTEND_URL}/login" 
                  style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); transition: all 0.3s;">
                 Sign In to Your Account
               </a>
             </div>
 
             <div style="text-align: center; margin: 20px 0;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/support" 
+              <a href="${FRONTEND_URL}/support" 
                  style="display: inline-block; color: #6b7280; text-decoration: none; font-size: 14px; border-bottom: 1px solid #6b7280;">
                 Need help? Contact Support
               </a>
@@ -844,7 +846,7 @@ class EmailService {
             </table>
             
             <div style="margin-top: 30px; text-align: center;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/reports" 
+              <a href="${FRONTEND_URL}/reports" 
                  style="background-color: #4f46e5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                 View Full Detailed Report
               </a>
@@ -909,7 +911,7 @@ class EmailService {
             </table>
             
             <div style="margin-top: 30px; text-align: center;">
-              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/inventory" 
+              <a href="${FRONTEND_URL}/inventory" 
                  style="background-color: #ef4444; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                 Manage Inventory
               </a>

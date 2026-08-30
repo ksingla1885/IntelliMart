@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Download, Database, FileSpreadsheet, FileText, History, Trash2, RefreshCw, Calendar, HardDrive, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,6 +13,11 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+
+const getBackendBaseUrl = () => {
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    return apiBase.endsWith('/api') ? apiBase.slice(0, -4) : (apiBase.endsWith('/api/') ? apiBase.slice(0, -5) : apiBase);
+};
 
 const BackupExport = () => {
     const { activeShop } = useStore();
@@ -37,13 +43,8 @@ const BackupExport = () => {
 
     const fetchBackupHistory = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/api/backup/history?shopId=${activeShop.id}&limit=20`, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
-
-            const data = await response.json();
+            const response = await api.get(`/backup/history?shopId=${activeShop.id}&limit=20`);
+            const data = response.data;
             if (data.success) {
                 setBackupHistory(data.backups);
             }
@@ -60,19 +61,12 @@ const BackupExport = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/backup/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    shopId: activeShop.id,
-                    type: 'FULL_DATABASE'
-                })
+            const response = await api.post('/backup/create', {
+                shopId: activeShop.id,
+                type: 'FULL_DATABASE'
             });
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 toast.success('Backup created successfully!');
                 fetchBackupHistory();
@@ -95,17 +89,13 @@ const BackupExport = () => {
 
         setExportLoading({ ...exportLoading, inventory: true });
         try {
-            const response = await fetch(`http://localhost:5000/api/backup/export/inventory?shopId=${activeShop.id}`, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
+            const response = await api.get(`/backup/export/inventory?shopId=${activeShop.id}`);
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 toast.success('Inventory exported successfully!');
                 // Trigger download
-                window.open(`http://localhost:5000${data.file.downloadUrl}`, '_blank');
+                window.open(`${getBackendBaseUrl()}${data.file.downloadUrl}`, '_blank');
                 fetchBackupHistory();
             } else {
                 toast.error(data.message || 'Failed to export inventory');
@@ -126,21 +116,17 @@ const BackupExport = () => {
 
         setExportLoading({ ...exportLoading, bills: true });
         try {
-            const url = new URL('http://localhost:5000/api/backup/export/bills');
-            url.searchParams.append('shopId', activeShop.id);
-            if (dateRange.startDate) url.searchParams.append('startDate', dateRange.startDate);
-            if (dateRange.endDate) url.searchParams.append('endDate', dateRange.endDate);
+            const params = new URLSearchParams();
+            params.append('shopId', activeShop.id);
+            if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+            if (dateRange.endDate) params.append('endDate', dateRange.endDate);
 
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
+            const response = await api.get(`/backup/export/bills?${params.toString()}`);
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 toast.success('Bills exported successfully!');
-                window.open(`http://localhost:5000${data.file.downloadUrl}`, '_blank');
+                window.open(`${getBackendBaseUrl()}${data.file.downloadUrl}`, '_blank');
                 fetchBackupHistory();
             } else {
                 toast.error(data.message || 'Failed to export bills');
@@ -161,21 +147,17 @@ const BackupExport = () => {
 
         setExportLoading({ ...exportLoading, reports: true });
         try {
-            const url = new URL('http://localhost:5000/api/backup/export/reports');
-            url.searchParams.append('shopId', activeShop.id);
-            if (dateRange.startDate) url.searchParams.append('startDate', dateRange.startDate);
-            if (dateRange.endDate) url.searchParams.append('endDate', dateRange.endDate);
+            const params = new URLSearchParams();
+            params.append('shopId', activeShop.id);
+            if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+            if (dateRange.endDate) params.append('endDate', dateRange.endDate);
 
-            const response = await fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                }
-            });
+            const response = await api.get(`/backup/export/reports?${params.toString()}`);
 
-            const data = await response.json();
+            const data = response.data;
             if (data.success) {
                 toast.success('Reports exported successfully!');
-                window.open(`http://localhost:5000${data.file.downloadUrl}`, '_blank');
+                window.open(`${getBackendBaseUrl()}${data.file.downloadUrl}`, '_blank');
                 fetchBackupHistory();
             } else {
                 toast.error(data.message || 'Failed to export reports');
@@ -196,14 +178,9 @@ const BackupExport = () => {
     const handleDeleteConfirm = async () => {
         if (backupToDelete) {
             try {
-                const response = await fetch(`http://localhost:5000/api/backup/${backupToDelete.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-                    }
-                });
+                const response = await api.delete(`/backup/${backupToDelete.id}`);
 
-                const data = await response.json();
+                const data = response.data;
                 if (data.success) {
                     toast.success('Backup deleted successfully');
                     fetchBackupHistory();
@@ -487,7 +464,7 @@ const BackupExport = () => {
                                                 <div className="flex items-center gap-2">
                                                     {backup.status === 'COMPLETED' && (
                                                         <a
-                                                            href={`http://localhost:5000/api/backup/download/${backup.fileName}`}
+                                                            href={`${getBackendBaseUrl()}/api/backup/download/${backup.fileName}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
